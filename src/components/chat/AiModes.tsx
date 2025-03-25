@@ -74,23 +74,25 @@ export const AiModes: React.FC<AiModesProps> = ({ activeMode, onChange, classNam
   ];
 
   return (
-    <div className={cn("flex overflow-x-auto py-3 px-1 gap-2 styled-scrollbar no-scrollbar", className)}>
+    <div className={cn("flex overflow-x-auto py-3 px-1 gap-2 styled-scrollbar", className)}>
       <TooltipProvider delayDuration={300}>
         {modes.map((mode) => (
           <Tooltip key={mode.id}>
             <TooltipTrigger asChild>
               <button
                 className={cn(
-                  "mode-chip",
-                  activeMode === mode.id ? "mode-chip-active" : "mode-chip-inactive"
+                  "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all",
+                  activeMode === mode.id 
+                    ? "bg-primary/10 text-primary ring-1 ring-primary/20" 
+                    : "bg-secondary hover:bg-secondary/80 text-secondary-foreground"
                 )}
                 onClick={() => onChange(mode.id)}
               >
-                <mode.icon size={16} />
+                <mode.icon size={14} />
                 {mode.label}
               </button>
             </TooltipTrigger>
-            <TooltipContent>
+            <TooltipContent side="bottom" className="text-xs">
               <p>{mode.description}</p>
             </TooltipContent>
           </Tooltip>

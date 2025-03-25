@@ -4,15 +4,15 @@ import { Outlet } from "react-router-dom";
 import { ChatInterface } from "../chat/ChatInterface";
 import { Message } from "../chat/MessageBubble";
 import { nanoid } from "@/lib/utils";
-import { ContractEditor } from "../contract/ContractEditor";
+import { ModernContractEditor } from "../contract/ModernContractEditor";
 import { ContractReview } from "../contract/ContractReview";
 import { useToast } from "@/hooks/use-toast";
-import { Header } from "./Header";
+import { TriPanelLayout } from "./TriPanelLayout";
 
 export const MainLayout: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [isEditorOpen, setIsEditorOpen] = useState(false);
+  const [isEditorOpen, setIsEditorOpen] = useState(true);
   const [isReviewOpen, setIsReviewOpen] = useState(false);
   const [currentContract, setCurrentContract] = useState({
     title: "Non-Disclosure Agreement",
@@ -45,6 +45,7 @@ export const MainLayout: React.FC = () => {
         // Simulate processing
         setTimeout(() => {
           setIsReviewOpen(true);
+          setIsEditorOpen(false);
           setCurrentContract({
             title: files[0].name.replace(/\.[^/.]+$/, ""),
             type: "Uploaded Document"
@@ -79,6 +80,7 @@ export const MainLayout: React.FC = () => {
         if (lowerContent.includes("nda") || lowerContent.includes("non-disclosure")) {
           setTimeout(() => {
             setIsEditorOpen(true);
+            setIsReviewOpen(false);
             setCurrentContract({
               title: "Non-Disclosure Agreement",
               type: "NDA"
@@ -116,37 +118,54 @@ export const MainLayout: React.FC = () => {
     }, 1000);
   };
 
-  return (
-    <div className="flex flex-col h-screen bg-background">
-      <Header />
-      
-      <div className="flex-grow overflow-hidden p-4 md:p-6 relative">
-        {/* Main chat interface */}
-        <div className="mx-auto max-w-5xl h-full relative">
-          <ChatInterface
-            onSendMessage={handleSendMessage}
-            messages={messages}
-            isProcessing={isProcessing}
-            className="h-full"
-          />
+  // Render primary content area based on current state
+  const renderCenterPanel = () => {
+    if (isEditorOpen) {
+      return <ModernContractEditor title={currentContract.title} />;
+    }
+    
+    if (isReviewOpen) {
+      return (
+        <ContractReview 
+          isOpen={true} 
+          onClose={() => setIsReviewOpen(false)} 
+          title={currentContract.title} 
+          contractType={currentContract.type} 
+        />
+      );
+    }
+    
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="text-center max-w-lg p-6">
+          <h3 className="text-2xl font-bold mb-4">No Contract Open</h3>
+          <p className="text-muted-foreground mb-6">
+            Ask the AI assistant to create a new contract or upload an existing document to get started.
+          </p>
         </div>
-        
-        {/* Contract panels */}
-        <ContractEditor
-          isOpen={isEditorOpen}
-          onClose={() => setIsEditorOpen(false)}
-          title={currentContract.title}
-        />
-        
-        <ContractReview
-          isOpen={isReviewOpen}
-          onClose={() => setIsReviewOpen(false)}
-          title={currentContract.title}
-          contractType={currentContract.type}
-        />
       </div>
-      
-      <Outlet />
-    </div>
+    );
+  };
+  
+  // Right panel with chat interface
+  const renderChatPanel = () => {
+    return (
+      <ChatInterface
+        onSendMessage={handleSendMessage}
+        messages={messages}
+        isProcessing={isProcessing}
+        className="h-full"
+      />
+    );
+  };
+  
+  // Left panel content is handled directly in TriPanelLayout
+
+  return (
+    <TriPanelLayout
+      leftPanel={null} // Left panel is built into TriPanelLayout
+      centerPanel={renderCenterPanel()}
+      rightPanel={renderChatPanel()}
+    />
   );
 };
