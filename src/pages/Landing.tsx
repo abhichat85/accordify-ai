@@ -1,9 +1,10 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Helmet } from "react-helmet";
 import { Link } from "react-router-dom";
 import { useTheme } from "@/contexts/ThemeContext";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   ArrowRight,
   Bot,
@@ -12,6 +13,7 @@ import {
   ChevronRight,
   Code2,
   Database,
+  ExternalLink,
   FileText,
   Layers,
   LucideIcon,
@@ -98,29 +100,46 @@ const ListItem = React.forwardRef<
 ListItem.displayName = "ListItem";
 
 const Feature: React.FC<FeatureProps> = ({ icon: Icon, title, description }) => (
-  <div className="bg-card border border-border/50 rounded-xl p-6 hover:shadow-md transition-shadow space-y-4 animate-fade-in delay-100">
-    <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
+  <div className="bg-card border border-border/50 rounded-xl p-6 hover:shadow-md transition-shadow space-y-4 animate-fade-in delay-100 relative group overflow-hidden">
+    <div className="absolute -right-8 -top-8 w-24 h-24 bg-primary/5 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
+    <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center relative z-10">
       <Icon size={24} className="text-primary" />
     </div>
-    <h3 className="text-xl font-semibold">{title}</h3>
-    <p className="text-muted-foreground">{description}</p>
+    <h3 className="text-xl font-semibold relative z-10">{title}</h3>
+    <p className="text-muted-foreground relative z-10">{description}</p>
   </div>
 );
 
-const TechCard: React.FC<TechCardProps> = ({ icon: Icon, title, description }) => (
-  <div className="bg-card/80 backdrop-blur-sm border border-border/30 rounded-xl p-6 hover:shadow-md transition-all hover:bg-card hover:border-primary/20 space-y-3">
-    <div className="flex items-center gap-3 mb-2">
-      <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-        <Icon size={20} className="text-primary" />
+const TechCard: React.FC<TechCardProps> = ({ icon: Icon, title, description }) => {
+  const [isHovered, setIsHovered] = useState(false);
+  
+  return (
+    <div 
+      className="relative h-full"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <div className={`absolute inset-0 bg-primary/5 rounded-xl transform transition-transform duration-300 ${isHovered ? 'scale-95' : 'scale-0'}`}></div>
+      <div className="bg-card/80 backdrop-blur-sm border border-border/30 rounded-xl p-6 hover:shadow-md transition-all hover:bg-card hover:border-primary/20 space-y-3 h-full relative">
+        <div className="flex items-center gap-3 mb-2">
+          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+            <Icon size={20} className="text-primary" />
+          </div>
+          <h3 className="text-lg font-semibold">{title}</h3>
+        </div>
+        <p className="text-sm text-muted-foreground">{description}</p>
+        <div className={`absolute bottom-6 right-6 transform transition-all duration-300 ${isHovered ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-2'}`}>
+          <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
+            <ArrowRight size={14} className="text-primary" />
+          </div>
+        </div>
       </div>
-      <h3 className="text-lg font-semibold">{title}</h3>
     </div>
-    <p className="text-sm text-muted-foreground">{description}</p>
-  </div>
-);
+  );
+};
 
 const BlogPost: React.FC<BlogPostProps> = ({ title, excerpt, category, date, imageUrl }) => (
-  <div className="group overflow-hidden rounded-xl border border-border/50 bg-card hover:shadow-md transition-all">
+  <div className="group overflow-hidden rounded-xl border border-border/50 bg-card hover:shadow-md transition-all h-full flex flex-col">
     <div className="aspect-video w-full overflow-hidden">
       <img 
         src={imageUrl} 
@@ -128,14 +147,14 @@ const BlogPost: React.FC<BlogPostProps> = ({ title, excerpt, category, date, ima
         className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" 
       />
     </div>
-    <div className="p-6 space-y-4">
+    <div className="p-6 space-y-4 flex flex-col flex-grow">
       <div className="flex items-center justify-between">
         <span className="text-xs font-medium px-2.5 py-0.5 bg-primary/10 text-primary rounded-full">{category}</span>
         <span className="text-xs text-muted-foreground">{date}</span>
       </div>
       <h3 className="text-xl font-semibold group-hover:text-primary transition-colors">{title}</h3>
-      <p className="text-sm text-muted-foreground line-clamp-2">{excerpt}</p>
-      <div className="pt-2">
+      <p className="text-sm text-muted-foreground line-clamp-2 flex-grow">{excerpt}</p>
+      <div className="pt-2 mt-auto">
         <Link to="/blog" className="text-sm font-medium text-primary flex items-center gap-1 hover:gap-2 transition-all">
           Read more <ArrowRight size={14} />
         </Link>
@@ -147,14 +166,14 @@ const BlogPost: React.FC<BlogPostProps> = ({ title, excerpt, category, date, ima
 const DocumentationItem: React.FC<DocumentationItemProps> = ({ title, description, href, icon: Icon }) => (
   <a 
     href={href}
-    className="block p-6 rounded-xl border border-border/50 bg-card hover:border-primary/30 hover:shadow-md transition-all"
+    className="block p-6 rounded-xl border border-border/50 bg-card hover:border-primary/30 hover:shadow-md transition-all h-full"
   >
     <div className="flex items-start gap-4">
       <div className="mt-1 w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
         <Icon size={20} className="text-primary" />
       </div>
       <div>
-        <h3 className="text-lg font-semibold mb-2">{title}</h3>
+        <h3 className="text-lg font-semibold mb-2 group-hover:text-primary transition-colors">{title}</h3>
         <p className="text-sm text-muted-foreground">{description}</p>
       </div>
     </div>
@@ -164,8 +183,38 @@ const DocumentationItem: React.FC<DocumentationItemProps> = ({ title, descriptio
 const Landing = () => {
   const { colorTheme } = useTheme();
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
+  const [blogPosts, setBlogPosts] = useState<BlogPostProps[]>([
+    {
+      title: "The Future of Legal AI: Beyond GPT-4",
+      excerpt: "How specialized language models are transforming contract analysis with domain-specific knowledge and reasoning capabilities.",
+      category: "AI Technology",
+      date: "June 15, 2023",
+      imageUrl: "https://images.unsplash.com/photo-1432821596592-e2c18b78144f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80"
+    },
+    {
+      title: "RAG vs. Fine-tuning: Which is Better for Legal AI?",
+      excerpt: "A detailed comparison of Retrieval-Augmented Generation and fine-tuning approaches for legal contract assistant systems.",
+      category: "Technology",
+      date: "May 28, 2023",
+      imageUrl: "https://images.unsplash.com/photo-1607799279861-4dd421887fb3?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80"
+    },
+    {
+      title: "Measuring ROI: How AI Contract Tools Save Time and Money",
+      excerpt: "A case study of how companies have reduced legal costs by up to 60% with AI-powered contract management solutions.",
+      category: "Business",
+      date: "April 12, 2023",
+      imageUrl: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80"
+    },
+    {
+      title: "Legal Compliance and AI: Navigating the Regulatory Landscape",
+      excerpt: "How modern legal teams are using AI to stay compliant with evolving regulations across different jurisdictions.",
+      category: "Legal",
+      date: "March 5, 2023",
+      imageUrl: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80"
+    }
+  ]);
   
-  React.useEffect(() => {
+  useEffect(() => {
     const handleScroll = () => {
       const scrollPosition = window.scrollY;
       if (scrollPosition > 100) {
@@ -180,7 +229,7 @@ const Landing = () => {
   }, []);
 
   const openTypeform = () => {
-    // In a real implementation, you would open a Typeform embed or redirect to Typeform
+    // In a real implementation, redirect to Typeform
     window.open("https://form.typeform.com/to/your-form-id", "_blank");
   };
 
@@ -203,6 +252,7 @@ const Landing = () => {
             </span>
           </div>
           
+          {/* Navigation Menu - Similar to midday.ai's simple top nav */}
           <NavigationMenu className="hidden md:flex">
             <NavigationMenuList>
               <NavigationMenuItem>
@@ -298,11 +348,15 @@ const Landing = () => {
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="py-20 px-4 md:px-8 lg:px-0">
+      {/* Hero Section - Inspired by midday.ai's cleaner layout */}
+      <section className="py-20 md:py-28 px-4 md:px-8 lg:px-0">
         <div className="container mx-auto max-w-6xl">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-6 animate-fade-in">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm mb-4">
+                <Sparkles size={14} />
+                <span>AI-Powered Legal Intelligence</span>
+              </div>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
                 <span className="bg-gradient-to-r from-primary/80 to-primary bg-clip-text text-transparent">
                   AI-Powered Contract
@@ -325,7 +379,7 @@ const Landing = () => {
                   </Button>
                 </Link>
               </div>
-              <div className="pt-6 flex items-center gap-4 text-sm text-muted-foreground">
+              <div className="pt-6 flex flex-col sm:flex-row items-start sm:items-center gap-4 text-sm text-muted-foreground">
                 <div className="flex items-center gap-1.5">
                   <CheckCircle2 size={16} className="text-primary" />
                   <span>AI-powered contract analysis</span>
@@ -402,10 +456,14 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Technology Section */}
+      {/* Technology Section - Reimagined display */}
       <section id="tech" className="py-20 px-4 md:px-8 lg:px-0 bg-muted/20">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-16 space-y-3">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm mb-2">
+              <BrainCircuit size={14} />
+              <span>Advanced Technology</span>
+            </div>
             <h2 className="text-3xl md:text-4xl font-bold">
               Advanced AI Technology
             </h2>
@@ -414,45 +472,52 @@ const Landing = () => {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <TechCard 
-              icon={BrainCircuit}
-              title="Custom SLMs"
-              description="Specialized Language Models designed specifically for legal and contract analysis, trained on vast corpora of legal documents for superior understanding of legal concepts and terminology."
-            />
-            <TechCard 
-              icon={Layers}
-              title="LoRA Fine-tuning"
-              description="Low-Rank Adaptation provides efficient and targeted fine-tuning of our models on specific contract types and legal domains, ensuring higher precision with minimal computational overhead."
-            />
-            <TechCard 
-              icon={Database}
-              title="RAG Architecture"
-              description="Retrieval-Augmented Generation combines the power of large language models with specialized legal knowledge bases to ensure responses are grounded in accurate and relevant legal information."
-            />
-            <TechCard 
-              icon={Network}
-              title="Domain Adaptation"
-              description="Our models adapt to specific industries and use cases, learning the unique language and requirements of different business sectors for more relevant contract generation."
-            />
-            <TechCard 
-              icon={ServerCog}
-              title="Legal Reasoning Engines"
-              description="Specialized reasoning modules that analyze contractual clauses for risks, inconsistencies, and compliance issues across multiple jurisdictions."
-            />
-            <TechCard 
-              icon={Code2}
-              title="Custom Embeddings"
-              description="Proprietary embedding models that capture the semantic relationships between legal concepts for more accurate document comparison and clause recommendation."
-            />
+          {/* Tech cards displayed in an innovative 3D-like rotating grid */}
+          <div className="relative">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <TechCard 
+                icon={BrainCircuit}
+                title="Custom SLMs"
+                description="Specialized Language Models designed specifically for legal and contract analysis, trained on vast corpora of legal documents for superior understanding of legal concepts and terminology."
+              />
+              <TechCard 
+                icon={Layers}
+                title="LoRA Fine-tuning"
+                description="Low-Rank Adaptation provides efficient and targeted fine-tuning of our models on specific contract types and legal domains, ensuring higher precision with minimal computational overhead."
+              />
+              <TechCard 
+                icon={Database}
+                title="RAG Architecture"
+                description="Retrieval-Augmented Generation combines the power of large language models with specialized legal knowledge bases to ensure responses are grounded in accurate and relevant legal information."
+              />
+              <TechCard 
+                icon={Network}
+                title="Domain Adaptation"
+                description="Our models adapt to specific industries and use cases, learning the unique language and requirements of different business sectors for more relevant contract generation."
+              />
+              <TechCard 
+                icon={ServerCog}
+                title="Legal Reasoning Engines"
+                description="Specialized reasoning modules that analyze contractual clauses for risks, inconsistencies, and compliance issues across multiple jurisdictions."
+              />
+              <TechCard 
+                icon={Code2}
+                title="Custom Embeddings"
+                description="Proprietary embedding models that capture the semantic relationships between legal concepts for more accurate document comparison and clause recommendation."
+              />
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
+      {/* Features Section - Interactive cards with hover effects */}
       <section id="features" className="py-20 px-4 md:px-8 lg:px-0">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-16 space-y-3">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm mb-2">
+              <Zap size={14} />
+              <span>Powerful Features</span>
+            </div>
             <h2 className="text-3xl md:text-4xl font-bold">
               Powerful AI Contract Tools
             </h2>
@@ -461,45 +526,52 @@ const Landing = () => {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <Feature
-              icon={FileText}
-              title="Intelligent Drafting"
-              description="Generate customized contracts from scratch in seconds, tailored to your specific business needs and industry requirements."
-            />
-            <Feature
-              icon={BrainCircuit}
-              title="Comprehensive Review"
-              description="Analyze contracts for risks, missing clauses, and compliance issues with detailed recommendations and explanations."
-            />
-            <Feature
-              icon={Zap}
-              title="Negotiation Advisor"
-              description="Get expert guidance on negotiation points and alternative language with pros and cons analysis based on your position."
-            />
-            <Feature
-              icon={Users}
-              title="Collaborative Workflow"
-              description="Share contracts with your team, assign roles, and track changes in a secure environment with role-based permissions."
-            />
-            <Feature
-              icon={ScrollText}
-              title="Contract Timeline"
-              description="Track important deadlines, renewal dates, and obligations with automated reminders and calendar integration."
-            />
-            <Feature
-              icon={Shield}
-              title="Enterprise Security"
-              description="Bank-level encryption, role-based access control, and data privacy compliance with SOC 2 Type II certification."
-            />
+          {/* Interactive feature cards with gradient borders on hover */}
+          <div className="relative">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <Feature
+                icon={FileText}
+                title="Intelligent Drafting"
+                description="Generate customized contracts from scratch in seconds, tailored to your specific business needs and industry requirements."
+              />
+              <Feature
+                icon={BrainCircuit}
+                title="Comprehensive Review"
+                description="Analyze contracts for risks, missing clauses, and compliance issues with detailed recommendations and explanations."
+              />
+              <Feature
+                icon={Zap}
+                title="Negotiation Advisor"
+                description="Get expert guidance on negotiation points and alternative language with pros and cons analysis based on your position."
+              />
+              <Feature
+                icon={Users}
+                title="Collaborative Workflow"
+                description="Share contracts with your team, assign roles, and track changes in a secure environment with role-based permissions."
+              />
+              <Feature
+                icon={ScrollText}
+                title="Contract Timeline"
+                description="Track important deadlines, renewal dates, and obligations with automated reminders and calendar integration."
+              />
+              <Feature
+                icon={Shield}
+                title="Enterprise Security"
+                description="Bank-level encryption, role-based access control, and data privacy compliance with SOC 2 Type II certification."
+              />
+            </div>
           </div>
         </div>
       </section>
 
-      {/* How It Works */}
+      {/* How It Works - With animated step numbers */}
       <section id="how-it-works" className="py-20 px-4 md:px-8 lg:px-0 bg-muted/20">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-16 space-y-3">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm mb-2">
+              <Layers size={14} />
+              <span>Simple Process</span>
+            </div>
             <h2 className="text-3xl md:text-4xl font-bold">
               How Accord AI Works
             </h2>
@@ -535,7 +607,7 @@ const Landing = () => {
                 style={{ animationDelay: `${index * 150}ms` }}
               >
                 <div className="bg-card border border-border/50 rounded-xl p-6 h-full">
-                  <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold text-lg mb-6">
+                  <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold text-lg mb-6 animate-pulse-subtle">
                     {item.step}
                   </div>
                   <h3 className="text-xl font-semibold mb-3">{item.title}</h3>
@@ -551,6 +623,10 @@ const Landing = () => {
       <section id="use-cases" className="py-20 px-4 md:px-8 lg:px-0">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-16 space-y-3">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm mb-2">
+              <Users size={14} />
+              <span>For Every Team</span>
+            </div>
             <h2 className="text-3xl md:text-4xl font-bold">
               Perfect For Every Contract Need
             </h2>
@@ -584,7 +660,7 @@ const Landing = () => {
             ].map((useCase, index) => (
               <div 
                 key={index} 
-                className="bg-card border border-border/50 rounded-xl p-8 animate-fade-in"
+                className="bg-card border border-border/50 rounded-xl p-8 animate-fade-in hover:shadow-md transition-all"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
                 <h3 className="text-xl font-semibold mb-3">{useCase.title}</h3>
@@ -605,11 +681,15 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Blog Section */}
+      {/* Enhanced Blog Section - Magazine-style layout */}
       <section id="blog" className="py-20 px-4 md:px-8 lg:px-0 bg-muted/20">
         <div className="container mx-auto max-w-6xl">
           <div className="flex flex-col md:flex-row md:items-center justify-between mb-12">
             <div className="space-y-3 mb-6 md:mb-0">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm mb-2">
+                <ScrollText size={14} />
+                <span>Latest Insights</span>
+              </div>
               <h2 className="text-3xl md:text-4xl font-bold">
                 Latest from Our Blog
               </h2>
@@ -624,36 +704,81 @@ const Landing = () => {
             </Link>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <BlogPost 
-              title="The Future of Legal AI: Beyond GPT-4"
-              excerpt="How specialized language models are transforming contract analysis with domain-specific knowledge and reasoning capabilities."
-              category="AI Technology"
-              date="June 15, 2023"
-              imageUrl="https://images.unsplash.com/photo-1432821596592-e2c18b78144f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80"
-            />
-            <BlogPost 
-              title="RAG vs. Fine-tuning: Which is Better for Legal AI?"
-              excerpt="A detailed comparison of Retrieval-Augmented Generation and fine-tuning approaches for legal contract assistant systems."
-              category="Technology"
-              date="May 28, 2023"
-              imageUrl="https://images.unsplash.com/photo-1607799279861-4dd421887fb3?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80"
-            />
-            <BlogPost 
-              title="Measuring ROI: How AI Contract Tools Save Time and Money"
-              excerpt="A case study of how companies have reduced legal costs by up to 60% with AI-powered contract management solutions."
-              category="Business"
-              date="April 12, 2023"
-              imageUrl="https://images.unsplash.com/photo-1554224155-6726b3ff858f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80"
-            />
+          {/* Featured article with larger display */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+            <div className="lg:col-span-2">
+              <div className="rounded-xl border border-border/50 bg-card hover:shadow-md transition-all h-full overflow-hidden">
+                <div className="grid grid-cols-1 md:grid-cols-2 h-full">
+                  <div className="aspect-square md:aspect-auto md:h-full overflow-hidden">
+                    <img 
+                      src="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80" 
+                      alt="Featured Article" 
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                  <div className="p-8 flex flex-col">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-xs font-medium px-2.5 py-0.5 bg-primary/10 text-primary rounded-full">Featured</span>
+                      <span className="text-xs text-muted-foreground">June 2, 2023</span>
+                    </div>
+                    <h3 className="text-2xl font-semibold mb-4">The Future of Legal AI: Beyond Simple Automation</h3>
+                    <p className="text-muted-foreground flex-grow mb-6">
+                      How next-generation AI tools are transforming the legal industry by moving beyond document automation to true reasoning and analysis.
+                    </p>
+                    <Link to="/blog" className="text-sm font-medium text-primary flex items-center gap-1 hover:gap-2 transition-all mt-auto">
+                      Read the full article <ArrowRight size={14} />
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="space-y-8">
+              <div className="rounded-xl border border-border/50 bg-card p-6 hover:shadow-md transition-all">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-medium px-2.5 py-0.5 bg-primary/10 text-primary rounded-full">News</span>
+                  <span className="text-xs text-muted-foreground">May 15, 2023</span>
+                </div>
+                <h3 className="text-lg font-semibold mb-3">Accord AI Raises $12M Series A Funding</h3>
+                <p className="text-sm text-muted-foreground line-clamp-3 mb-4">
+                  Investment will accelerate development of specialized legal language models and expand the platform's capabilities.
+                </p>
+                <Link to="/blog" className="text-sm font-medium text-primary flex items-center gap-1 hover:gap-2 transition-all">
+                  Read more <ArrowRight size={14} />
+                </Link>
+              </div>
+              <div className="rounded-xl border border-border/50 bg-card p-6 hover:shadow-md transition-all">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-medium px-2.5 py-0.5 bg-primary/10 text-primary rounded-full">Tutorial</span>
+                  <span className="text-xs text-muted-foreground">April 28, 2023</span>
+                </div>
+                <h3 className="text-lg font-semibold mb-3">Getting Started with Accord AI for Legal Teams</h3>
+                <p className="text-sm text-muted-foreground line-clamp-3 mb-4">
+                  A step-by-step guide to implementing AI contract tools in your legal department workflow.
+                </p>
+                <Link to="/blog" className="text-sm font-medium text-primary flex items-center gap-1 hover:gap-2 transition-all">
+                  Read more <ArrowRight size={14} />
+                </Link>
+              </div>
+            </div>
+          </div>
+          
+          {/* More articles in a grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {blogPosts.map((post, index) => (
+              <BlogPost key={index} {...post} />
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Documentation Section */}
+      {/* Documentation Section - Cleaner cards with icons */}
       <section id="documentation" className="py-20 px-4 md:px-8 lg:px-0">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-16 space-y-3">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm mb-2">
+              <FileText size={14} />
+              <span>Resources</span>
+            </div>
             <h2 className="text-3xl md:text-4xl font-bold">
               Documentation & Resources
             </h2>
@@ -688,15 +813,116 @@ const Landing = () => {
               icon={Sparkles}
             />
           </div>
+
+          {/* Documentation categories */}
+          <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Card className="border border-border/50 hover:shadow-md transition-all">
+              <CardContent className="p-6">
+                <h3 className="text-lg font-semibold mb-4">For Developers</h3>
+                <ul className="space-y-3">
+                  <li>
+                    <a href="/docs/api/authentication" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary">
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                      <span>API Authentication</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a href="/docs/api/endpoints" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary">
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                      <span>API Endpoints</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a href="/docs/api/webhooks" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary">
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                      <span>Webhooks</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a href="/docs/api/sdk" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary">
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                      <span>SDKs & Libraries</span>
+                    </a>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+            <Card className="border border-border/50 hover:shadow-md transition-all">
+              <CardContent className="p-6">
+                <h3 className="text-lg font-semibold mb-4">For Legal Teams</h3>
+                <ul className="space-y-3">
+                  <li>
+                    <a href="/docs/legal/templates" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary">
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                      <span>Contract Templates</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a href="/docs/legal/clauses" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary">
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                      <span>Clause Library</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a href="/docs/legal/review" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary">
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                      <span>Review Guidelines</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a href="/docs/legal/workflows" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary">
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                      <span>Legal Workflows</span>
+                    </a>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+            <Card className="border border-border/50 hover:shadow-md transition-all">
+              <CardContent className="p-6">
+                <h3 className="text-lg font-semibold mb-4">For Administrators</h3>
+                <ul className="space-y-3">
+                  <li>
+                    <a href="/docs/admin/setup" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary">
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                      <span>Setup & Configuration</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a href="/docs/admin/users" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary">
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                      <span>User Management</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a href="/docs/admin/security" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary">
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                      <span>Security Settings</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a href="/docs/admin/integrations" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary">
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                      <span>Third-party Integrations</span>
+                    </a>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </section>
 
-      {/* CTA Section */}
+      {/* CTA Section - With background effect */}
       <section className="py-24 px-4 md:px-8 lg:px-0 bg-muted/10">
         <div className="container mx-auto max-w-5xl">
           <div className="relative rounded-2xl overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-r from-primary/30 to-primary/10 backdrop-blur-sm"></div>
             <div className="relative p-12 md:p-16 text-center z-10">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-sm text-primary-foreground text-sm mb-6">
+                <Sparkles size={14} />
+                <span>Try Accord AI Today</span>
+              </div>
               <h2 className="text-3xl md:text-4xl font-bold mb-6">
                 Transform Your Contract Workflow Today
               </h2>
