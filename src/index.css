@@ -96,6 +96,6 @@
   
   /* Scrollbar styling */
   .styled-scrollbar {
-    @apply scrollbar-thin scrollbar-thumb-accord-mediumGray scrollbar-track-transparent hover:scrollbar-thumb-accord-darkGray/50;
+    @apply overflow-auto;
   }
 }
