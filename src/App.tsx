@@ -41,6 +41,8 @@ const App = () => (
             <Route path="/billing" element={<Index />} />
             <Route path="/notifications" element={<Index />} />
             <Route path="/signatures" element={<Signatures />} />
+            <Route path="/blog" element={<Index />} />
+            <Route path="/docs/*" element={<Index />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
