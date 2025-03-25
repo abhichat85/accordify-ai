@@ -233,274 +233,230 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   const showWelcomeMessage = !hasMessages;
 
   return (
-    <Card className={cn(
-      "flex flex-col h-full overflow-hidden rounded-2xl shadow-md border-border/40", 
+    <div className={cn(
+      "flex flex-col h-full overflow-hidden bg-background/10", 
       className
     )}>
-      <div className="border-b border-border/40 bg-background/80">
-        <Tabs defaultValue="chat" value={activeTab} onValueChange={setActiveTab}>
-          <div className="flex items-center justify-between px-4 py-2">
-            <TabsList className="grid w-auto grid-cols-3 h-8">
-              <TabsTrigger value="chat" className="text-xs px-3">Chat</TabsTrigger>
-              <TabsTrigger value="capabilities" className="text-xs px-3">Capabilities</TabsTrigger>
-              <TabsTrigger value="context" className="text-xs px-3">Context</TabsTrigger>
-            </TabsList>
-            
-            {contextAwareness.length > 0 && (
-              <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <BrainCircuit size={14} className="text-primary" />
-                <span>Agent is tracking context</span>
-              </div>
-            )}
-          </div>
-        
-          <CardContent className="flex-grow p-0 overflow-hidden">
-            <TabsContent value="chat" className="h-full m-0 p-0">
-              <ScrollArea className="h-[calc(100vh-240px)] px-4 py-6">
-                {showWelcomeMessage ? (
-                  <div className="flex flex-col items-center justify-center h-full text-center px-4">
-                    <div className="w-20 h-20 rounded-full bg-primary flex items-center justify-center mb-6 animate-scale-in shadow-lg">
-                      <Bot className="text-primary-foreground w-10 h-10" />
-                    </div>
-                    <h2 className="text-3xl font-bold mb-3 text-foreground animate-fade-in bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-                      Welcome to Accord AI
-                    </h2>
-                    <p className="text-muted-foreground mb-8 max-w-md animate-fade-in delay-100 text-lg">
-                      Your AI-powered contract assistant. Ask me to generate, review, or analyze any contract.
-                    </p>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-xl animate-fade-in delay-200">
-                      <Card 
-                        className="p-4 cursor-pointer hover:shadow-md transition-all duration-300 bg-card/50 backdrop-blur-sm border-border/30"
-                        onClick={() => {
-                          setInputValue("Generate an NDA for my company");
-                          setTimeout(() => {
-                            if (inputRef.current) {
-                              inputRef.current.focus();
-                            }
-                          }, 100);
-                        }}
-                      >
-                        <div className="flex items-center mb-2">
-                          <FileText className="text-primary mr-2" size={20} />
-                          <p className="font-semibold text-foreground">Generate a new NDA</p>
-                        </div>
-                        <p className="text-sm text-muted-foreground">Create a custom non-disclosure agreement</p>
-                      </Card>
-                      <Card 
-                        className="p-4 cursor-pointer hover:shadow-md transition-all duration-300 bg-card/50 backdrop-blur-sm border-border/30"
-                        onClick={() => {
-                          setInputValue("I need you to review a contract");
-                          setTimeout(() => {
-                            if (inputRef.current) {
-                              inputRef.current.focus();
-                            }
-                          }, 100);
-                        }}
-                      >
-                        <div className="flex items-center mb-2">
-                          <FileText className="text-primary mr-2" size={20} />
-                          <p className="font-semibold text-foreground">Review my contract</p>
-                        </div>
-                        <p className="text-sm text-muted-foreground">Get analysis and risk assessment</p>
-                      </Card>
-                      <Card 
-                        className="p-4 cursor-pointer hover:shadow-md transition-all duration-300 bg-card/50 backdrop-blur-sm border-border/30"
-                        onClick={() => {
-                          setInputValue("Help me compare two contract versions");
-                          setTimeout(() => {
-                            if (inputRef.current) {
-                              inputRef.current.focus();
-                            }
-                          }, 100);
-                        }}
-                      >
-                        <div className="flex items-center mb-2">
-                          <FileText className="text-primary mr-2" size={20} />
-                          <p className="font-semibold text-foreground">Compare versions</p>
-                        </div>
-                        <p className="text-sm text-muted-foreground">See what's changed between drafts</p>
-                      </Card>
-                      <Card 
-                        className="p-4 cursor-pointer hover:shadow-md transition-all duration-300 bg-card/50 backdrop-blur-sm border-border/30"
-                        onClick={() => {
-                          setInputValue("I need a Statement of Work template");
-                          setTimeout(() => {
-                            if (inputRef.current) {
-                              inputRef.current.focus();
-                            }
-                          }, 100);
-                        }}
-                      >
-                        <div className="flex items-center mb-2">
-                          <FileText className="text-primary mr-2" size={20} />
-                          <p className="font-semibold text-foreground">Create SOW</p>
-                        </div>
-                        <p className="text-sm text-muted-foreground">Draft a statement of work</p>
-                      </Card>
-                    </div>
+      <Tabs defaultValue="chat" value={activeTab} onValueChange={setActiveTab} className="flex flex-col h-full overflow-hidden">
+        <div className="border-b border-border/20 bg-background/10 px-2">
+          <TabsList className="h-8 bg-muted/20 mt-2 mb-1 rounded-md w-full grid grid-cols-3 gap-1 p-0.5">
+            <TabsTrigger value="chat" className="text-xs rounded-sm">Chat</TabsTrigger>
+            <TabsTrigger value="capabilities" className="text-xs rounded-sm">Capabilities</TabsTrigger>
+            <TabsTrigger value="context" className="text-xs rounded-sm">Context</TabsTrigger>
+          </TabsList>
+        </div>
+      
+        <div className="flex flex-col flex-grow overflow-hidden">
+          <TabsContent value="chat" className="flex-grow m-0 p-0 data-[state=active]:flex flex-col">
+            <ScrollArea className="h-[calc(100vh-280px)] px-4 py-4">
+              {showWelcomeMessage ? (
+                <div className="flex flex-col items-center justify-center h-full text-center px-4">
+                  <div className="w-20 h-20 rounded-full bg-primary flex items-center justify-center mb-6 animate-scale-in shadow-lg">
+                    <Bot className="text-primary-foreground w-10 h-10" />
                   </div>
-                ) : (
-                  <>
-                    {messages.map((msg, index) => (
-                      <MessageBubble
-                        key={msg.id}
-                        message={msg}
-                        isLatest={index === messages.length - 1}
-                      />
-                    ))}
-
-                    {showProactiveSuggestions && messages.length > 0 && messages.length % 3 === 0 && (
-                      <div className="mb-4 mt-2 animate-fade-in">
-                        <div className="bg-muted/40 rounded-lg p-3 border border-border/30 max-w-[85%] mx-auto">
-                          <div className="flex items-center mb-2">
-                            <Lightbulb size={16} className="text-primary mr-2" />
-                            <span className="text-sm font-medium">Proactive Insights</span>
-                          </div>
-                          <ul className="space-y-2">
-                            {proactiveSuggestions.slice(0, 2).map((suggestion, idx) => (
-                              <li key={idx} 
-                                  className="text-sm hover:bg-muted/60 p-2 rounded-md cursor-pointer transition-colors"
-                                  onClick={() => handleSuggestionClick(suggestion)}>
-                                {suggestion}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      </div>
-                    )}
-                    <div ref={messagesEndRef} />
-                  </>
-                )}
-              </ScrollArea>
-            </TabsContent>
-
-            <TabsContent value="capabilities" className="m-0 p-4 h-[calc(100vh-240px)] overflow-y-auto">
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-lg font-medium mb-2">Agent Capabilities</h3>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Your contract AI assistant can help with the following tasks:
+                  <h2 className="text-2xl font-bold mb-3 text-foreground animate-fade-in bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                    Welcome to Accord AI
+                  </h2>
+                  <p className="text-muted-foreground mb-6 max-w-md animate-fade-in delay-100">
+                    Your AI-powered contract assistant. Ask me to generate, review, or analyze any contract.
                   </p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {agentCapabilities.map((capability) => (
-                    <Card key={capability.id} className="overflow-hidden">
-                      <div className="p-4 border-b border-border/40 bg-muted/20 flex items-center">
-                        <capability.icon className="h-5 w-5 mr-2 text-primary" />
-                        <h4 className="font-medium">{capability.name}</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full max-w-md animate-fade-in delay-200">
+                    <Card 
+                      className="p-3 cursor-pointer hover:shadow-md transition-all duration-300 bg-card/50 backdrop-blur-sm border-border/30"
+                      onClick={() => {
+                        setInputValue("Generate an NDA for my company");
+                        setTimeout(() => {
+                          if (inputRef.current) {
+                            inputRef.current.focus();
+                          }
+                        }, 100);
+                      }}
+                    >
+                      <div className="flex items-center mb-2">
+                        <FileText className="text-primary mr-2" size={18} />
+                        <p className="font-semibold text-foreground">Generate a new NDA</p>
                       </div>
-                      <div className="p-4">
-                        <p className="text-sm text-muted-foreground mb-3">{capability.description}</p>
-                        <div className="space-y-2">
-                          {capability.examples.map((example, idx) => (
-                            <div 
-                              key={idx}
-                              className="text-sm bg-muted/30 hover:bg-muted/60 p-2 rounded-md cursor-pointer transition-colors flex items-center"
-                              onClick={() => handleCapabilityClick(example)}
-                            >
-                              <span className="mr-1">›</span> {example}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
+                      <p className="text-sm text-muted-foreground">Create a custom non-disclosure agreement</p>
                     </Card>
+                    <Card 
+                      className="p-3 cursor-pointer hover:shadow-md transition-all duration-300 bg-card/50 backdrop-blur-sm border-border/30"
+                      onClick={() => {
+                        setInputValue("I need you to review a contract");
+                        setTimeout(() => {
+                          if (inputRef.current) {
+                            inputRef.current.focus();
+                          }
+                        }, 100);
+                      }}
+                    >
+                      <div className="flex items-center mb-2">
+                        <FileCheck className="text-primary mr-2" size={18} />
+                        <p className="font-semibold text-foreground">Review my contract</p>
+                      </div>
+                      <p className="text-sm text-muted-foreground">Get analysis and risk assessment</p>
+                    </Card>
+                    <Card 
+                      className="p-3 cursor-pointer hover:shadow-md transition-all duration-300 bg-card/50 backdrop-blur-sm border-border/30"
+                      onClick={() => {
+                        setInputValue("Help me compare two contract versions");
+                        setTimeout(() => {
+                          if (inputRef.current) {
+                            inputRef.current.focus();
+                          }
+                        }, 100);
+                      }}
+                    >
+                      <div className="flex items-center mb-2">
+                        <Workflow className="text-primary mr-2" size={18} />
+                        <p className="font-semibold text-foreground">Compare versions</p>
+                      </div>
+                      <p className="text-sm text-muted-foreground">See what's changed between drafts</p>
+                    </Card>
+                    <Card 
+                      className="p-3 cursor-pointer hover:shadow-md transition-all duration-300 bg-card/50 backdrop-blur-sm border-border/30"
+                      onClick={() => {
+                        setInputValue("I need a Statement of Work template");
+                        setTimeout(() => {
+                          if (inputRef.current) {
+                            inputRef.current.focus();
+                          }
+                        }, 100);
+                      }}
+                    >
+                      <div className="flex items-center mb-2">
+                        <FileText className="text-primary mr-2" size={18} />
+                        <p className="font-semibold text-foreground">Create SOW</p>
+                      </div>
+                      <p className="text-sm text-muted-foreground">Draft a statement of work</p>
+                    </Card>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {messages.map((msg, index) => (
+                    <MessageBubble
+                      key={msg.id}
+                      message={msg}
+                      isLatest={index === messages.length - 1}
+                    />
                   ))}
-                </div>
 
-                <Card className="p-4 border border-primary/30 bg-primary/5">
-                  <div className="flex items-start">
-                    <BrainCircuit className="h-6 w-6 mr-3 text-primary mt-0.5" />
-                    <div>
-                      <h4 className="font-medium mb-1">AI Agent Powers</h4>
-                      <p className="text-sm text-muted-foreground">
-                        I analyze document context, legal nuances, and your preferences to provide intelligent contract assistance. I can draft, analyze, negotiate, and manage your agreements throughout their lifecycle.
-                      </p>
-                    </div>
-                  </div>
-                </Card>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="context" className="m-0 p-4 h-[calc(100vh-240px)] overflow-y-auto">
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-lg font-medium mb-2">Conversation Context</h3>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    The AI assistant is tracking these contextual elements:
-                  </p>
-                </div>
-
-                {contextAwareness.length > 0 ? (
-                  <Card className="divide-y divide-border/40">
-                    {contextAwareness.map((item, idx) => (
-                      <div key={idx} className="p-3 flex items-center">
-                        <div className="h-2 w-2 rounded-full bg-primary mr-3"></div>
-                        <span className="text-sm">{item}</span>
-                      </div>
-                    ))}
-                  </Card>
-                ) : (
-                  <div className="text-center p-6 border border-dashed border-border rounded-lg">
-                    <History className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-                    <p className="text-muted-foreground">
-                      No active context yet. Start a conversation about a contract to build context.
-                    </p>
-                  </div>
-                )}
-
-                <Card className="p-4">
-                  <h4 className="font-medium mb-2">Conversation Memory</h4>
-                  <p className="text-sm text-muted-foreground mb-3">
-                    Your assistant remembers these key discussion points:
-                  </p>
-                  <div className="space-y-2">
-                    {messages.length > 0 ? (
-                      <ul className="space-y-1">
-                        {messages.slice(-3).map((msg, idx) => (
-                          <li key={idx} className="text-sm bg-muted/20 p-2 rounded">
-                            <span className={`font-medium ${msg.type === 'user' ? 'text-primary' : ''}`}>
-                              {msg.type === 'user' ? 'You: ' : 'Assistant: '}
-                            </span>
-                            {msg.content.length > 60 ? msg.content.substring(0, 60) + '...' : msg.content}
-                          </li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <p className="text-sm text-muted-foreground italic">Start a conversation to build memory</p>
-                    )}
-                  </div>
-                </Card>
-
-                <Card className="p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className="font-medium">Active Documents</h4>
-                    <Button variant="outline" size="sm" className="h-7 text-xs">
-                      Link More
-                    </Button>
-                  </div>
-                  <div className="space-y-2">
-                    {messages.length > 0 ? (
-                      <div className="p-3 border border-border/40 rounded-md flex items-center">
-                        <FileText className="h-5 w-5 mr-2 text-primary" />
-                        <div className="flex-grow">
-                          <p className="text-sm font-medium">Non-Disclosure Agreement.docx</p>
-                          <p className="text-xs text-muted-foreground">Last edited 2 hours ago</p>
+                  {showProactiveSuggestions && messages.length > 0 && messages.length % 3 === 0 && (
+                    <div className="mb-4 mt-2 animate-fade-in">
+                      <div className="bg-muted/40 rounded-lg p-3 border border-border/30 max-w-[85%] mx-auto">
+                        <div className="flex items-center mb-2">
+                          <Lightbulb size={16} className="text-primary mr-2" />
+                          <span className="text-sm font-medium">Proactive Insights</span>
                         </div>
-                        <Button variant="ghost" size="sm" className="h-7 text-xs">View</Button>
+                        <ul className="space-y-2">
+                          {proactiveSuggestions.slice(0, 2).map((suggestion, idx) => (
+                            <li key={idx} 
+                                className="text-sm hover:bg-muted/60 p-2 rounded-md cursor-pointer transition-colors"
+                                onClick={() => handleSuggestionClick(suggestion)}>
+                              {suggestion}
+                            </li>
+                          ))}
+                        </ul>
                       </div>
-                    ) : (
-                      <p className="text-sm text-muted-foreground italic">No active documents</p>
-                    )}
-                  </div>
-                </Card>
-              </div>
-            </TabsContent>
-          </CardContent>
-        </Tabs>
-      </div>
+                    </div>
+                  )}
+                  <div ref={messagesEndRef} />
+                </>
+              )}
+            </ScrollArea>
+          </TabsContent>
 
-      <div className="px-4">
+          <TabsContent value="capabilities" className="m-0 p-3 h-[calc(100vh-280px)] overflow-y-auto">
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-base font-medium mb-1">Agent Capabilities</h3>
+                <p className="text-xs text-muted-foreground mb-2">
+                  Your contract AI assistant can help with the following tasks:
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 gap-3">
+                {agentCapabilities.map((capability) => (
+                  <Card key={capability.id} className="overflow-hidden">
+                    <div className="p-2 border-b border-border/40 bg-muted/20 flex items-center">
+                      <capability.icon className="h-4 w-4 mr-2 text-primary" />
+                      <h4 className="font-medium text-sm">{capability.name}</h4>
+                    </div>
+                    <div className="p-2">
+                      <p className="text-xs text-muted-foreground mb-2">{capability.description}</p>
+                      <div className="space-y-1">
+                        {capability.examples.map((example, idx) => (
+                          <div 
+                            key={idx}
+                            className="text-xs bg-muted/30 hover:bg-muted/60 p-2 rounded-md cursor-pointer transition-colors flex items-center"
+                            onClick={() => handleCapabilityClick(example)}
+                          >
+                            <span className="mr-1">›</span> {example}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="context" className="m-0 p-3 h-[calc(100vh-280px)] overflow-y-auto">
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-base font-medium mb-1">Conversation Context</h3>
+                <p className="text-xs text-muted-foreground mb-2">
+                  The AI assistant is tracking these contextual elements:
+                </p>
+              </div>
+
+              {contextAwareness.length > 0 ? (
+                <Card className="divide-y divide-border/40">
+                  {contextAwareness.map((item, idx) => (
+                    <div key={idx} className="p-2 flex items-center">
+                      <div className="h-2 w-2 rounded-full bg-primary mr-2"></div>
+                      <span className="text-xs">{item}</span>
+                    </div>
+                  ))}
+                </Card>
+              ) : (
+                <div className="text-center p-4 border border-dashed border-border rounded-lg">
+                  <History className="h-6 w-6 mx-auto mb-2 text-muted-foreground" />
+                  <p className="text-sm text-muted-foreground">
+                    No active context yet. Start a conversation about a contract to build context.
+                  </p>
+                </div>
+              )}
+
+              <Card className="p-3">
+                <h4 className="text-sm font-medium mb-1">Conversation Memory</h4>
+                <p className="text-xs text-muted-foreground mb-2">
+                  Your assistant remembers these key discussion points:
+                </p>
+                <div className="space-y-2">
+                  {messages.length > 0 ? (
+                    <ul className="space-y-1">
+                      {messages.slice(-3).map((msg, idx) => (
+                        <li key={idx} className="text-xs bg-muted/20 p-2 rounded">
+                          <span className={`font-medium ${msg.type === 'user' ? 'text-primary' : ''}`}>
+                            {msg.type === 'user' ? 'You: ' : 'Assistant: '}
+                          </span>
+                          {msg.content.length > 50 ? msg.content.substring(0, 50) + '...' : msg.content}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-xs text-muted-foreground italic">Start a conversation to build memory</p>
+                  )}
+                </div>
+              </Card>
+            </div>
+          </TabsContent>
+        </div>
+      </Tabs>
+
+      <div className="shrink-0 px-3 pb-1 pt-2">
         <AiModes activeMode={aiMode} onChange={setAiMode} />
       </div>
 
@@ -525,17 +481,22 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
         </div>
       )}
 
-      <div className={cn(
-        "border-t border-border/40 p-4 bg-background/20 rounded-b-2xl",
-        isDragging && "bg-primary/5"
-      )}>
+      <div 
+        className={cn(
+          "border-t border-border/40 p-3 bg-background/60 rounded-b-xl",
+          isDragging && "bg-primary/5"
+        )}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+      >
         {isDragging && (
           <div className="absolute inset-0 flex items-center justify-center bg-primary/5 border-2 border-dashed border-primary/30 rounded-2xl z-10">
             <p className="text-primary font-medium">Drop files here</p>
           </div>
         )}
         
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-2">
           <div className="flex items-end gap-2 relative">
             <div className="flex-grow relative">
               <textarea
@@ -545,7 +506,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
                 onKeyDown={handleKeyDown}
                 placeholder={isRecording ? "Listening..." : "Ask about contracts, upload, or start with a template..."}
                 className={cn(
-                  "w-full p-3 rounded-xl border border-border bg-background/80 text-sm focus:outline-none focus:ring-1 focus:ring-primary resize-none overflow-hidden min-h-[52px] max-h-[150px]",
+                  "w-full p-3 rounded-xl border border-border bg-background/80 text-sm focus:outline-none focus:ring-1 focus:ring-primary resize-none overflow-hidden min-h-[48px] max-h-[120px]",
                   isRecording && "bg-primary/5 border-primary animate-pulse-subtle"
                 )}
                 disabled={isProcessing}
@@ -558,12 +519,12 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
               variant={isRecording ? "destructive" : "outline"}
               size="icon"
               className={cn(
-                "rounded-full h-10 w-10 shadow-sm",
+                "rounded-full h-9 w-9 shadow-sm",
                 isRecording && "animate-pulse"
               )}
               title={isRecording ? "Stop recording" : "Start voice input"}
             >
-              <Mic size={18} />
+              <Mic size={16} />
             </Button>
             
             <Button
@@ -572,23 +533,23 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
               variant="default"
               size="icon"
               className={cn(
-                "rounded-full h-10 w-10 btn-glow shadow-sm",
+                "rounded-full h-9 w-9 shadow-sm",
                 (!inputValue.trim() && files.length === 0) && "opacity-70"
               )}
             >
-              <Send size={18} />
+              <Send size={16} />
             </Button>
           </div>
           
-          <div className="flex flex-wrap gap-2 mt-1">
+          <div className="flex flex-wrap gap-1 mt-1">
             <Button
               onClick={() => fileInputRef.current?.click()}
               variant="outline"
               size="sm"
-              className="rounded-lg text-xs gap-1.5 h-8 shadow-sm"
+              className="rounded-lg text-xs gap-1 h-7 shadow-sm"
             >
-              <Paperclip size={14} />
-              Attach files
+              <Paperclip size={12} />
+              Attach
               <input
                 type="file"
                 ref={fileInputRef}
@@ -602,9 +563,9 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
               onClick={handleScreenCapture}
               variant="outline"
               size="sm"
-              className="rounded-lg text-xs gap-1.5 h-8 shadow-sm"
+              className="rounded-lg text-xs gap-1 h-7 shadow-sm"
             >
-              <ScreenShare size={14} />
+              <ScreenShare size={12} />
               Screenshot
               <input
                 type="file"
@@ -619,9 +580,9 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
               onClick={handleCameraCapture}
               variant="outline"
               size="sm"
-              className="rounded-lg text-xs gap-1.5 h-8 shadow-sm"
+              className="rounded-lg text-xs gap-1 h-7 shadow-sm"
             >
-              <Camera size={14} />
+              <Camera size={12} />
               Camera
               <input
                 type="file"
@@ -636,7 +597,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
             <Button
               variant="outline"
               size="sm"
-              className="rounded-lg text-xs gap-1.5 h-8 ml-auto shadow-sm"
+              className="rounded-lg text-xs gap-1 h-7 ml-auto shadow-sm"
               onClick={() => {
                 toast({
                   title: "AI Suggestions",
@@ -644,12 +605,12 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
                 });
               }}
             >
-              <Lightbulb size={14} className="text-primary" />
-              Smart Suggestions
+              <Lightbulb size={12} className="text-primary" />
+              Suggestions
             </Button>
           </div>
         </div>
       </div>
-    </Card>
+    </div>
   );
 };

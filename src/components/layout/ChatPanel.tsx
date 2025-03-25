@@ -38,106 +38,104 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
   const [activeTab, setActiveTab] = useState<string>("chat");
   
   return (
-    <div className="flex h-full rounded-2xl overflow-hidden border border-border/40 shadow-md">
-      {/* Main chat area - now taking full width */}
-      <div className="flex-grow flex flex-col relative">
-        {/* Top toolbar */}
-        <div className="bg-muted/20 border-b border-border/40 p-2 flex items-center">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-grow">
-            <TabsList className="h-8 bg-background/40">
-              <TabsTrigger value="chat" className="text-xs gap-1.5">
+    <div className="flex flex-col h-full rounded-xl overflow-hidden border border-border/40 shadow-sm bg-card/50">
+      {/* Main content area with improved layout */}
+      <div className="flex-grow flex flex-col h-full relative">
+        {/* Top tabs for main sections */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-grow flex flex-col h-full">
+          <div className="flex items-center justify-between px-2 pt-2">
+            <TabsList className="h-9 bg-background/40 p-1 rounded-lg">
+              <TabsTrigger value="chat" className="text-xs gap-1.5 rounded-md">
                 <MessageSquare size={14} />
                 <span className="hidden sm:inline">Chat</span>
               </TabsTrigger>
-              <TabsTrigger value="contracts" className="text-xs gap-1.5">
+              <TabsTrigger value="contracts" className="text-xs gap-1.5 rounded-md">
                 <FileText size={14} />
                 <span className="hidden sm:inline">Contracts</span>
               </TabsTrigger>
-              <TabsTrigger value="workflow" className="text-xs gap-1.5">
+              <TabsTrigger value="workflow" className="text-xs gap-1.5 rounded-md">
                 <Workflow size={14} />
                 <span className="hidden sm:inline">Workflow</span>
               </TabsTrigger>
-              <TabsTrigger value="agent" className="text-xs gap-1.5">
+              <TabsTrigger value="agent" className="text-xs gap-1.5 rounded-md">
                 <Brain size={14} />
                 <span className="hidden sm:inline">Agent</span>
               </TabsTrigger>
             </TabsList>
-          </Tabs>
-          
-          <TooltipProvider>
-            <div className="ml-auto flex items-center space-x-1">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full">
-                    <File size={16} />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Documents</TooltipContent>
-              </Tooltip>
-              
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full">
-                    <Edit size={16} />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Edit Mode</TooltipContent>
-              </Tooltip>
-              
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full">
-                    <Eye size={16} />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Preview</TooltipContent>
-              </Tooltip>
-              
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full">
-                    <Wrench size={16} />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Tools</TooltipContent>
-              </Tooltip>
-              
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full">
-                    <Settings size={16} />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Settings</TooltipContent>
-              </Tooltip>
-            </div>
-          </TooltipProvider>
-        </div>
-        
-        {/* Agent Status Bar */}
-        <div className="bg-muted/10 border-b border-border/30 py-1.5 px-3 flex items-center justify-between text-xs text-muted-foreground">
-          <div className="flex items-center">
-            <div className="flex items-center mr-4">
-              <div className="h-2 w-2 rounded-full bg-primary mr-2 animate-pulse"></div>
-              <span>AI Agent Active</span>
-            </div>
-            {messages.length > 0 && (
-              <div className="flex items-center">
-                <Brain size={12} className="mr-1 text-primary" />
-                <span>Context: Contract Analysis</span>
+            
+            <TooltipProvider>
+              <div className="flex items-center space-x-1">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full">
+                      <File size={16} />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Documents</TooltipContent>
+                </Tooltip>
+                
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full">
+                      <Edit size={16} />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Edit Mode</TooltipContent>
+                </Tooltip>
+                
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full">
+                      <Eye size={16} />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Preview</TooltipContent>
+                </Tooltip>
+                
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full">
+                      <Wrench size={16} />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Tools</TooltipContent>
+                </Tooltip>
+                
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full">
+                      <Settings size={16} />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Settings</TooltipContent>
+                </Tooltip>
               </div>
-            )}
+            </TooltipProvider>
           </div>
-          <div className="flex items-center">
-            <InfoIcon size={12} className="mr-1" />
-            <span>Using gpt-4o model</span>
-          </div>
-        </div>
         
-        {/* Tabs Content */}
-        <div className="flex-grow flex">
-          <Tabs value={activeTab} className="flex-grow">
-            <TabsContent value="chat" className="flex-grow p-0 m-0 overflow-hidden h-full">
+          {/* Agent Status Bar */}
+          <div className="bg-muted/10 border-y border-border/30 py-1.5 px-3 mt-2 flex items-center justify-between text-xs text-muted-foreground">
+            <div className="flex items-center">
+              <div className="flex items-center mr-4">
+                <div className="h-2 w-2 rounded-full bg-primary mr-2 animate-pulse"></div>
+                <span>AI Agent Active</span>
+              </div>
+              {messages.length > 0 && (
+                <div className="flex items-center">
+                  <Brain size={12} className="mr-1 text-primary" />
+                  <span>Context: Contract Analysis</span>
+                </div>
+              )}
+            </div>
+            <div className="flex items-center">
+              <InfoIcon size={12} className="mr-1" />
+              <span>Using gpt-4o model</span>
+            </div>
+          </div>
+          
+          {/* Content for each tab */}
+          <div className="flex-grow overflow-hidden">
+            <TabsContent value="chat" className="h-full m-0 p-0 data-[state=active]:flex flex-col">
               <ChatInterface
                 onSendMessage={onSendMessage}
                 messages={messages}
@@ -146,7 +144,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
               />
             </TabsContent>
             
-            <TabsContent value="contracts" className="flex-grow p-4 m-0 overflow-auto h-full">
+            <TabsContent value="contracts" className="h-full m-0 p-4 overflow-auto data-[state=active]:flex flex-col">
               <div className="h-full flex flex-col items-center justify-center text-center p-6">
                 <FileText className="h-12 w-12 text-muted-foreground mb-4" />
                 <h3 className="text-xl font-medium mb-2">Contract Center</h3>
@@ -160,7 +158,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
               </div>
             </TabsContent>
             
-            <TabsContent value="workflow" className="flex-grow p-4 m-0 overflow-auto h-full">
+            <TabsContent value="workflow" className="h-full m-0 p-4 overflow-auto data-[state=active]:flex flex-col">
               <div className="h-full flex flex-col items-center justify-center text-center p-6">
                 <Workflow className="h-12 w-12 text-muted-foreground mb-4" />
                 <h3 className="text-xl font-medium mb-2">Contract Workflows</h3>
@@ -174,7 +172,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
               </div>
             </TabsContent>
             
-            <TabsContent value="agent" className="flex-grow p-4 m-0 overflow-auto h-full">
+            <TabsContent value="agent" className="h-full m-0 p-4 overflow-auto data-[state=active]:flex flex-col">
               <div className="h-full flex flex-col items-center justify-center text-center p-6">
                 <Brain className="h-12 w-12 text-muted-foreground mb-4" />
                 <h3 className="text-xl font-medium mb-2">Advanced AI Agent Settings</h3>
@@ -187,8 +185,8 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
                 </Button>
               </div>
             </TabsContent>
-          </Tabs>
-        </div>
+          </div>
+        </Tabs>
       </div>
     </div>
   );

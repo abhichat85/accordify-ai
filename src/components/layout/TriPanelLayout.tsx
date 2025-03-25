@@ -26,7 +26,10 @@ import {
   Briefcase,
   CreditCard,
   Sparkles,
-  ChevronRight
+  ChevronRight,
+  MessageSquare,
+  X,
+  Clock
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -280,31 +283,56 @@ export const TriPanelLayout: React.FC<TriPanelLayoutProps> = ({
         {centerPanel}
       </div>
       
-      {/* Right Panel */}
+      {/* Right Panel - Improved AI Assistant */}
       <div className={cn(
-        "h-full border-l border-border/40 bg-background/50 backdrop-blur-sm transition-all duration-300",
+        "h-full border-l border-border/40 bg-background/50 backdrop-blur-sm transition-all duration-300 flex flex-col",
         rightCollapsed ? "w-16" : "w-96"
       )}>
-        <div className="flex items-center justify-between h-16 px-4 border-b border-border/40">
+        {/* Header */}
+        <div className="flex items-center justify-between h-16 px-4 border-b border-border/40 bg-background/80">
           {!rightCollapsed && (
-            <h2 className="text-base font-medium">AI Assistant</h2>
+            <div className="flex items-center space-x-2">
+              <MessageSquare size={18} className="text-primary" />
+              <h2 className="text-base font-medium">AI Assistant</h2>
+            </div>
           )}
           
-          <Button variant="ghost" size="icon" className={cn(
-            "rounded-full",
-            rightCollapsed ? "mx-auto" : ""
-          )} onClick={() => setRightCollapsed(!rightCollapsed)}>
-            <PanelRight size={18} />
-          </Button>
+          <div className="flex items-center space-x-1">
+            {!rightCollapsed && (
+              <Button variant="outline" size="icon" className="rounded-full h-8 w-8">
+                <X size={14} />
+              </Button>
+            )}
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className={cn(
+                "rounded-full h-8 w-8",
+                rightCollapsed ? "mx-auto" : ""
+              )} 
+              onClick={() => setRightCollapsed(!rightCollapsed)}
+            >
+              <PanelRight size={16} />
+            </Button>
+          </div>
         </div>
         
         {rightCollapsed ? (
           <div className="flex flex-col items-center justify-center h-[calc(100%-4rem)] text-muted-foreground">
-            <FileText size={24} />
+            <MessageSquare size={24} />
           </div>
         ) : (
-          <div className="h-[calc(100%-4rem)] overflow-hidden">
-            {rightPanel}
+          <div className="flex flex-col h-full">
+            {/* Status bar */}
+            <div className="bg-muted/10 border-b border-border/30 py-1.5 px-3 flex items-center space-x-2 text-xs text-muted-foreground">
+              <div className="h-2 w-2 rounded-full bg-primary animate-pulse"></div>
+              <span>AI Agent Active</span>
+            </div>
+            
+            {/* Main content area */}
+            <div className="h-[calc(100%-2.5rem)] overflow-hidden">
+              {rightPanel}
+            </div>
           </div>
         )}
       </div>
