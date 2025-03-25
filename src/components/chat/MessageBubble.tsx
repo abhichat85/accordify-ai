@@ -11,6 +11,7 @@ export interface Message {
   type: MessageType;
   timestamp: Date;
   status?: "sending" | "sent" | "error";
+  messageType?: "reasoning" | "actions" | "default"; // Add this line to support different message types
 }
 
 export type MessageType = "user" | "ai";
@@ -39,6 +40,21 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
         console.error("Could not copy text: ", err);
       }
     );
+  };
+  
+  // Add special styling for different message types
+  const getMessageStyles = () => {
+    if (!isUser && message.messageType) {
+      switch (message.messageType) {
+        case "reasoning":
+          return "bg-muted/50 border-dashed border-muted-foreground/30 text-muted-foreground italic";
+        case "actions":
+          return "bg-muted/30 border-primary/20 text-primary-foreground/90";
+        default:
+          return "";
+      }
+    }
+    return "";
   };
   
   return (
@@ -73,7 +89,8 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
               "rounded-2xl p-4 relative group mb-1",
               isUser
                 ? "bg-primary text-primary-foreground rounded-tr-sm"
-                : "bg-card border border-border shadow-sm rounded-tl-sm"
+                : "bg-card border border-border shadow-sm rounded-tl-sm",
+              getMessageStyles()
             )}
           >
             <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
