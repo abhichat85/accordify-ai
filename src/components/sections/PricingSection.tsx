@@ -1,4 +1,3 @@
-
 import React from "react";
 import { 
   BarChart, 
@@ -9,6 +8,8 @@ import {
   Tooltip, 
   ResponsiveContainer 
 } from "recharts";
+import { Button } from "@/components/ui/button";
+import { Sparkles } from "lucide-react";
 
 // Sample data for the chart - in a real app, this would come from your Supabase database
 const creditUsageData = [
@@ -65,9 +66,9 @@ export const PricingSection = () => {
             </ul>
           </div>
           <div className="p-6 bg-muted/20">
-            <button className="w-full py-2 rounded-lg border border-primary text-primary hover:bg-primary/10 transition-colors">
+            <Button variant="outline" size="lg" className="w-full">
               Current Plan
-            </button>
+            </Button>
           </div>
         </div>
         
@@ -111,9 +112,10 @@ export const PricingSection = () => {
             </ul>
           </div>
           <div className="p-6 bg-muted/20">
-            <button className="w-full py-2 rounded-lg bg-primary text-white hover:bg-primary/90 transition-colors">
-              Upgrade to Pro Alpha
-            </button>
+            <Button variant="cta" size="lg" className="w-full">
+              <Sparkles className="h-5 w-5" />
+              <span>Upgrade to Pro Alpha</span>
+            </Button>
           </div>
         </div>
         
@@ -154,9 +156,10 @@ export const PricingSection = () => {
             </ul>
           </div>
           <div className="p-6 bg-muted/20">
-            <button className="w-full py-2 rounded-lg bg-primary text-white hover:bg-primary/90 transition-colors">
-              Upgrade to Pro Beta
-            </button>
+            <Button variant="cta" size="lg" className="w-full">
+              <Sparkles className="h-5 w-5" />
+              <span>Upgrade to Pro Beta</span>
+            </Button>
           </div>
         </div>
         
@@ -197,9 +200,10 @@ export const PricingSection = () => {
             </ul>
           </div>
           <div className="p-6 bg-muted/20">
-            <button className="w-full py-2 rounded-lg bg-primary text-white hover:bg-primary/90 transition-colors">
-              Upgrade to Pro Gamma
-            </button>
+            <Button variant="cta" size="lg" className="w-full">
+              <Sparkles className="h-5 w-5" />
+              <span>Upgrade to Pro Gamma</span>
+            </Button>
           </div>
         </div>
       </div>

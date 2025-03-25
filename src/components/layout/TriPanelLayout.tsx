@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { cn } from "@/lib/utils";
 import { 
@@ -222,25 +221,24 @@ export const TriPanelLayout: React.FC<TriPanelLayoutProps> = ({
           </div>
         </ScrollArea>
         
-        {/* Upgrade to Pro Button */}
-        <div className="p-4 mb-2">
+        {/* Upgrade to Pro Button - Improved */}
+        <div className="p-4 mt-auto">
           <Button
+            variant="cta"
+            size={leftCollapsed ? "icon" : "xl"}
             className={cn(
-              "w-full rounded-xl aspect-auto py-4 relative overflow-hidden bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 group",
-              leftCollapsed ? "aspect-square p-2" : "px-4"
+              "w-full rounded-lg",
+              leftCollapsed ? "aspect-square p-0" : ""
             )}
             onClick={() => handleNavigate("/pricing")}
           >
-            <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxwYXR0ZXJuIGlkPSJwYXR0ZXJuIiB4PSIwIiB5PSIwIiB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiIHBhdHRlcm5UcmFuc2Zvcm09InJvdGF0ZSgzMCkiPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjAzKSIgLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjcGF0dGVybikiIC8+PC9zdmc+')] opacity-50"></div>
             {leftCollapsed ? (
-              <Sparkles size={24} className="text-white" />
+              <Sparkles className="h-5 w-5" />
             ) : (
-              <div className="flex items-center justify-center w-full z-10">
-                <div className="flex flex-col items-center gap-1">
-                  <Sparkles size={20} className="text-white" />
-                  <span className="text-white font-bold text-base">UPGRADE TO PRO</span>
-                </div>
-              </div>
+              <>
+                <Sparkles className="h-5 w-5" />
+                <span>UPGRADE TO PRO</span>
+              </>
             )}
           </Button>
         </div>
@@ -313,7 +311,6 @@ export const TriPanelLayout: React.FC<TriPanelLayoutProps> = ({
         "h-full border-l border-border/40 bg-background/50 backdrop-blur-sm transition-all duration-300 flex flex-col",
         rightCollapsed ? "w-16" : "w-96"
       )}>
-        {/* Header */}
         <div className="flex items-center justify-between h-16 px-4 border-b border-border/40 bg-background/80">
           {!rightCollapsed && (
             <div className="flex items-center space-x-2">
