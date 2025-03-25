@@ -1,0 +1,16 @@
+
+/* Import base styles */
+@import './base.css';
+
+/* Import theme files */
+@import './themes/purple.css';
+@import './themes/orange.css';
+@import './themes/zinc.css';
+@import './themes/blue.css';
+@import './themes/red.css';
+@import './themes/rose.css';
+@import './themes/green.css';
+@import './themes/yellow.css';
+
+/* Import animations */
+@import './animations.css';
