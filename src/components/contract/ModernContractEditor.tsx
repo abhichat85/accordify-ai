@@ -33,7 +33,9 @@ import {
   NotebookPen,
   MessageSquare,
   CalendarDays,
-  FileDigit
+  FileDigit,
+  Scale,  // Added missing import
+  Brain   // Added missing import
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
