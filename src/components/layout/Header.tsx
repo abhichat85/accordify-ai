@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React from "react";
 import { cn } from "@/lib/utils";
 import { 
   BarChart3, 
@@ -8,9 +8,7 @@ import {
   LayoutTemplate, 
   Settings, 
   User,
-  Bell,
-  Moon,
-  Sun 
+  Bell
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,20 +20,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ThemeSwitcher } from "@/components/ui/theme-switcher";
 
 interface HeaderProps {
   className?: string;
 }
 
 export const Header: React.FC<HeaderProps> = ({ className }) => {
-  const [theme, setTheme] = useState<"light" | "dark">("light");
-  
-  const toggleTheme = () => {
-    const newTheme = theme === "light" ? "dark" : "light";
-    setTheme(newTheme);
-    document.documentElement.classList.toggle("dark");
-  };
-
   return (
     <header className={cn(
       "border-b border-border/40 bg-background/80 backdrop-blur-md z-50 sticky top-0",
@@ -73,9 +64,8 @@ export const Header: React.FC<HeaderProps> = ({ className }) => {
         </div>
         
         <div className="flex items-center space-x-2">
-          <Button variant="ghost" size="icon" className="rounded-full" onClick={toggleTheme}>
-            {theme === "light" ? <Moon size={18} /> : <Sun size={18} />}
-          </Button>
+          {/* Replace the theme toggle with our new ThemeSwitcher */}
+          <ThemeSwitcher />
           
           <Button variant="ghost" size="icon" className="rounded-full relative">
             <Bell size={18} />

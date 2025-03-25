@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { cn } from "@/lib/utils";
 import { 
@@ -7,8 +8,6 @@ import {
   Settings, 
   User,
   Bell,
-  Moon,
-  Sun,
   PanelLeft,
   PanelRight,
   Users,
@@ -16,7 +15,6 @@ import {
   CreditCard,
   Sparkles,
   MessageSquare,
-  Pen,
   FileSignature
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -32,6 +30,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useNavigate } from "react-router-dom";
 import { NotificationPanel } from "./NotificationPanel";
+import { ThemeSwitcher } from "@/components/ui/theme-switcher";
 
 interface TriPanelLayoutProps {
   leftPanel: React.ReactNode;
@@ -48,15 +47,8 @@ export const TriPanelLayout: React.FC<TriPanelLayoutProps> = ({
 }) => {
   const [leftCollapsed, setLeftCollapsed] = useState(false);
   const [rightCollapsed, setRightCollapsed] = useState(false);
-  const [theme, setTheme] = useState<"light" | "dark">("light");
   const [notificationPanelOpen, setNotificationPanelOpen] = useState(false);
   const navigate = useNavigate();
-  
-  const toggleTheme = () => {
-    const newTheme = theme === "light" ? "dark" : "light";
-    setTheme(newTheme);
-    document.documentElement.classList.toggle("dark");
-  };
 
   const handleNavigate = (path: string) => {
     navigate(path);
@@ -243,9 +235,8 @@ export const TriPanelLayout: React.FC<TriPanelLayoutProps> = ({
         
         <div className="p-3 border-t border-border/40">
           <div className="flex items-center justify-between">
-            <Button variant="ghost" size="icon" className="rounded-full" onClick={toggleTheme}>
-              {theme === "light" ? <Moon size={18} /> : <Sun size={18} />}
-            </Button>
+            {/* Replace the Moon/Sun toggle with our new ThemeSwitcher */}
+            <ThemeSwitcher />
             
             <Button 
               variant="ghost" 

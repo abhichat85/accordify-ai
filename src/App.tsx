@@ -7,7 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Signatures from "./pages/Signatures";
-import { NotificationPanel } from "./components/layout/NotificationPanel";
+import { ThemeProvider } from "./contexts/ThemeContext";
 
 // Create a client for React Query
 const queryClient = new QueryClient({
@@ -21,27 +21,29 @@ const queryClient = new QueryClient({
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/contracts/*" element={<Index />} />
-          <Route path="/templates" element={<Index />} />
-          <Route path="/history" element={<Index />} />
-          <Route path="/workspaces" element={<Index />} />
-          <Route path="/team" element={<Index />} />
-          <Route path="/settings" element={<Index />} />
-          <Route path="/pricing" element={<Index />} />
-          <Route path="/profile" element={<Index />} />
-          <Route path="/billing" element={<Index />} />
-          <Route path="/notifications" element={<Index />} />
-          <Route path="/signatures" element={<Signatures />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+    <ThemeProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/contracts/*" element={<Index />} />
+            <Route path="/templates" element={<Index />} />
+            <Route path="/history" element={<Index />} />
+            <Route path="/workspaces" element={<Index />} />
+            <Route path="/team" element={<Index />} />
+            <Route path="/settings" element={<Index />} />
+            <Route path="/pricing" element={<Index />} />
+            <Route path="/profile" element={<Index />} />
+            <Route path="/billing" element={<Index />} />
+            <Route path="/notifications" element={<Index />} />
+            <Route path="/signatures" element={<Signatures />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 
