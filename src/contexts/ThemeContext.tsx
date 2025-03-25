@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 
 // Define theme types
-export type ColorTheme = "purple" | "orange" | "zinc" | "blue";
+export type ColorTheme = "purple" | "orange" | "zinc" | "blue" | "red" | "rose" | "green" | "yellow";
 export type ModeTheme = "light" | "dark";
 
 interface ThemeContextType {
@@ -42,7 +42,16 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const root = document.documentElement;
     
     // Remove all theme classes first
-    root.classList.remove("theme-purple", "theme-orange", "theme-zinc", "theme-blue");
+    root.classList.remove(
+      "theme-purple", 
+      "theme-orange", 
+      "theme-zinc", 
+      "theme-blue", 
+      "theme-red", 
+      "theme-rose", 
+      "theme-green", 
+      "theme-yellow"
+    );
     root.classList.add(`theme-${colorTheme}`);
     
     // Apply dark/light mode
