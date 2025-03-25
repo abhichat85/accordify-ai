@@ -2,14 +2,9 @@
 import React, { useState } from "react";
 import { ChatInterface } from "../chat/ChatInterface";
 import { Message } from "../chat/MessageBubble";
-import { ConversationHistory } from "../chat/ConversationHistory";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
-  ChevronRight, 
-  ChevronLeft, 
   MessageSquare, 
-  Clock, 
-  Settings,
   File,
   Edit,
   Eye,
@@ -18,7 +13,8 @@ import {
   FileText,
   Sparkles,
   Workflow,
-  InfoIcon
+  InfoIcon,
+  Settings
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,18 +23,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-
-// Sample conversation data - in a real app, this would come from your Supabase database
-const sampleConversations = [
-  { id: "1", title: "Completing Contract Creation Flow", lastUpdated: "23h" },
-  { id: "2", title: "Enhancing the Hero Section", lastUpdated: "2d" },
-  { id: "3", title: "Code Review and Feature Listing", lastUpdated: "8d" },
-  { id: "4", title: "Client Agreement Draft", lastUpdated: "3d" },
-  { id: "5", title: "NDA Template Customization", lastUpdated: "1w" },
-  { id: "6", title: "Partnership Contract Review", lastUpdated: "1w" },
-  { id: "7", title: "Employment Agreement", lastUpdated: "2w" },
-  { id: "8", title: "Software License Template", lastUpdated: "3w" },
-];
 
 interface ChatPanelProps {
   messages: Message[];
@@ -51,48 +35,14 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
   isProcessing, 
   onSendMessage 
 }) => {
-  const [showConversations, setShowConversations] = useState(false);
-  const [activeConversationId, setActiveConversationId] = useState<string | undefined>();
   const [activeTab, setActiveTab] = useState<string>("chat");
-  
-  // Toggle conversation history sidebar
-  const toggleConversations = () => {
-    setShowConversations(!showConversations);
-  };
-  
-  // Select a conversation
-  const handleSelectConversation = (id: string) => {
-    setActiveConversationId(id);
-    // In a real app, you would fetch the messages for this conversation
-  };
   
   return (
     <div className="flex h-full rounded-2xl overflow-hidden border border-border/40 shadow-md">
-      {/* Left sidebar - Conversation history */}
-      <div 
-        className={`bg-card w-64 flex-shrink-0 border-r border-border/40 transition-all duration-300 ${
-          showConversations ? "translate-x-0" : "-translate-x-full hidden md:block md:translate-x-0"
-        }`}
-      >
-        <ConversationHistory 
-          conversations={sampleConversations}
-          onSelectConversation={handleSelectConversation}
-          activeConversationId={activeConversationId}
-        />
-      </div>
-      
-      {/* Main chat area */}
+      {/* Main chat area - now taking full width */}
       <div className="flex-grow flex flex-col relative">
         {/* Top toolbar */}
         <div className="bg-muted/20 border-b border-border/40 p-2 flex items-center">
-          <button 
-            onClick={toggleConversations}
-            className="p-1.5 rounded-md hover:bg-muted mr-2 md:hidden"
-            aria-label="Toggle conversation history"
-          >
-            {showConversations ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}
-          </button>
-          
           <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-grow">
             <TabsList className="h-8 bg-background/40">
               <TabsTrigger value="chat" className="text-xs gap-1.5">
@@ -164,7 +114,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
           </TooltipProvider>
         </div>
         
-        {/* Agent Status Bar - New addition to show AI agent context */}
+        {/* Agent Status Bar */}
         <div className="bg-muted/10 border-b border-border/30 py-1.5 px-3 flex items-center justify-between text-xs text-muted-foreground">
           <div className="flex items-center">
             <div className="flex items-center mr-4">
