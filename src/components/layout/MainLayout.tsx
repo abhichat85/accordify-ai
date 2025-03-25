@@ -121,7 +121,7 @@ export const MainLayout: React.FC = () => {
   // Render primary content area based on current state
   const renderCenterPanel = () => {
     if (isEditorOpen) {
-      return <ModernContractEditor title={currentContract.title} />;
+      return <ModernContractEditor title={currentContract.title} className="h-full" />;
     }
     
     if (isReviewOpen) {
