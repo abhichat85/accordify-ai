@@ -185,56 +185,60 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
         </div>
         
         {/* Tabs Content */}
-        <TabsContent value="chat" className="flex-grow p-0 m-0 overflow-hidden">
-          <ChatInterface
-            onSendMessage={onSendMessage}
-            messages={messages}
-            isProcessing={isProcessing}
-            className="h-full rounded-none border-none shadow-none"
-          />
-        </TabsContent>
-        
-        <TabsContent value="contracts" className="flex-grow p-4 m-0 overflow-auto">
-          <div className="h-full flex flex-col items-center justify-center text-center p-6">
-            <FileText className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-xl font-medium mb-2">Contract Center</h3>
-            <p className="text-muted-foreground mb-6 max-w-sm">
-              View, manage, and collaborate on all your contracts in one place. Enable this feature to access your document library.
-            </p>
-            <Button>
-              <Sparkles size={16} className="mr-2" />
-              Enable Contract Management
-            </Button>
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="workflow" className="flex-grow p-4 m-0 overflow-auto">
-          <div className="h-full flex flex-col items-center justify-center text-center p-6">
-            <Workflow className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-xl font-medium mb-2">Contract Workflows</h3>
-            <p className="text-muted-foreground mb-6 max-w-sm">
-              Create custom workflows for contract review, approval, and e-signature processes.
-            </p>
-            <Button>
-              <Sparkles size={16} className="mr-2" />
-              Enable Workflow Management
-            </Button>
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="agent" className="flex-grow p-4 m-0 overflow-auto">
-          <div className="h-full flex flex-col items-center justify-center text-center p-6">
-            <Brain className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-xl font-medium mb-2">Advanced AI Agent Settings</h3>
-            <p className="text-muted-foreground mb-6 max-w-sm">
-              Configure your AI agent's behavior, preferences, and specialized knowledge for contract optimization.
-            </p>
-            <Button>
-              <Sparkles size={16} className="mr-2" />
-              Configure AI Agent
-            </Button>
-          </div>
-        </TabsContent>
+        <div className="flex-grow flex">
+          <Tabs value={activeTab} className="flex-grow">
+            <TabsContent value="chat" className="flex-grow p-0 m-0 overflow-hidden h-full">
+              <ChatInterface
+                onSendMessage={onSendMessage}
+                messages={messages}
+                isProcessing={isProcessing}
+                className="h-full rounded-none border-none shadow-none"
+              />
+            </TabsContent>
+            
+            <TabsContent value="contracts" className="flex-grow p-4 m-0 overflow-auto h-full">
+              <div className="h-full flex flex-col items-center justify-center text-center p-6">
+                <FileText className="h-12 w-12 text-muted-foreground mb-4" />
+                <h3 className="text-xl font-medium mb-2">Contract Center</h3>
+                <p className="text-muted-foreground mb-6 max-w-sm">
+                  View, manage, and collaborate on all your contracts in one place. Enable this feature to access your document library.
+                </p>
+                <Button>
+                  <Sparkles size={16} className="mr-2" />
+                  Enable Contract Management
+                </Button>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="workflow" className="flex-grow p-4 m-0 overflow-auto h-full">
+              <div className="h-full flex flex-col items-center justify-center text-center p-6">
+                <Workflow className="h-12 w-12 text-muted-foreground mb-4" />
+                <h3 className="text-xl font-medium mb-2">Contract Workflows</h3>
+                <p className="text-muted-foreground mb-6 max-w-sm">
+                  Create custom workflows for contract review, approval, and e-signature processes.
+                </p>
+                <Button>
+                  <Sparkles size={16} className="mr-2" />
+                  Enable Workflow Management
+                </Button>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="agent" className="flex-grow p-4 m-0 overflow-auto h-full">
+              <div className="h-full flex flex-col items-center justify-center text-center p-6">
+                <Brain className="h-12 w-12 text-muted-foreground mb-4" />
+                <h3 className="text-xl font-medium mb-2">Advanced AI Agent Settings</h3>
+                <p className="text-muted-foreground mb-6 max-w-sm">
+                  Configure your AI agent's behavior, preferences, and specialized knowledge for contract optimization.
+                </p>
+                <Button>
+                  <Sparkles size={16} className="mr-2" />
+                  Configure AI Agent
+                </Button>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </div>
       </div>
     </div>
   );
