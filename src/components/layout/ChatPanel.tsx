@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { ChatInterface } from "../chat/ChatInterface";
 import { Message } from "../chat/MessageBubble";
@@ -13,7 +12,7 @@ import {
   File,
   Edit,
   Eye,
-  Tool 
+  Wrench 
 } from "lucide-react";
 
 // Sample conversation data - in a real app, this would come from your Supabase database
@@ -96,7 +95,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
               <Eye size={18} />
             </button>
             <button className="p-1.5 rounded-md hover:bg-muted">
-              <Tool size={18} />
+              <Wrench size={18} />
             </button>
           </div>
         </div>
