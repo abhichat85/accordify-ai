@@ -138,19 +138,59 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
               Your AI-powered contract assistant. Ask me to generate, review, or analyze any contract.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-lg animate-fade-in delay-200">
-              <div className="glass p-3 rounded-xl cursor-pointer hover:shadow-md transition-all">
+              <div 
+                className="glass p-3 rounded-xl cursor-pointer hover:shadow-md transition-all"
+                onClick={() => {
+                  setInputValue("Generate an NDA for my company");
+                  setTimeout(() => {
+                    if (inputRef.current) {
+                      inputRef.current.focus();
+                    }
+                  }, 100);
+                }}
+              >
                 <p className="font-medium text-accord-blue">Generate a new NDA</p>
                 <p className="text-xs text-accord-darkGray/80">Create a custom non-disclosure agreement</p>
               </div>
-              <div className="glass p-3 rounded-xl cursor-pointer hover:shadow-md transition-all">
+              <div 
+                className="glass p-3 rounded-xl cursor-pointer hover:shadow-md transition-all"
+                onClick={() => {
+                  setInputValue("I need you to review a contract");
+                  setTimeout(() => {
+                    if (inputRef.current) {
+                      inputRef.current.focus();
+                    }
+                  }, 100);
+                }}
+              >
                 <p className="font-medium text-accord-blue">Review my contract</p>
                 <p className="text-xs text-accord-darkGray/80">Get analysis and risk assessment</p>
               </div>
-              <div className="glass p-3 rounded-xl cursor-pointer hover:shadow-md transition-all">
+              <div 
+                className="glass p-3 rounded-xl cursor-pointer hover:shadow-md transition-all"
+                onClick={() => {
+                  setInputValue("Help me compare two contract versions");
+                  setTimeout(() => {
+                    if (inputRef.current) {
+                      inputRef.current.focus();
+                    }
+                  }, 100);
+                }}
+              >
                 <p className="font-medium text-accord-blue">Compare versions</p>
                 <p className="text-xs text-accord-darkGray/80">See what's changed between drafts</p>
               </div>
-              <div className="glass p-3 rounded-xl cursor-pointer hover:shadow-md transition-all">
+              <div 
+                className="glass p-3 rounded-xl cursor-pointer hover:shadow-md transition-all"
+                onClick={() => {
+                  setInputValue("I need a Statement of Work template");
+                  setTimeout(() => {
+                    if (inputRef.current) {
+                      inputRef.current.focus();
+                    }
+                  }, 100);
+                }}
+              >
                 <p className="font-medium text-accord-blue">Create SOW</p>
                 <p className="text-xs text-accord-darkGray/80">Draft a statement of work</p>
               </div>
@@ -158,7 +198,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
           </div>
         )}
 
-        {hasMessages && messages.map((msg, index) => (
+        {messages.map((msg, index) => (
           <MessageBubble
             key={msg.id}
             message={msg}

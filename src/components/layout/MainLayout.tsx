@@ -1,12 +1,13 @@
 
 import React, { useState } from "react";
 import { Outlet } from "react-router-dom";
-import { ChatInterface } from "../chat/MessageBubble";
+import { ChatInterface } from "../chat/ChatInterface";
 import { Message } from "../chat/MessageBubble";
 import { nanoid } from "@/lib/utils";
 import { ContractEditor } from "../contract/ContractEditor";
 import { ContractReview } from "../contract/ContractReview";
 import { useToast } from "@/hooks/use-toast";
+import { Header } from "./Header";
 
 export const MainLayout: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -101,6 +102,8 @@ export const MainLayout: React.FC = () => {
 
   return (
     <div className="flex flex-col h-screen bg-accord-lightGray">
+      <Header />
+      
       <div className="flex flex-grow overflow-hidden relative">
         {/* Main chat interface */}
         <div className="flex-grow flex flex-col h-full relative">

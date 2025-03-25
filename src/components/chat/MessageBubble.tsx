@@ -1,18 +1,17 @@
 
 import React from "react";
 import { cn } from "@/lib/utils";
-import { CheckCircle, AlertCircle } from "lucide-react";
-
-export type MessageType = "user" | "ai";
-export type MessageStatus = "sending" | "sent" | "error";
+import { Check, Clock } from "lucide-react";
 
 export interface Message {
   id: string;
   content: string;
   type: MessageType;
   timestamp: Date;
-  status?: MessageStatus;
+  status?: "sending" | "sent" | "error";
 }
+
+export type MessageType = "user" | "ai";
 
 interface MessageBubbleProps {
   message: Message;
@@ -28,57 +27,42 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
   return (
     <div
       className={cn(
-        "group flex mb-4 items-end",
-        isUser ? "justify-end" : "justify-start"
+        "mb-4",
+        isUser ? "flex justify-end" : "flex justify-start"
       )}
     >
-      {!isUser && (
-        <div className="w-8 h-8 rounded-full bg-accord-teal text-white flex items-center justify-center mr-2 flex-shrink-0">
-          <span className="text-xs font-semibold">AI</span>
-        </div>
-      )}
-      
       <div
         className={cn(
-          "max-w-[80%] p-4 rounded-2xl animate-fade-in shadow-sm",
+          "max-w-[80%] rounded-2xl p-4",
           isUser
-            ? "bg-accord-blue text-white rounded-br-none"
-            : "bg-white rounded-bl-none border border-accord-mediumGray/70"
+            ? "bg-accord-blue text-white"
+            : "bg-white border border-accord-mediumGray/50 shadow-sm"
         )}
       >
-        <div className="text-sm">{message.content}</div>
-        
-        <div className={cn(
-          "text-[10px] mt-1 flex items-center",
-          isUser ? "text-white/70 justify-end" : "text-accord-darkGray/70"
-        )}>
-          {isUser && message.status && (
-            <span className="mr-1">
-              {message.status === "sending" && (
-                <span className="flex space-x-1">
-                  <span className="pulse-dot delay-75"></span>
-                  <span className="pulse-dot delay-150"></span>
-                  <span className="pulse-dot delay-300"></span>
-                </span>
-              )}
-              {message.status === "sent" && <CheckCircle size={10} />}
-              {message.status === "error" && <AlertCircle size={10} />}
+        <div className="flex flex-col">
+          <p className="text-sm mb-1">{message.content}</p>
+          <div className="flex items-center justify-end mt-1">
+            <span className="text-xs opacity-70">
+              {message.timestamp.toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
             </span>
-          )}
-          <time>
-            {message.timestamp.toLocaleTimeString([], { 
-              hour: "2-digit", 
-              minute: "2-digit" 
-            })}
-          </time>
+            
+            {isUser && message.status && (
+              <span className="ml-1">
+                {message.status === "sending" ? (
+                  <Clock size={12} className="opacity-70" />
+                ) : message.status === "sent" ? (
+                  <Check size={12} className="opacity-70" />
+                ) : (
+                  <span className="text-red-400 text-xs">!</span>
+                )}
+              </span>
+            )}
+          </div>
         </div>
       </div>
-      
-      {isUser && (
-        <div className="w-8 h-8 rounded-full bg-accord-mediumGray/80 text-accord-blue flex items-center justify-center ml-2 flex-shrink-0">
-          <span className="text-xs font-semibold">You</span>
-        </div>
-      )}
     </div>
   );
 };
