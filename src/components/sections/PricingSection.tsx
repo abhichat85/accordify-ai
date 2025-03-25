@@ -1,5 +1,25 @@
 
 import React from "react";
+import { 
+  BarChart, 
+  Bar, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer 
+} from "recharts";
+
+// Sample data for the chart - in a real app, this would come from your Supabase database
+const creditUsageData = [
+  { name: "Jan", credits: 45 },
+  { name: "Feb", credits: 62 },
+  { name: "Mar", credits: 78 },
+  { name: "Apr", credits: 51 },
+  { name: "May", credits: 90 },
+  { name: "Jun", credits: 109 },
+  { name: "Jul", credits: 75 },
+];
 
 // Pricing section component
 export const PricingSection = () => {
@@ -187,10 +207,24 @@ export const PricingSection = () => {
       <div className="bg-card rounded-xl border border-border/50 p-6">
         <h2 className="text-xl font-semibold mb-4">Credit Usage</h2>
         <div className="h-64 mb-6">
-          {/* This is a placeholder for the chart - in a real app, use recharts or another charting library */}
-          <div className="w-full h-full bg-muted/20 rounded-xl flex items-center justify-center">
-            <span className="text-muted-foreground">Credit usage chart</span>
-          </div>
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={creditUsageData}
+              margin={{ top: 10, right: 10, left: 10, bottom: 10 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" className="stroke-border/30" />
+              <XAxis dataKey="name" className="text-xs" />
+              <YAxis className="text-xs" />
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: "var(--background)", 
+                  borderColor: "var(--border)",
+                  borderRadius: "0.5rem"
+                }} 
+              />
+              <Bar dataKey="credits" fill="var(--primary)" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-muted/20 rounded-xl p-4">
