@@ -303,7 +303,7 @@ export const TriPanelLayout: React.FC<TriPanelLayoutProps> = ({
             <FileText size={24} />
           </div>
         ) : (
-          <div className="h-[calc(100%-4rem)]">
+          <div className="h-[calc(100%-4rem)] overflow-hidden">
             {rightPanel}
           </div>
         )}
