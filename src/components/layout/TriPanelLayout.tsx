@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useNavigate } from "react-router-dom";
+import { NotificationPanel } from "./NotificationPanel";
 
 interface TriPanelLayoutProps {
   leftPanel: React.ReactNode;
