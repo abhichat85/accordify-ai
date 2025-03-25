@@ -48,6 +48,7 @@ export const TriPanelLayout: React.FC<TriPanelLayoutProps> = ({
   const [leftCollapsed, setLeftCollapsed] = useState(false);
   const [rightCollapsed, setRightCollapsed] = useState(false);
   const [theme, setTheme] = useState<"light" | "dark">("light");
+  const [notificationPanelOpen, setNotificationPanelOpen] = useState(false);
   const navigate = useNavigate();
   
   const toggleTheme = () => {
@@ -86,7 +87,6 @@ export const TriPanelLayout: React.FC<TriPanelLayoutProps> = ({
         
         <ScrollArea className="flex-grow">
           <div className={cn("py-4 px-3", leftCollapsed ? "items-center" : "")}>
-            {/* Main Navigation */}
             <div className="mb-6">
               <h3 className={cn(
                 "text-xs font-medium text-muted-foreground mb-2",
@@ -150,7 +150,6 @@ export const TriPanelLayout: React.FC<TriPanelLayoutProps> = ({
               </nav>
             </div>
             
-            {/* Workspace Section */}
             <div className="mb-6">
               <h3 className={cn(
                 "text-xs font-medium text-muted-foreground mb-2",
@@ -188,7 +187,6 @@ export const TriPanelLayout: React.FC<TriPanelLayoutProps> = ({
               </nav>
             </div>
             
-            {/* Recent Contracts */}
             <div className="mb-6">
               <h3 className={cn(
                 "text-xs font-medium text-muted-foreground mb-2",
@@ -221,14 +219,13 @@ export const TriPanelLayout: React.FC<TriPanelLayoutProps> = ({
           </div>
         </ScrollArea>
         
-        {/* Upgrade to Pro Button - Improved */}
         <div className="p-4 mt-auto">
           <Button
-            variant="cta"
-            size={leftCollapsed ? "icon" : "xl"}
+            variant="default"
+            size={leftCollapsed ? "icon" : "lg"}
             className={cn(
-              "w-full rounded-lg",
-              leftCollapsed ? "aspect-square p-0" : ""
+              "w-full rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 font-semibold",
+              leftCollapsed ? "aspect-square p-0 h-10 w-10" : "h-12"
             )}
             onClick={() => handleNavigate("/pricing")}
           >
@@ -236,14 +233,13 @@ export const TriPanelLayout: React.FC<TriPanelLayoutProps> = ({
               <Sparkles className="h-5 w-5" />
             ) : (
               <>
-                <Sparkles className="h-5 w-5" />
+                <Sparkles className="h-5 w-5 mr-2" />
                 <span>UPGRADE TO PRO</span>
               </>
             )}
           </Button>
         </div>
         
-        {/* Footer */}
         <div className="p-3 border-t border-border/40">
           <div className="flex items-center justify-between">
             <Button variant="ghost" size="icon" className="rounded-full" onClick={toggleTheme}>
@@ -254,7 +250,7 @@ export const TriPanelLayout: React.FC<TriPanelLayoutProps> = ({
               variant="ghost" 
               size="icon" 
               className="rounded-full relative"
-              onClick={() => handleNavigate("/notifications")}
+              onClick={() => setNotificationPanelOpen(!notificationPanelOpen)}
             >
               <Bell size={18} />
               <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full"></span>
@@ -298,15 +294,19 @@ export const TriPanelLayout: React.FC<TriPanelLayoutProps> = ({
         </div>
       </div>
       
-      {/* Center Panel */}
       <div className={cn(
-        "flex-grow h-full transition-all duration-300 overflow-auto",
+        "flex-grow h-full transition-all duration-300 overflow-auto relative",
         rightCollapsed ? "pr-0" : "pr-0"
       )}>
         {centerPanel}
+        
+        {notificationPanelOpen && (
+          <div className="absolute top-16 right-4 w-96 h-[80vh] z-50 shadow-lg">
+            <NotificationPanel />
+          </div>
+        )}
       </div>
       
-      {/* Right Panel - Improved AI Assistant */}
       <div className={cn(
         "h-full border-l border-border/40 bg-background/50 backdrop-blur-sm transition-all duration-300 flex flex-col",
         rightCollapsed ? "w-16" : "w-96"

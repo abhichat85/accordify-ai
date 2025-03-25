@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Signatures from "./pages/Signatures";
+import { NotificationPanel } from "./components/layout/NotificationPanel";
 
 // Create a client for React Query
 const queryClient = new QueryClient({
@@ -36,7 +37,7 @@ const App = () => (
           <Route path="/profile" element={<Index />} />
           <Route path="/billing" element={<Index />} />
           <Route path="/notifications" element={<Index />} />
-          <Route path="/signatures" element={<Index />} />
+          <Route path="/signatures" element={<Signatures />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
