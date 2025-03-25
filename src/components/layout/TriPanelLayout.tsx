@@ -2,16 +2,6 @@
 import React, { useState } from "react";
 import { cn } from "@/lib/utils";
 import { 
-  SidebarProvider, 
-  Sidebar, 
-  SidebarContent, 
-  SidebarHeader, 
-  SidebarFooter,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton
-} from "@/components/ui/sidebar";
-import { 
   FileText, 
   History, 
   LayoutTemplate, 
@@ -26,10 +16,9 @@ import {
   Briefcase,
   CreditCard,
   Sparkles,
-  ChevronRight,
   MessageSquare,
-  X,
-  Clock
+  Pen,
+  FileSignature
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -85,7 +74,7 @@ export const TriPanelLayout: React.FC<TriPanelLayoutProps> = ({
               <FileText size={18} className="text-primary-foreground" />
             </div>
             {!leftCollapsed && (
-              <h1 className="ml-3 text-xl font-semibold bg-gradient-to-r from-primary/90 to-primary bg-clip-text text-transparent">
+              <h1 className="ml-3 text-xl font-bold bg-gradient-to-r from-primary/90 to-primary bg-clip-text text-transparent">
                 Accord AI
               </h1>
             )}
@@ -98,79 +87,115 @@ export const TriPanelLayout: React.FC<TriPanelLayoutProps> = ({
         
         <ScrollArea className="flex-grow">
           <div className={cn("py-4 px-3", leftCollapsed ? "items-center" : "")}>
-            <nav className="space-y-1">
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className={cn(
-                  "w-full justify-start rounded-lg gap-2 font-normal",
-                  leftCollapsed ? "justify-center px-2" : ""
-                )}
-                onClick={() => handleNavigate("/contracts")}
-              >
-                <FileText size={leftCollapsed ? 20 : 16} />
-                {!leftCollapsed && <span>Contracts</span>}
-              </Button>
-              
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className={cn(
-                  "w-full justify-start rounded-lg gap-2 font-normal",
-                  leftCollapsed ? "justify-center px-2" : ""
-                )}
-                onClick={() => handleNavigate("/templates")}
-              >
-                <LayoutTemplate size={leftCollapsed ? 20 : 16} />
-                {!leftCollapsed && <span>Templates</span>}
-              </Button>
-              
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className={cn(
-                  "w-full justify-start rounded-lg gap-2 font-normal",
-                  leftCollapsed ? "justify-center px-2" : ""
-                )}
-                onClick={() => handleNavigate("/history")}
-              >
-                <History size={leftCollapsed ? 20 : 16} />
-                {!leftCollapsed && <span>History</span>}
-              </Button>
-
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className={cn(
-                  "w-full justify-start rounded-lg gap-2 font-normal",
-                  leftCollapsed ? "justify-center px-2" : ""
-                )}
-                onClick={() => handleNavigate("/workspaces")}
-              >
-                <Briefcase size={leftCollapsed ? 20 : 16} />
-                {!leftCollapsed && <span>Workspaces</span>}
-              </Button>
-
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className={cn(
-                  "w-full justify-start rounded-lg gap-2 font-normal",
-                  leftCollapsed ? "justify-center px-2" : ""
-                )}
-                onClick={() => handleNavigate("/team")}
-              >
-                <Users size={leftCollapsed ? 20 : 16} />
-                {!leftCollapsed && <span>Team</span>}
-              </Button>
-            </nav>
-            
-            <div className="mt-8">
+            {/* Main Navigation */}
+            <div className="mb-6">
               <h3 className={cn(
                 "text-xs font-medium text-muted-foreground mb-2",
                 leftCollapsed ? "text-center" : "px-2"
               )}>
-                {!leftCollapsed && "Recent Contracts"}
+                {!leftCollapsed && "MAIN"}
+              </h3>
+              
+              <nav className="space-y-1">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className={cn(
+                    "w-full justify-start rounded-lg gap-2 font-normal",
+                    leftCollapsed ? "justify-center px-2" : ""
+                  )}
+                  onClick={() => handleNavigate("/contracts")}
+                >
+                  <FileText size={leftCollapsed ? 20 : 16} />
+                  {!leftCollapsed && <span>Contracts</span>}
+                </Button>
+                
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className={cn(
+                    "w-full justify-start rounded-lg gap-2 font-normal",
+                    leftCollapsed ? "justify-center px-2" : ""
+                  )}
+                  onClick={() => handleNavigate("/templates")}
+                >
+                  <LayoutTemplate size={leftCollapsed ? 20 : 16} />
+                  {!leftCollapsed && <span>Templates</span>}
+                </Button>
+                
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className={cn(
+                    "w-full justify-start rounded-lg gap-2 font-normal",
+                    leftCollapsed ? "justify-center px-2" : ""
+                  )}
+                  onClick={() => handleNavigate("/history")}
+                >
+                  <History size={leftCollapsed ? 20 : 16} />
+                  {!leftCollapsed && <span>History</span>}
+                </Button>
+                
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className={cn(
+                    "w-full justify-start rounded-lg gap-2 font-normal",
+                    leftCollapsed ? "justify-center px-2" : ""
+                  )}
+                  onClick={() => handleNavigate("/signatures")}
+                >
+                  <FileSignature size={leftCollapsed ? 20 : 16} />
+                  {!leftCollapsed && <span>E-Signatures</span>}
+                </Button>
+              </nav>
+            </div>
+            
+            {/* Workspace Section */}
+            <div className="mb-6">
+              <h3 className={cn(
+                "text-xs font-medium text-muted-foreground mb-2",
+                leftCollapsed ? "text-center" : "px-2"
+              )}>
+                {!leftCollapsed && "WORKSPACE"}
+              </h3>
+              
+              <nav className="space-y-1">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className={cn(
+                    "w-full justify-start rounded-lg gap-2 font-normal",
+                    leftCollapsed ? "justify-center px-2" : ""
+                  )}
+                  onClick={() => handleNavigate("/workspaces")}
+                >
+                  <Briefcase size={leftCollapsed ? 20 : 16} />
+                  {!leftCollapsed && <span>Workspaces</span>}
+                </Button>
+
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className={cn(
+                    "w-full justify-start rounded-lg gap-2 font-normal",
+                    leftCollapsed ? "justify-center px-2" : ""
+                  )}
+                  onClick={() => handleNavigate("/team")}
+                >
+                  <Users size={leftCollapsed ? 20 : 16} />
+                  {!leftCollapsed && <span>Team</span>}
+                </Button>
+              </nav>
+            </div>
+            
+            {/* Recent Contracts */}
+            <div className="mb-6">
+              <h3 className={cn(
+                "text-xs font-medium text-muted-foreground mb-2",
+                leftCollapsed ? "text-center" : "px-2"
+              )}>
+                {!leftCollapsed && "RECENT"}
               </h3>
               
               <div className="space-y-1">
@@ -194,33 +219,33 @@ export const TriPanelLayout: React.FC<TriPanelLayoutProps> = ({
                 )}
               </div>
             </div>
-
-            {/* Upgrade to Pro Button */}
-            <div className="mt-8">
-              <Button
-                className={cn(
-                  "w-full rounded-xl py-5 relative overflow-hidden bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 group",
-                  leftCollapsed ? "p-2" : "px-4"
-                )}
-                onClick={() => handleNavigate("/pricing")}
-              >
-                <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxwYXR0ZXJuIGlkPSJwYXR0ZXJuIiB4PSIwIiB5PSIwIiB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiIHBhdHRlcm5UcmFuc2Zvcm09InJvdGF0ZSgzMCkiPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjAzKSIgLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjcGF0dGVybikiIC8+PC9zdmc+')] opacity-50"></div>
-                {leftCollapsed ? (
-                  <Sparkles size={20} className="text-white" />
-                ) : (
-                  <div className="flex items-center justify-between w-full z-10">
-                    <div className="flex items-center gap-2">
-                      <Sparkles size={16} className="text-white" />
-                      <span className="text-white font-medium">Upgrade to Pro</span>
-                    </div>
-                    <ChevronRight size={16} className="text-white group-hover:translate-x-1 transition-transform" />
-                  </div>
-                )}
-              </Button>
-            </div>
           </div>
         </ScrollArea>
         
+        {/* Upgrade to Pro Button */}
+        <div className="p-4 mb-2">
+          <Button
+            className={cn(
+              "w-full rounded-xl aspect-auto py-4 relative overflow-hidden bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 group",
+              leftCollapsed ? "aspect-square p-2" : "px-4"
+            )}
+            onClick={() => handleNavigate("/pricing")}
+          >
+            <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxwYXR0ZXJuIGlkPSJwYXR0ZXJuIiB4PSIwIiB5PSIwIiB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiIHBhdHRlcm5UcmFuc2Zvcm09InJvdGF0ZSgzMCkiPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjAzKSIgLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjcGF0dGVybikiIC8+PC9zdmc+')] opacity-50"></div>
+            {leftCollapsed ? (
+              <Sparkles size={24} className="text-white" />
+            ) : (
+              <div className="flex items-center justify-center w-full z-10">
+                <div className="flex flex-col items-center gap-1">
+                  <Sparkles size={20} className="text-white" />
+                  <span className="text-white font-bold text-base">UPGRADE TO PRO</span>
+                </div>
+              </div>
+            )}
+          </Button>
+        </div>
+        
+        {/* Footer */}
         <div className="p-3 border-t border-border/40">
           <div className="flex items-center justify-between">
             <Button variant="ghost" size="icon" className="rounded-full" onClick={toggleTheme}>
@@ -297,22 +322,17 @@ export const TriPanelLayout: React.FC<TriPanelLayoutProps> = ({
             </div>
           )}
           
-          <div className="flex items-center space-x-1">
-            {!rightCollapsed && (
-              <Button variant="outline" size="icon" className="rounded-full h-8 w-8">
-                <X size={14} />
-              </Button>
-            )}
+          <div className="flex items-center space-x-1 ml-auto">
             <Button 
               variant="ghost" 
               size="icon" 
               className={cn(
-                "rounded-full h-8 w-8",
+                "rounded-full h-9 w-9",
                 rightCollapsed ? "mx-auto" : ""
               )} 
               onClick={() => setRightCollapsed(!rightCollapsed)}
             >
-              <PanelRight size={16} />
+              <PanelRight size={18} />
             </Button>
           </div>
         </div>
@@ -322,18 +342,7 @@ export const TriPanelLayout: React.FC<TriPanelLayoutProps> = ({
             <MessageSquare size={24} />
           </div>
         ) : (
-          <div className="flex flex-col h-full">
-            {/* Status bar */}
-            <div className="bg-muted/10 border-b border-border/30 py-1.5 px-3 flex items-center space-x-2 text-xs text-muted-foreground">
-              <div className="h-2 w-2 rounded-full bg-primary animate-pulse"></div>
-              <span>AI Agent Active</span>
-            </div>
-            
-            {/* Main content area */}
-            <div className="h-[calc(100%-2.5rem)] overflow-hidden">
-              {rightPanel}
-            </div>
-          </div>
+          rightPanel
         )}
       </div>
     </div>

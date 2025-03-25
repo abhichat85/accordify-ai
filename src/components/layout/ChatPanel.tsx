@@ -5,16 +5,12 @@ import { Message } from "../chat/MessageBubble";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   MessageSquare, 
-  File,
-  Edit,
-  Eye,
-  Wrench,
-  Brain,
   FileText,
-  Sparkles,
+  Brain,
   Workflow,
-  InfoIcon,
-  Settings
+  Sparkles,
+  Send,
+  Clock
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -39,11 +35,29 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
   
   return (
     <div className="flex flex-col h-full rounded-xl overflow-hidden border border-border/40 shadow-sm bg-card/50">
+      {/* Header with branding */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-border/40 bg-background/80">
+        <div className="flex items-center">
+          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+            <MessageSquare size={16} className="text-primary-foreground" />
+          </div>
+          <h2 className="ml-2 text-base font-bold">Accord AI Assistant</h2>
+        </div>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full">
+              <Clock size={16} />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Recent conversations</TooltipContent>
+        </Tooltip>
+      </div>
+      
       {/* Main content area with improved layout */}
-      <div className="flex-grow flex flex-col h-full relative">
+      <div className="flex-grow flex flex-col h-full relative mt-1">
         {/* Top tabs for main sections */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-grow flex flex-col h-full">
-          <div className="flex items-center justify-between px-2 pt-2">
+          <div className="px-3 pt-1">
             <TabsList className="h-9 bg-background/40 p-1 rounded-lg">
               <TabsTrigger value="chat" className="text-xs gap-1.5 rounded-md">
                 <MessageSquare size={14} />
@@ -62,55 +76,6 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
                 <span className="hidden sm:inline">Agent</span>
               </TabsTrigger>
             </TabsList>
-            
-            <TooltipProvider>
-              <div className="flex items-center space-x-1">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full">
-                      <File size={16} />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Documents</TooltipContent>
-                </Tooltip>
-                
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full">
-                      <Edit size={16} />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Edit Mode</TooltipContent>
-                </Tooltip>
-                
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full">
-                      <Eye size={16} />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Preview</TooltipContent>
-                </Tooltip>
-                
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full">
-                      <Wrench size={16} />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Tools</TooltipContent>
-                </Tooltip>
-                
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full">
-                      <Settings size={16} />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Settings</TooltipContent>
-                </Tooltip>
-              </div>
-            </TooltipProvider>
           </div>
         
           {/* Agent Status Bar */}
@@ -128,7 +93,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
               )}
             </div>
             <div className="flex items-center">
-              <InfoIcon size={12} className="mr-1" />
+              <Send size={12} className="mr-1" />
               <span>Using gpt-4o model</span>
             </div>
           </div>
@@ -165,9 +130,9 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
                 <p className="text-muted-foreground mb-6 max-w-sm">
                   Create custom workflows for contract review, approval, and e-signature processes.
                 </p>
-                <Button>
+                <Button onClick={() => window.location.href = "/signatures"}>
                   <Sparkles size={16} className="mr-2" />
-                  Enable Workflow Management
+                  Manage E-Signatures
                 </Button>
               </div>
             </TabsContent>

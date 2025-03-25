@@ -6,8 +6,10 @@ import { useToast } from "@/hooks/use-toast";
 import { TriPanelLayout } from "./TriPanelLayout";
 import { MainPanel } from "./MainPanel";
 import { ChatPanel } from "./ChatPanel";
+import { ESignaturePanel } from "../signature/ESignaturePanel";
+import { useLocation } from "react-router-dom";
 
-export const MainLayout: React.FC = () => {
+export const MainLayout: React.FC<{children?: React.ReactNode}> = ({ children }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isEditorOpen, setIsEditorOpen] = useState(true);
@@ -17,6 +19,10 @@ export const MainLayout: React.FC = () => {
     type: "NDA"
   });
   const { toast } = useToast();
+  const location = useLocation();
+
+  // Check if we're on the signatures page
+  const isSignaturesPage = location.pathname.includes("/signatures");
 
   const handleSendMessage = (content: string, files?: File[]) => {
     // Add user message
@@ -206,6 +212,14 @@ export const MainLayout: React.FC = () => {
 
   // Render main content panel
   const renderCenterPanel = () => {
+    if (children) {
+      return children;
+    }
+    
+    if (isSignaturesPage) {
+      return <div className="h-full p-6"><ESignaturePanel /></div>;
+    }
+    
     return (
       <MainPanel
         isEditorOpen={isEditorOpen}

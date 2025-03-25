@@ -14,11 +14,9 @@ import {
   ChevronDown,
   FileText,
   GanttChart,
-  Send,
   FileSearch,
   LayoutGrid,
   List,
-  Image,
   FileCode,
   Heading1,
   Heading2,
@@ -28,14 +26,13 @@ import {
   Underline,
   Check,
   FileSymlink,
-  SendToBack,
   Mail,
   NotebookPen,
   MessageSquare,
   CalendarDays,
   FileDigit,
-  Scale,  // Added missing import
-  Brain   // Added missing import
+  Scale,
+  Brain
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -52,12 +49,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuGroup,
   DropdownMenuLabel,
-  DropdownMenuSub,
-  DropdownMenuSubTrigger,
-  DropdownMenuSubContent,
 } from "@/components/ui/dropdown-menu";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 
 interface ModernContractEditorProps {
@@ -140,7 +133,7 @@ This Agreement shall remain in effect for a period of [TIME PERIOD] from the Eff
 
   return (
     <Card className={cn("flex flex-col h-full shadow-md border-border/40 rounded-xl overflow-hidden", className)}>
-      {/* Editor toolbar */}
+      {/* Editor toolbar - simplified */}
       <CardHeader className="px-6 py-3 border-b border-border/40 bg-background/80 backdrop-blur-sm space-y-0">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
@@ -158,15 +151,6 @@ This Agreement shall remain in effect for a period of [TIME PERIOD] from the Eff
           </div>
           
           <div className="flex items-center space-x-2">
-            <Tabs defaultValue="file" className="mr-2">
-              <TabsList className="h-8">
-                <TabsTrigger value="file" className="text-xs px-3 py-1 h-7">File</TabsTrigger>
-                <TabsTrigger value="edit" className="text-xs px-3 py-1 h-7">Edit</TabsTrigger>
-                <TabsTrigger value="view" className="text-xs px-3 py-1 h-7">View</TabsTrigger>
-                <TabsTrigger value="tools" className="text-xs px-3 py-1 h-7">Tools</TabsTrigger>
-              </TabsList>
-            </Tabs>
-            
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -356,7 +340,7 @@ This Agreement shall remain in effect for a period of [TIME PERIOD] from the Eff
           </Button>
           <div className="h-6 w-px bg-border/40 mx-1"></div>
           <Button variant="ghost" size="sm" className="h-8 px-2 rounded-md" onClick={handleAutoFormat}>
-            <SendToBack size={16} className="mr-1" /> Auto Format
+            Auto Format
           </Button>
         </div>
       )}
