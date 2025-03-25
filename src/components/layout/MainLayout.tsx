@@ -1,19 +1,11 @@
 
 import React, { useState } from "react";
-import { Outlet, useLocation } from "react-router-dom";
-import { ChatInterface } from "../chat/ChatInterface";
-import { Message } from "../chat/MessageBubble";
 import { nanoid } from "@/lib/utils";
-import { ModernContractEditor } from "../contract/ModernContractEditor";
-import { ContractReview } from "../contract/ContractReview";
+import { Message } from "../chat/MessageBubble";
 import { useToast } from "@/hooks/use-toast";
 import { TriPanelLayout } from "./TriPanelLayout";
-import { TemplatesSection } from "../sections/TemplatesSection";
-import { HistorySection } from "../sections/HistorySection";
-import { WorkspacesSection } from "../sections/WorkspacesSection";
-import { TeamSection } from "../sections/TeamSection";
-import { SettingsSection } from "../sections/SettingsSection";
-import { PricingSection } from "../sections/PricingSection";
+import { MainPanel } from "./MainPanel";
+import { ChatPanel } from "./ChatPanel";
 
 export const MainLayout: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -25,7 +17,6 @@ export const MainLayout: React.FC = () => {
     type: "NDA"
   });
   const { toast } = useToast();
-  const location = useLocation();
 
   const handleSendMessage = (content: string, files?: File[]) => {
     // Add user message
@@ -65,12 +56,11 @@ export const MainLayout: React.FC = () => {
     let responseContent = "";
     const lowerContent = content.toLowerCase();
     
-    // Check if the message is a mode-specific request
+    // Simulate AI response logic
     const isLawyerMode = lowerContent.includes("[lawyer mode]");
     const isReasoningMode = lowerContent.includes("[reasoning mode]");
     const isAnalystMode = lowerContent.includes("[analyst mode]");
     
-    // Simulate AI response after a delay
     setTimeout(() => {
       // Update user message status
       setMessages((prev) =>
@@ -79,7 +69,7 @@ export const MainLayout: React.FC = () => {
         )
       );
       
-      // Add AI response based on user message content
+      // Generate response based on message content
       if (lowerContent.includes("generate") || lowerContent.includes("create") || lowerContent.includes("draft")) {
         responseContent = "I'd be happy to generate that contract for you. What specific terms would you like to include?";
         
@@ -125,74 +115,25 @@ export const MainLayout: React.FC = () => {
     }, 1000);
   };
 
-  // Render primary content area based on current state and route
+  // Render main content panel
   const renderCenterPanel = () => {
-    const path = location.pathname;
-    
-    // If we're on a specific route, render that content
-    if (path.startsWith("/contracts") || path === "/") {
-      if (isEditorOpen) {
-        return <ModernContractEditor title={currentContract.title} className="h-full" />;
-      }
-      
-      if (isReviewOpen) {
-        return (
-          <ContractReview 
-            isOpen={true} 
-            onClose={() => setIsReviewOpen(false)} 
-            title={currentContract.title} 
-            contractType={currentContract.type} 
-          />
-        );
-      }
-    }
-
-    // Handle other specific routes
-    if (path === "/templates") {
-      return <TemplatesSection />;
-    }
-    
-    if (path === "/history") {
-      return <HistorySection />;
-    }
-
-    if (path === "/workspaces") {
-      return <WorkspacesSection />;
-    }
-
-    if (path === "/team") {
-      return <TeamSection />;
-    }
-
-    if (path === "/settings") {
-      return <SettingsSection />;
-    }
-
-    if (path === "/pricing") {
-      return <PricingSection />;
-    }
-    
-    // Default view when no contract is open
     return (
-      <div className="flex items-center justify-center h-full">
-        <div className="text-center max-w-lg p-6">
-          <h3 className="text-2xl font-bold mb-4">No Contract Open</h3>
-          <p className="text-muted-foreground mb-6">
-            Ask the AI assistant to create a new contract or upload an existing document to get started.
-          </p>
-        </div>
-      </div>
+      <MainPanel
+        isEditorOpen={isEditorOpen}
+        isReviewOpen={isReviewOpen}
+        currentContract={currentContract}
+        setIsReviewOpen={setIsReviewOpen}
+      />
     );
   };
   
-  // Right panel with chat interface
+  // Render chat panel
   const renderChatPanel = () => {
     return (
-      <ChatInterface
-        onSendMessage={handleSendMessage}
+      <ChatPanel
         messages={messages}
         isProcessing={isProcessing}
-        className="h-full"
+        onSendMessage={handleSendMessage}
       />
     );
   };
