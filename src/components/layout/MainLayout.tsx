@@ -53,6 +53,15 @@ export const MainLayout: React.FC = () => {
       }
     }
     
+    // Detect special modes from the message
+    let responseContent = "";
+    const lowerContent = content.toLowerCase();
+    
+    // Check if the message is a mode-specific request
+    const isLawyerMode = lowerContent.includes("[lawyer mode]");
+    const isReasoningMode = lowerContent.includes("[reasoning mode]");
+    const isAnalystMode = lowerContent.includes("[analyst mode]");
+    
     // Simulate AI response after a delay
     setTimeout(() => {
       // Update user message status
@@ -63,13 +72,11 @@ export const MainLayout: React.FC = () => {
       );
       
       // Add AI response based on user message content
-      let responseContent = "";
-      
-      if (content.toLowerCase().includes("generate") || content.toLowerCase().includes("create") || content.toLowerCase().includes("draft")) {
+      if (lowerContent.includes("generate") || lowerContent.includes("create") || lowerContent.includes("draft")) {
         responseContent = "I'd be happy to generate that contract for you. What specific terms would you like to include?";
         
         // If it's about an NDA, open the editor
-        if (content.toLowerCase().includes("nda") || content.toLowerCase().includes("non-disclosure")) {
+        if (lowerContent.includes("nda") || lowerContent.includes("non-disclosure")) {
           setTimeout(() => {
             setIsEditorOpen(true);
             setCurrentContract({
@@ -80,12 +87,21 @@ export const MainLayout: React.FC = () => {
           
           responseContent = "I've created a draft Non-Disclosure Agreement for you. Feel free to review and edit it in the editor. Is there anything specific you'd like me to change?";
         }
-      } else if (content.toLowerCase().includes("review") || content.toLowerCase().includes("analyze")) {
+      } else if (lowerContent.includes("review") || lowerContent.includes("analyze")) {
         responseContent = "I'd be happy to review a contract for you. Please upload the document you'd like me to analyze.";
-      } else if (content.toLowerCase().includes("hello") || content.toLowerCase().includes("hi")) {
+      } else if (lowerContent.includes("hello") || lowerContent.includes("hi")) {
         responseContent = "Hello! I'm Accord AI, your contract assistant. How can I help you today? I can generate new contracts, review existing ones, or answer questions about legal terms.";
       } else {
         responseContent = "I understand you're asking about contracts. Could you provide more details about what you need help with? I can generate, review, or answer questions about contracts.";
+      }
+      
+      // Add mode-specific content
+      if (isLawyerMode) {
+        responseContent = "From a legal perspective: " + responseContent;
+      } else if (isReasoningMode) {
+        responseContent = "Let me think through this step by step:\n\n1. First, let's consider the legal context.\n2. Next, we should examine the specific terms.\n3. Finally, I'll provide recommendations based on legal precedent.\n\n" + responseContent;
+      } else if (isAnalystMode) {
+        responseContent = "Based on data analysis of similar contracts:\n\n" + responseContent + "\n\nStatistically, 78% of similar contracts include additional indemnification clauses.";
       }
       
       const aiMessage: Message = {
@@ -101,16 +117,17 @@ export const MainLayout: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-accord-lightGray">
+    <div className="flex flex-col h-screen bg-background">
       <Header />
       
-      <div className="flex flex-grow overflow-hidden relative">
+      <div className="flex-grow overflow-hidden p-4 md:p-6 relative">
         {/* Main chat interface */}
-        <div className="flex-grow flex flex-col h-full relative">
+        <div className="mx-auto max-w-5xl h-full relative">
           <ChatInterface
             onSendMessage={handleSendMessage}
             messages={messages}
             isProcessing={isProcessing}
+            className="h-full"
           />
         </div>
         

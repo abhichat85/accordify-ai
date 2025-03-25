@@ -1,43 +1,113 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { cn } from "@/lib/utils";
-import { FileText, Settings, User } from "lucide-react";
+import { 
+  BarChart3, 
+  FileText, 
+  History, 
+  LayoutTemplate, 
+  Settings, 
+  User,
+  Bell,
+  Moon,
+  Sun 
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface HeaderProps {
   className?: string;
 }
 
 export const Header: React.FC<HeaderProps> = ({ className }) => {
+  const [theme, setTheme] = useState<"light" | "dark">("light");
+  
+  const toggleTheme = () => {
+    const newTheme = theme === "light" ? "dark" : "light";
+    setTheme(newTheme);
+    document.documentElement.classList.toggle("dark");
+  };
+
   return (
-    <header className={cn("border-b border-accord-mediumGray/50 bg-white/80 backdrop-blur-sm z-10", className)}>
-      <div className="flex items-center justify-between h-16 px-4">
+    <header className={cn(
+      "border-b border-border/40 bg-background/80 backdrop-blur-md z-50 sticky top-0",
+      className
+    )}>
+      <div className="flex items-center justify-between h-16 px-4 max-w-[1920px] mx-auto">
         <div className="flex items-center">
-          <div className="flex items-center mr-4">
-            <div className="w-8 h-8 rounded-full bg-accord-teal flex items-center justify-center">
-              <FileText size={16} className="text-white" />
+          <div className="flex items-center mr-6">
+            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
+              <FileText size={18} className="text-primary-foreground" />
             </div>
-            <h1 className="ml-2 text-lg font-medium text-accord-blue">Accord AI</h1>
+            <h1 className="ml-3 text-xl font-semibold bg-gradient-to-r from-primary/90 to-primary bg-clip-text text-transparent">
+              Accord AI
+            </h1>
           </div>
-          <div className="hidden md:flex items-center space-x-1">
-            <div className="px-3 py-1.5 text-sm text-accord-darkGray hover:bg-accord-lightGray rounded-lg transition-colors">
+          
+          <nav className="hidden md:flex items-center space-x-1">
+            <Button variant="ghost" size="sm" className="rounded-lg gap-2 font-normal">
+              <FileText size={16} />
               Contracts
-            </div>
-            <div className="px-3 py-1.5 text-sm text-accord-darkGray hover:bg-accord-lightGray rounded-lg transition-colors">
+            </Button>
+            <Button variant="ghost" size="sm" className="rounded-lg gap-2 font-normal">
+              <LayoutTemplate size={16} />
               Templates
-            </div>
-            <div className="px-3 py-1.5 text-sm text-accord-darkGray hover:bg-accord-lightGray rounded-lg transition-colors">
+            </Button>
+            <Button variant="ghost" size="sm" className="rounded-lg gap-2 font-normal">
+              <History size={16} />
               History
-            </div>
-          </div>
+            </Button>
+            <Button variant="ghost" size="sm" className="rounded-lg gap-2 font-normal">
+              <BarChart3 size={16} />
+              Analytics
+            </Button>
+          </nav>
         </div>
         
         <div className="flex items-center space-x-2">
-          <button className="p-2 text-accord-darkGray hover:bg-accord-lightGray rounded-full transition-colors">
-            <Settings size={18} />
-          </button>
-          <button className="p-2 text-accord-darkGray hover:bg-accord-lightGray rounded-full transition-colors">
-            <User size={18} />
-          </button>
+          <Button variant="ghost" size="icon" className="rounded-full" onClick={toggleTheme}>
+            {theme === "light" ? <Moon size={18} /> : <Sun size={18} />}
+          </Button>
+          
+          <Button variant="ghost" size="icon" className="rounded-full relative">
+            <Bell size={18} />
+            <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full"></span>
+          </Button>
+          
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="rounded-full h-8 w-8 p-0">
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src="https://github.com/shadcn.png" alt="User" />
+                  <AvatarFallback>JD</AvatarFallback>
+                </Avatar>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="cursor-pointer">
+                <User className="mr-2 h-4 w-4" />
+                <span>Profile</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer">
+                <Settings className="mr-2 h-4 w-4" />
+                <span>Settings</span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="cursor-pointer text-destructive">
+                Log out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </header>
