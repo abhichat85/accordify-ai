@@ -6,7 +6,7 @@ import { FileSignature, Pen, Upload, Clock, Check, Users, Send } from 'lucide-re
 
 export const ESignaturePanel: React.FC = () => {
   return (
-    <Card className="h-full">
+    <Card className="h-full border-border/40">
       <CardHeader className="px-4 py-3 border-b border-border/40 flex flex-row items-center justify-between">
         <CardTitle className="text-base font-medium flex items-center">
           <FileSignature className="w-5 h-5 text-primary mr-2" />
@@ -21,7 +21,7 @@ export const ESignaturePanel: React.FC = () => {
       <CardContent className="p-4">
         <div className="space-y-4">
           <div className="grid grid-cols-3 gap-4">
-            <Card className="bg-muted/30 border-border/30">
+            <Card className="bg-muted/20 border-border/30">
               <CardContent className="p-4 flex flex-col items-center text-center">
                 <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mb-3">
                   <Clock className="w-5 h-5 text-primary" />
@@ -31,7 +31,7 @@ export const ESignaturePanel: React.FC = () => {
               </CardContent>
             </Card>
             
-            <Card className="bg-muted/30 border-border/30">
+            <Card className="bg-muted/20 border-border/30">
               <CardContent className="p-4 flex flex-col items-center text-center">
                 <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mb-3">
                   <Pen className="w-5 h-5 text-primary" />
@@ -41,7 +41,7 @@ export const ESignaturePanel: React.FC = () => {
               </CardContent>
             </Card>
             
-            <Card className="bg-muted/30 border-border/30">
+            <Card className="bg-muted/20 border-border/30">
               <CardContent className="p-4 flex flex-col items-center text-center">
                 <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mb-3">
                   <Check className="w-5 h-5 text-primary" />
@@ -55,7 +55,7 @@ export const ESignaturePanel: React.FC = () => {
           <h3 className="text-sm font-medium mt-6 mb-3">Documents to Sign</h3>
           <div className="space-y-3">
             {["Service Agreement", "Non-Disclosure Agreement", "Employment Contract"].map((doc, index) => (
-              <Card key={index} className="bg-card hover:bg-accent/5 transition-colors cursor-pointer">
+              <Card key={index} className="bg-card border-border/40 hover:bg-accent/5 transition-colors cursor-pointer">
                 <CardContent className="p-3 flex items-center justify-between">
                   <div className="flex items-center">
                     <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mr-3">
@@ -66,7 +66,7 @@ export const ESignaturePanel: React.FC = () => {
                       <p className="text-xs text-muted-foreground">From: ABC Corp • Expires in 5 days</p>
                     </div>
                   </div>
-                  <Button variant="secondary" size="sm">Sign Now</Button>
+                  <Button variant="default" size="sm">Sign Now</Button>
                 </CardContent>
               </Card>
             ))}
@@ -75,7 +75,7 @@ export const ESignaturePanel: React.FC = () => {
           <h3 className="text-sm font-medium mt-6 mb-3">Waiting for Others</h3>
           <div className="space-y-3">
             {["Consulting Agreement", "Partnership Agreement"].map((doc, index) => (
-              <Card key={index} className="bg-card hover:bg-accent/5 transition-colors cursor-pointer">
+              <Card key={index} className="bg-card border-border/40 hover:bg-accent/5 transition-colors cursor-pointer">
                 <CardContent className="p-3 flex items-center justify-between">
                   <div className="flex items-center">
                     <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mr-3">
@@ -96,7 +96,7 @@ export const ESignaturePanel: React.FC = () => {
           </div>
           
           <div className="text-center mt-6">
-            <Button variant="outline" className="w-full">
+            <Button variant="outline" className="w-full border-border/40">
               View All Documents
             </Button>
           </div>

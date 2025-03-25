@@ -11,19 +11,19 @@
     --card-foreground: 240 10% 3.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 3.9%;
-    --primary: 262 80% 75%;
+    --primary: 262 70% 60%;
     --primary-foreground: 0 0% 98%;
     --secondary: 240 4.8% 95.9%;
     --secondary-foreground: 240 5.9% 10%;
     --muted: 240 4.8% 95.9%;
     --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
+    --accent: 262 40% 92%;
+    --accent-foreground: 262 60% 30%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
     --border: 240 5.9% 90%;
     --input: 240 5.9% 90%;
-    --ring: 262 80% 75%;
+    --ring: 262 70% 60%;
     --radius: 0.5rem;
   }
 
@@ -34,19 +34,19 @@
     --card-foreground: 0 0% 98%;
     --popover: 240 10% 3.9%;
     --popover-foreground: 0 0% 98%;
-    --primary: 262 80% 75%;
-    --primary-foreground: 240 5.9% 10%;
+    --primary: 262 70% 60%;
+    --primary-foreground: 0 0% 98%;
     --secondary: 240 3.7% 15.9%;
     --secondary-foreground: 0 0% 98%;
     --muted: 240 3.7% 15.9%;
     --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
+    --accent: 262 30% 20%;
+    --accent-foreground: 262 60% 80%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
-    --ring: 262 80% 75%;
+    --ring: 262 70% 60%;
   }
 }
 
@@ -87,10 +87,6 @@
 
 .btn-glow {
   box-shadow: 0 0 10px 1px rgba(var(--primary), 0.2);
-}
-
-.bg-gradient-to-tr {
-  background-image: linear-gradient(to top right, var(--tw-gradient-stops));
 }
 
 @keyframes pulse-subtle {
