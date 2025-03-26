@@ -53,8 +53,8 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
         </Tooltip>
       </div>
       
-      {/* Main content area with improved layout */}
-      <div className="flex-grow flex flex-col h-full relative mt-1">
+      {/* Main content area with improved compact layout */}
+      <div className="flex-grow flex flex-col h-full relative">
         {/* Top tabs for main sections */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-grow flex flex-col h-full">
           <div className="px-3 pt-1">
@@ -79,7 +79,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
           </div>
         
           {/* Agent Status Bar */}
-          <div className="bg-muted/10 border-y border-border/30 py-1.5 px-3 mt-2 flex items-center justify-between text-xs text-muted-foreground">
+          <div className="bg-muted/10 border-y border-border/30 py-1.5 px-3 mt-1 flex items-center justify-between text-xs text-muted-foreground">
             <div className="flex items-center">
               <div className="flex items-center mr-4">
                 <div className="h-2 w-2 rounded-full bg-primary mr-2 animate-pulse"></div>

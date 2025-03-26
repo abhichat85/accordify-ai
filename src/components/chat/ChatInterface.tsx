@@ -236,7 +236,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
     )}>
       <Tabs defaultValue="chat" value={activeTab} onValueChange={setActiveTab} className="flex flex-col h-full overflow-hidden">
         <div className="border-b border-border/20 bg-background/10 px-2">
-          <TabsList className="h-8 bg-muted/20 mt-2 mb-1 rounded-md w-full grid grid-cols-3 gap-1 p-0.5">
+          <TabsList className="h-8 bg-muted/20 mt-1 mb-1 rounded-md w-full grid grid-cols-3 gap-1 p-0.5">
             <TabsTrigger value="chat" className="text-xs rounded-sm">Chat</TabsTrigger>
             <TabsTrigger value="capabilities" className="text-xs rounded-sm">Capabilities</TabsTrigger>
             <TabsTrigger value="context" className="text-xs rounded-sm">Context</TabsTrigger>
@@ -245,7 +245,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
       
         <div className="flex flex-col flex-grow overflow-hidden">
           <TabsContent value="chat" className="flex-grow m-0 p-0 data-[state=active]:flex flex-col">
-            <ScrollArea className="h-[calc(100vh-280px)] px-4 py-4">
+            <ScrollArea className="flex-grow px-4 pt-2 pb-1 max-h-[calc(100vh-240px)]">
               {messages.length === 0 ? (
                 <div className="flex items-center justify-center py-2 px-4 text-sm text-muted-foreground">
                   Start a new conversation to see your messages here.
@@ -261,7 +261,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
                   ))}
 
                   {showProactiveSuggestions && messages.length > 0 && messages.length % 3 === 0 && (
-                    <div className="mb-4 mt-2 animate-fade-in">
+                    <div className="mb-2 mt-2 animate-fade-in">
                       <div className="bg-muted/40 rounded-lg p-3 border border-border/30 max-w-[85%] mx-auto">
                         <div className="flex items-center mb-2">
                           <Lightbulb size={16} className="text-primary mr-2" />
@@ -285,7 +285,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
             </ScrollArea>
           </TabsContent>
 
-          <TabsContent value="capabilities" className="m-0 p-3 h-[calc(100vh-280px)] overflow-y-auto">
+          <TabsContent value="capabilities" className="m-0 p-3 max-h-[calc(100vh-240px)] overflow-y-auto">
             <div className="space-y-4">
               <div>
                 <h3 className="text-base font-medium mb-1">Agent Capabilities</h3>
@@ -321,7 +321,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
             </div>
           </TabsContent>
 
-          <TabsContent value="context" className="m-0 p-3 h-[calc(100vh-280px)] overflow-y-auto">
+          <TabsContent value="context" className="m-0 p-3 max-h-[calc(100vh-240px)] overflow-y-auto">
             <div className="space-y-4">
               <div>
                 <h3 className="text-base font-medium mb-1">Conversation Context</h3>
@@ -375,7 +375,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
         </div>
       </Tabs>
 
-      <div className="shrink-0 px-3 pb-1 pt-2">
+      <div className="shrink-0 px-3 pb-1 pt-0.5">
         <AiModes activeMode={aiMode} onChange={setAiMode} />
       </div>
 
