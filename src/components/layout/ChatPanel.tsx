@@ -10,7 +10,8 @@ import {
   Workflow,
   Sparkles,
   Send,
-  Clock
+  Clock,
+  FileSearch
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,6 +20,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { DocumentAnalysis } from "../contract/DocumentAnalysis";
 
 interface ChatPanelProps {
   messages: Message[];
@@ -62,6 +64,10 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
               <TabsTrigger value="chat" className="text-xs gap-1.5 rounded-md">
                 <MessageSquare size={14} />
                 <span className="hidden sm:inline">Chat</span>
+              </TabsTrigger>
+              <TabsTrigger value="documents" className="text-xs gap-1.5 rounded-md">
+                <FileSearch size={14} />
+                <span className="hidden sm:inline">Documents</span>
               </TabsTrigger>
               <TabsTrigger value="contracts" className="text-xs gap-1.5 rounded-md">
                 <FileText size={14} />
@@ -107,6 +113,10 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
                 isProcessing={isProcessing}
                 className="h-full rounded-none border-none shadow-none"
               />
+            </TabsContent>
+            
+            <TabsContent value="documents" className="h-full m-0 p-4 overflow-auto data-[state=active]:flex flex-col">
+              <DocumentAnalysis className="h-full" />
             </TabsContent>
             
             <TabsContent value="contracts" className="h-full m-0 p-4 overflow-auto data-[state=active]:flex flex-col">
