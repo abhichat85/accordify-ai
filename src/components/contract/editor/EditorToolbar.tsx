@@ -65,6 +65,7 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
 }) => {
   const { toast } = useToast();
   const linkRef = useRef<HTMLAnchorElement>(null);
+  const chatInputRef = useRef<HTMLTextAreaElement | null>(null);
 
   // Print functionality
   const handlePrint = () => {
@@ -262,28 +263,17 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
     }
   };
 
-  const handleSubmitContract = () => {
-    if (onStatusChange) {
-      onStatusChange('submitted');
-      toast({
-        title: "Contract submitted",
-        description: "Your contract has been submitted for internal review.",
-      });
-    }
-  };
-  
-  const handleSendForSigning = () => {
-    if (onStatusChange) {
-      onStatusChange('sent_for_signing');
-      toast({
-        title: "Contract sent for signing",
-        description: "Your contract has been sent for electronic signatures.",
-      });
-    }
+  // Find the chat input field
+  const findChatInput = (): HTMLTextAreaElement | null => {
+    // Try to find the chat input in the DOM
+    const chatInput = document.querySelector('textarea[placeholder*="Ask about contracts"]') as HTMLTextAreaElement;
+    return chatInput;
   };
 
-  const handleAIAnalysis = (analysisType: string) => {
-    const chatInput = document.querySelector('textarea[placeholder*="Ask about contracts"]') as HTMLTextAreaElement;
+  // Set the AI chat prompt and focus the input
+  const setChatPrompt = (prompt: string) => {
+    // Get the chat input
+    const chatInput = findChatInput();
     
     if (!chatInput) {
       toast({
@@ -291,38 +281,94 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
         description: "Please make sure the chat panel is visible.",
         variant: "destructive"
       });
-      return;
+      return false;
     }
     
-    let prompt = "";
-    switch (analysisType) {
-      case "risk":
-        prompt = "Analyze this contract for potential risk factors. Please identify any clauses with high, medium, or low risk levels and provide specific recommendations for mitigating these risks.";
-        break;
-      case "grammar":
-        prompt = "Review this contract for grammar, clarity, and readability issues. Please identify any confusing language, run-on sentences, or ambiguous terms that should be clarified.";
-        break;
-      case "compliance":
-        prompt = "Analyze this contract for legal compliance. Check if it adheres to standard legal requirements and identify any missing clauses that might be required by law.";
-        break;
-      case "terms":
-        prompt = "Extract and summarize the key terms from this contract. Please identify important dates, monetary values, obligations, and termination conditions.";
-        break;
-      case "full":
-        prompt = "Perform a comprehensive review of this contract. Please analyze for risks, clarity issues, legal compliance, extract key terms, and provide overall recommendations to improve the agreement.";
-        break;
-      default:
-        prompt = "Please analyze this contract and provide feedback.";
-    }
-    
+    // Set the prompt in the chat input
     chatInput.value = prompt;
     chatInput.dispatchEvent(new Event('input', { bubbles: true }));
     chatInput.focus();
     
     toast({
-      title: `${analysisType === "full" ? "Full Contract Review" : analysisType.charAt(0).toUpperCase() + analysisType.slice(1) + " Analysis"} prompt ready`,
+      title: "Prompt ready",
       description: "Press Enter to send the prompt to the AI assistant.",
     });
+    
+    return true;
+  };
+
+  const handleSubmitContract = () => {
+    if (onStatusChange) {
+      onStatusChange('submitted');
+      
+      // Set prompt for submitted contract
+      const prompt = `I've just submitted my contract "${currentTitle}" for internal review. Could you please help me check for any potential issues or suggest improvements before it goes to the next stage? Focus on legal clarity, completeness, and any potential risks.`;
+      
+      if (setChatPrompt(prompt)) {
+        toast({
+          title: "Contract submitted",
+          description: "Your contract has been submitted for internal review. AI prompt is ready in the chat.",
+        });
+      } else {
+        toast({
+          title: "Contract submitted",
+          description: "Your contract has been submitted for internal review.",
+        });
+      }
+    }
+  };
+  
+  const handleSendForSigning = () => {
+    if (onStatusChange) {
+      onStatusChange('sent_for_signing');
+      
+      // Set prompt for sending for signing
+      const prompt = `I'm about to send my contract "${currentTitle}" for electronic signatures. Before I do, could you please verify that all signature blocks, dates, and party information are correctly formatted? Also, is there anything I should communicate to the signatories?`;
+      
+      if (setChatPrompt(prompt)) {
+        toast({
+          title: "Contract sent for signing",
+          description: "Your contract has been sent for signatures. AI prompt is ready in the chat.",
+        });
+      } else {
+        toast({
+          title: "Contract sent for signing",
+          description: "Your contract has been sent for electronic signatures.",
+        });
+      }
+    }
+  };
+
+  const handleAIAnalysis = (analysisType: string) => {
+    // Create appropriate prompt based on analysis type
+    let prompt = "";
+    switch (analysisType) {
+      case "risk":
+        prompt = `Please perform a risk analysis on my contract "${currentTitle}". Identify any clauses with high, medium, or low risk levels, explain why they might be problematic, and provide specific recommendations for mitigating these risks.`;
+        break;
+      case "grammar":
+        prompt = `Please review my contract "${currentTitle}" for grammar, clarity, and readability issues. Identify any confusing language, run-on sentences, or ambiguous terms that should be clarified to improve the overall quality of the document.`;
+        break;
+      case "compliance":
+        prompt = `Please analyze my contract "${currentTitle}" for legal compliance. Check if it adheres to standard legal requirements and identify any missing clauses or provisions that might be required by relevant laws and regulations.`;
+        break;
+      case "terms":
+        prompt = `Please extract and summarize the key terms from my contract "${currentTitle}". Identify important dates, monetary values, obligations, termination conditions, and any other critical elements that define the agreement.`;
+        break;
+      case "full":
+        prompt = `Please perform a comprehensive review of my contract "${currentTitle}". Analyze it for risks, clarity issues, legal compliance, extract key terms, and provide overall recommendations to improve the agreement.`;
+        break;
+      default:
+        prompt = `Please analyze my contract "${currentTitle}" and provide general feedback on its quality and effectiveness.`;
+    }
+    
+    // Set the prompt in the chat input
+    if (setChatPrompt(prompt)) {
+      toast({
+        title: `${analysisType === "full" ? "Full Contract Review" : analysisType.charAt(0).toUpperCase() + analysisType.slice(1) + " Analysis"} prompt ready`,
+        description: "Press Enter to send the prompt to the AI assistant.",
+      });
+    }
   };
 
   return (
@@ -485,7 +531,7 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
             </div>
           )}
           
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center gap-2">
             <Button
               onClick={handleSave}
               disabled={isSaving}
@@ -506,29 +552,25 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
               )}
             </Button>
             
-            {status === 'draft' && (
-              <Button
-                onClick={handleSubmitContract}
-                size="sm"
-                variant="outline"
-                className="h-8 rounded-lg shadow-sm"
-              >
-                <FileCheck size={16} className="mr-1" />
-                <span>Submit</span>
-              </Button>
-            )}
+            <Button
+              onClick={handleSubmitContract}
+              size="sm"
+              variant="outline"
+              className="h-8 rounded-lg shadow-sm"
+            >
+              <FileCheck size={16} className="mr-1" />
+              <span>Submit</span>
+            </Button>
             
-            {(status === 'draft' || status === 'submitted') && (
-              <Button
-                onClick={handleSendForSigning}
-                size="sm"
-                variant="outline"
-                className="h-8 rounded-lg shadow-sm"
-              >
-                <Send size={16} className="mr-1" />
-                <span>Send for Signing</span>
-              </Button>
-            )}
+            <Button
+              onClick={handleSendForSigning}
+              size="sm"
+              variant="outline"
+              className="h-8 rounded-lg shadow-sm"
+            >
+              <Send size={16} className="mr-1" />
+              <span>Send for Signing</span>
+            </Button>
           </div>
         </div>
       </div>

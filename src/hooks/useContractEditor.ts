@@ -56,13 +56,38 @@ export const useContractEditor = (title: string, initialContent: string) => {
 
   const setStatus = (status: 'draft' | 'submitted' | 'sent_for_signing') => {
     setState(prev => ({ ...prev, status }));
+    
+    // Show a toast notification based on the new status
+    if (status === 'draft') {
+      toast({
+        title: "Contract saved as draft",
+        description: "You can continue editing this contract.",
+      });
+    } else if (status === 'submitted') {
+      toast({
+        title: "Contract submitted",
+        description: "Your contract is now submitted for internal review.",
+      });
+    } else if (status === 'sent_for_signing') {
+      toast({
+        title: "Contract sent for signing",
+        description: "Your contract has been sent for electronic signatures.",
+      });
+    }
   };
 
   const handleSave = () => {
     setState(prev => ({ ...prev, isSaving: true }));
     // Simulating saving process
     setTimeout(() => {
-      setState(prev => ({ ...prev, isSaving: false, lastSaved: new Date() }));
+      setState(prev => ({ 
+        ...prev, 
+        isSaving: false, 
+        lastSaved: new Date(),
+        // Always set status to draft when manually saving
+        status: 'draft'
+      }));
+      
       toast({
         title: "Contract saved",
         description: "Your changes have been saved successfully.",
