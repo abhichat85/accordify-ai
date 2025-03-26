@@ -82,6 +82,8 @@ export const generateContract = async (
   contractType?: string
 ): Promise<AnalysisResult> => {
   try {
+    console.log(`Generating contract of type: ${contractType} with prompt: ${prompt.substring(0, 100)}...`);
+    
     const { data, error } = await supabase.functions.invoke('analyze-contract', {
       body: { 
         contractText: prompt, 
@@ -98,13 +100,17 @@ export const generateContract = async (
       };
     }
 
+    console.log('Contract generation response received:', data);
+
     // Return the properly typed result
     if (data.type === "generate") {
+      console.log('Successfully generated contract:', data.result.title);
       return {
         type: "generate",
         result: data.result
       } as AnalysisResult;
     } else {
+      console.error('Analysis type mismatch in response:', data);
       return {
         type: "error",
         error: 'Analysis type mismatch in response'

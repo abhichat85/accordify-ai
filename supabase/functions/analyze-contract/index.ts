@@ -25,7 +25,7 @@ serve(async (req) => {
       );
     }
 
-    console.log(`Analyzing contract with type: ${analysisType}`);
+    console.log(`Analyzing contract with type: ${analysisType}, contract type: ${contractType}`);
     
     // Define different system prompts based on analysis type
     let systemPrompt = "";
@@ -51,12 +51,25 @@ serve(async (req) => {
         name, content, and risk (high, medium, low, or null if no risk).`;
         break;
       case "generate":
+        let specificInstructions = "";
+        
+        // Add specific instructions based on contract type
+        if (contractType === "Co-Founder Agreement") {
+          specificInstructions = `This should be a comprehensive co-founder agreement covering equity distribution, roles and responsibilities, 
+          intellectual property rights, vesting schedules, decision-making processes, exit provisions, and dispute resolution mechanisms.
+          Make it detailed, practical, and legally sound for startup founders.`;
+        }
+        
         systemPrompt = `You are an AI legal assistant specializing in contract drafting. 
-        Generate a comprehensive, professional ${contractType || "legal document"} based on the user's requirements. 
+        Generate a comprehensive, professional ${contractType || "legal document"} based on the user's requirements.
+        ${specificInstructions}
         Format your response in JSON with these keys: 
         title (the title of the contract), 
         content (the full text of the contract with proper formatting and structure), 
-        type (the type of contract generated).`;
+        type (the type of contract generated).
+        
+        For the content, use proper legal language and include all necessary sections and clauses.
+        The contract should be ready to use with minimal editing needed.`;
         break;
       default:
         systemPrompt = `You are an AI legal assistant specializing in contract analysis. 
@@ -92,11 +105,13 @@ serve(async (req) => {
 
     // Extract and parse the content
     const analysisResult = data.choices[0].message.content;
+    console.log('Response received from OpenAI. Parsing...');
     
     // Try to parse as JSON, but fallback to sending raw text if parsing fails
     let parsedResult;
     try {
       parsedResult = JSON.parse(analysisResult);
+      console.log('Successfully parsed OpenAI response as JSON');
     } catch (e) {
       console.warn('Failed to parse OpenAI response as JSON:', e);
       parsedResult = { rawAnalysis: analysisResult };

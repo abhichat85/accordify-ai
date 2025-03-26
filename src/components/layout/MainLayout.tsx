@@ -75,7 +75,8 @@ export const MainLayout: React.FC<{children?: React.ReactNode}> = ({ children })
     // Detect if this is a request that requires contract generation
     const isContractGeneration = lowerContent.includes("generate") || 
                                  lowerContent.includes("create") || 
-                                 lowerContent.includes("draft");
+                                 lowerContent.includes("draft") ||
+                                 lowerContent.includes("agreement");
     
     // Detect request for contract analysis
     const isContractAnalysis = lowerContent.includes("review") || 
@@ -114,7 +115,11 @@ export const MainLayout: React.FC<{children?: React.ReactNode}> = ({ children })
           contractType = "License Agreement";
         } else if (lowerContent.includes("sales") || lowerContent.includes("purchase")) {
           contractType = "Sales Agreement";
+        } else if (lowerContent.includes("co-founder") || lowerContent.includes("founder") || lowerContent.includes("partnership")) {
+          contractType = "Co-Founder Agreement";
         }
+        
+        console.log("Generating contract of type:", contractType);
         
         // Generate the contract
         const result = await generateContract(content, contractType);
@@ -122,6 +127,9 @@ export const MainLayout: React.FC<{children?: React.ReactNode}> = ({ children })
         if (result.type === "generate") {
           const generatedContract = result.result;
           
+          console.log("Contract generated successfully:", generatedContract.title);
+          
+          // Important: Update the editor state with the generated content
           setIsEditorOpen(true);
           setIsReviewOpen(false);
           setCurrentContract({
