@@ -99,63 +99,76 @@ export const ModernContractEditor: React.FC<ModernContractEditorProps> = ({
         break;
 
       case 'heading1':
-        // Handle current line or selection
+        // Fixed heading logic - correctly handle line identification
         if (selection) {
           const before = newContent.substring(0, selection.start);
-          const lineStart = before.lastIndexOf('\n') + 1;
-          const linePrefix = before.substring(lineStart);
+          // Find the start of the current line
+          const lineStartPos = before.lastIndexOf('\n') + 1;
+          // Get text from the start of the line to selection start
+          const lineStart = before.substring(lineStartPos);
+          // Get the content of the full line
+          const lineEnd = newContent.substring(selection.end).indexOf('\n');
+          const lineEndPos = lineEnd >= 0 ? selection.end + lineEnd : newContent.length;
+          const currentLine = lineStart + selection.text + newContent.substring(selection.end, lineEndPos);
           
-          // Check if already a heading
-          if (linePrefix.startsWith('# ')) {
-            newContent = before.substring(0, lineStart) + 
-                         before.substring(lineStart + 2) + 
-                         selection.text + 
-                         newContent.substring(selection.end);
-          } else if (linePrefix.startsWith('## ')) {
-            newContent = before.substring(0, lineStart) + 
-                         '# ' + 
-                         before.substring(lineStart + 3) + 
-                         selection.text + 
-                         newContent.substring(selection.end);
+          // Create new content with heading
+          let newLine;
+          if (currentLine.startsWith('# ')) {
+            // Remove heading if it's already an H1
+            newLine = currentLine.substring(2);
+          } else if (currentLine.startsWith('## ')) {
+            // Convert H2 to H1
+            newLine = '# ' + currentLine.substring(3);
           } else {
-            newContent = before.substring(0, lineStart) + 
-                         '# ' + 
-                         before.substring(lineStart) + 
-                         selection.text + 
-                         newContent.substring(selection.end);
+            // Add H1 heading
+            newLine = '# ' + currentLine;
           }
+          
+          // Reassemble the content with the new heading
+          newContent = 
+            before.substring(0, lineStartPos) + 
+            newLine + 
+            newContent.substring(lineEndPos);
         } else {
+          // Just add a heading at the cursor position
           const cursorPos = content.length;
           newContent = content + "\n# Heading 1";
         }
         break;
 
       case 'heading2':
-        // Similar logic to heading1 but with ## prefix
+        // Fixed heading logic for H2 - similar to H1 but for level 2
         if (selection) {
           const before = newContent.substring(0, selection.start);
-          const lineStart = before.lastIndexOf('\n') + 1;
-          const linePrefix = before.substring(lineStart);
+          // Find the start of the current line
+          const lineStartPos = before.lastIndexOf('\n') + 1;
+          // Get text from the start of the line to selection start
+          const lineStart = before.substring(lineStartPos);
+          // Get the content of the full line
+          const lineEnd = newContent.substring(selection.end).indexOf('\n');
+          const lineEndPos = lineEnd >= 0 ? selection.end + lineEnd : newContent.length;
+          const currentLine = lineStart + selection.text + newContent.substring(selection.end, lineEndPos);
           
-          if (linePrefix.startsWith('## ')) {
-            newContent = before.substring(0, lineStart) + 
-                         before.substring(lineStart + 3) + 
-                         selection.text + 
-                         newContent.substring(selection.end);
-          } else if (linePrefix.startsWith('# ')) {
-            newContent = before.substring(0, lineStart) + 
-                         '## ' + 
-                         before.substring(lineStart + 2) + 
-                         selection.text + 
-                         newContent.substring(selection.end);
+          // Create new content with heading
+          let newLine;
+          if (currentLine.startsWith('## ')) {
+            // Remove heading if it's already an H2
+            newLine = currentLine.substring(3);
+          } else if (currentLine.startsWith('# ')) {
+            // Convert H1 to H2
+            newLine = '## ' + currentLine.substring(2);
           } else {
-            newContent = before.substring(0, lineStart) + 
-                         '## ' + 
-                         before.substring(lineStart) + 
-                         selection.text + 
-                         newContent.substring(selection.end);
+            // Add H2 heading
+            newLine = '## ' + currentLine;
           }
+          
+          // Reassemble the content with the new heading
+          newContent = 
+            before.substring(0, lineStartPos) + 
+            newLine + 
+            newContent.substring(lineEndPos);
         } else {
+          // Just add a heading at the cursor position
           const cursorPos = content.length;
           newContent = content + "\n## Heading 2";
         }
@@ -190,33 +203,6 @@ export const ModernContractEditor: React.FC<ModernContractEditorProps> = ({
           newContent = `${before}${listItems}${after}`;
         } else {
           newContent = `${newContent}\n1. List item`;
-        }
-        break;
-
-      case 'legal-element':
-        // Insert legal elements like clauses, parties, definitions, dates
-        const elementTitle = value.charAt(0).toUpperCase() + value.slice(1);
-        newContent = `${newContent}\n\n## ${elementTitle}\n`;
-        
-        // Add placeholder content based on the element type
-        switch (value.toLowerCase()) {
-          case 'clause':
-            newContent += "This Agreement sets forth the terms and conditions...";
-            break;
-          case 'party':
-            newContent += "**PARTY NAME**, a company organized and existing under the laws of [JURISDICTION]...";
-            break;
-          case 'definition':
-            newContent += "\"Term\" means the definition of the term...";
-            break;
-          case 'date':
-            const today = new Date().toLocaleDateString('en-US', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric'
-            });
-            newContent += `This Agreement is effective as of ${today}...`;
-            break;
         }
         break;
 
@@ -264,6 +250,7 @@ export const ModernContractEditor: React.FC<ModernContractEditorProps> = ({
           handleSave={handleSave}
           isSaving={isSaving}
           lastSaved={lastSaved}
+          content={content}
         />
       </CardHeader>
       

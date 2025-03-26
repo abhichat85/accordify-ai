@@ -49,6 +49,7 @@ export const FormattingToolbar: React.FC<FormattingToolbarProps> = ({
     });
   };
 
+  /* Commented out legal elements for now as they are not fully functional
   const handleLegalElement = (elementType: string) => {
     handleFormat('legal-element', elementType);
     toast({
@@ -56,6 +57,7 @@ export const FormattingToolbar: React.FC<FormattingToolbarProps> = ({
       description: `A ${elementType.toLowerCase()} element has been added to your document.`,
     });
   };
+  */
 
   if (!showFormatting) return null;
 
@@ -155,6 +157,7 @@ export const FormattingToolbar: React.FC<FormattingToolbarProps> = ({
       
       <div className="h-6 w-px bg-border/40 mx-1"></div>
       
+      {/* Commented out legal elements for now as they are not fully functional 
       <Button 
         variant="ghost" 
         size="sm" 
@@ -189,6 +192,7 @@ export const FormattingToolbar: React.FC<FormattingToolbarProps> = ({
       </Button>
       
       <div className="h-6 w-px bg-border/40 mx-1"></div>
+      */}
       
       <Button 
         variant="ghost" 

@@ -74,3 +74,22 @@
 .contract-preview [style*="text-align: right"] {
   @apply text-right;
 }
+
+/* Printed document styling */
+@media print {
+  body {
+    font-family: 'Arial', sans-serif;
+    margin: 1.5cm;
+    font-size: 12pt;
+    line-height: 1.5;
+  }
+  
+  h1, h2, h3 {
+    page-break-after: avoid;
+  }
+  
+  p, h1, h2, h3 {
+    orphans: 3;
+    widows: 3;
+  }
+}
