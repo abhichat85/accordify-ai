@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { nanoid } from "@/lib/utils";
 import { Message } from "../chat/MessageBubble";
 import { useToast } from "@/hooks/use-toast";
@@ -78,6 +78,13 @@ export const MainLayout: React.FC<{children?: React.ReactNode}> = ({ children })
                                  lowerContent.includes("draft") ||
                                  lowerContent.includes("agreement");
     
+    // Detect co-founder agreement specifically
+    const isCoFounderAgreement = (lowerContent.includes("co-founder") || 
+                                  lowerContent.includes("cofounder") || 
+                                  lowerContent.includes("founder")) &&
+                                 (lowerContent.includes("agreement") || 
+                                  lowerContent.includes("contract"));
+    
     // Detect request for contract analysis
     const isContractAnalysis = lowerContent.includes("review") || 
                                lowerContent.includes("analyze") || 
@@ -101,6 +108,8 @@ export const MainLayout: React.FC<{children?: React.ReactNode}> = ({ children })
       actions.push("Preparing document structure");
       actions.push("Generating customized clauses");
       
+      console.log("Contract generation detected, processing...");
+      
       // Attempt actual contract generation through OpenAI
       try {
         // Identify contract type from the content
@@ -115,8 +124,9 @@ export const MainLayout: React.FC<{children?: React.ReactNode}> = ({ children })
           contractType = "License Agreement";
         } else if (lowerContent.includes("sales") || lowerContent.includes("purchase")) {
           contractType = "Sales Agreement";
-        } else if (lowerContent.includes("co-founder") || lowerContent.includes("founder") || lowerContent.includes("partnership")) {
+        } else if (isCoFounderAgreement) {
           contractType = "Co-Founder Agreement";
+          actions.push("Creating personalized Co-Founder Agreement");
         }
         
         console.log("Generating contract of type:", contractType);
@@ -124,7 +134,9 @@ export const MainLayout: React.FC<{children?: React.ReactNode}> = ({ children })
         // Generate the contract
         const result = await generateContract(content, contractType);
         
-        if (result.type === "generate") {
+        console.log("Contract generation API response:", result);
+        
+        if (result.type === "generate" && result.result) {
           const generatedContract = result.result;
           
           console.log("Contract generated successfully:", generatedContract.title);
@@ -132,10 +144,18 @@ export const MainLayout: React.FC<{children?: React.ReactNode}> = ({ children })
           // Important: Update the editor state with the generated content
           setIsEditorOpen(true);
           setIsReviewOpen(false);
+          
+          // Update the current contract with the generated content
           setCurrentContract({
             title: generatedContract.title,
             type: generatedContract.type,
             content: generatedContract.content
+          });
+          
+          console.log("Updated current contract state:", {
+            title: generatedContract.title,
+            type: generatedContract.type,
+            contentLength: generatedContract.content.length
           });
           
           responseContent = `I've created a draft ${generatedContract.type} based on your requirements. The document includes standard provisions customized to your needs. You can now review and edit it in the editor. Would you like me to explain any specific section in more detail?`;

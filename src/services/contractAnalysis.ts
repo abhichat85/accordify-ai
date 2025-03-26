@@ -44,6 +44,8 @@ export const analyzeContract = async (
   analysisType: AnalysisType
 ): Promise<AnalysisResult> => {
   try {
+    console.log(`Analyzing contract text (${contractText.length} chars) with type: ${analysisType}`);
+    
     const { data, error } = await supabase.functions.invoke('analyze-contract', {
       body: { contractText, analysisType }
     });
@@ -55,6 +57,8 @@ export const analyzeContract = async (
         error: error.message || 'Failed to analyze contract' 
       };
     }
+
+    console.log('Analysis completed, received data:', data);
 
     // Return the properly typed result
     if (data.type === analysisType) {
@@ -105,9 +109,17 @@ export const generateContract = async (
     // Return the properly typed result
     if (data.type === "generate") {
       console.log('Successfully generated contract:', data.result.title);
+      
+      // Ensure we have all required fields in the response
+      const result: GeneratedContract = {
+        title: data.result.title || contractType || "Generated Agreement",
+        content: data.result.content || "Contract content could not be generated.",
+        type: data.result.type || contractType || "Legal Agreement"
+      };
+      
       return {
         type: "generate",
-        result: data.result
+        result: result
       } as AnalysisResult;
     } else {
       console.error('Analysis type mismatch in response:', data);

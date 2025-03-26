@@ -57,19 +57,24 @@ serve(async (req) => {
         if (contractType === "Co-Founder Agreement") {
           specificInstructions = `This should be a comprehensive co-founder agreement covering equity distribution, roles and responsibilities, 
           intellectual property rights, vesting schedules, decision-making processes, exit provisions, and dispute resolution mechanisms.
-          Make it detailed, practical, and legally sound for startup founders.`;
+          Make it detailed, practical, and legally sound for startup founders.
+          
+          Extract any relevant names, company details, or specific requirements from the user's prompt and incorporate them into the agreement.
+          Use formal legal language appropriate for a binding agreement between co-founders.`;
         }
         
         systemPrompt = `You are an AI legal assistant specializing in contract drafting. 
         Generate a comprehensive, professional ${contractType || "legal document"} based on the user's requirements.
         ${specificInstructions}
-        Format your response in JSON with these keys: 
+        
+        Format your response as a direct JSON object (not in a code block) with these keys: 
         title (the title of the contract), 
         content (the full text of the contract with proper formatting and structure), 
         type (the type of contract generated).
         
         For the content, use proper legal language and include all necessary sections and clauses.
-        The contract should be ready to use with minimal editing needed.`;
+        The contract should be ready to use with minimal editing needed.
+        Do not include any explanations or markdown formatting in your response, just the pure JSON object.`;
         break;
       default:
         systemPrompt = `You are an AI legal assistant specializing in contract analysis. 
@@ -110,11 +115,38 @@ serve(async (req) => {
     // Try to parse as JSON, but fallback to sending raw text if parsing fails
     let parsedResult;
     try {
-      parsedResult = JSON.parse(analysisResult);
-      console.log('Successfully parsed OpenAI response as JSON');
+      // First, try to parse directly
+      try {
+        parsedResult = JSON.parse(analysisResult);
+        console.log('Successfully parsed OpenAI response as JSON directly');
+      } catch (directParseError) {
+        // If direct parsing fails, try to extract JSON from a code block
+        const jsonMatch = analysisResult.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+        if (jsonMatch && jsonMatch[1]) {
+          parsedResult = JSON.parse(jsonMatch[1]);
+          console.log('Successfully extracted and parsed JSON from code block');
+        } else {
+          // If both methods fail, throw error to trigger fallback
+          throw new Error('Failed to parse JSON directly or extract from code block');
+        }
+      }
     } catch (e) {
       console.warn('Failed to parse OpenAI response as JSON:', e);
       parsedResult = { rawAnalysis: analysisResult };
+      
+      // For generation, attempt to create a more structured response
+      if (analysisType === "generate") {
+        // Extract title from first line
+        const lines = analysisResult.split('\n');
+        const title = lines[0].trim();
+        const content = analysisResult;
+        
+        parsedResult = {
+          title: title || contractType || "Generated Agreement",
+          content: content,
+          type: contractType || "Legal Agreement"
+        };
+      }
     }
 
     return new Response(

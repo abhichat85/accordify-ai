@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { 
   SaveIcon, 
@@ -63,7 +63,7 @@ export const ModernContractEditor: React.FC<ModernContractEditorProps> = ({
   className,
   initialContent = ""
 }) => {
-  const [content, setContent] = useState(initialContent || `MUTUAL NON-DISCLOSURE AGREEMENT
+  const defaultContent = `MUTUAL NON-DISCLOSURE AGREEMENT
 
 THIS MUTUAL NON-DISCLOSURE AGREEMENT (this "Agreement") is made and entered into as of [EFFECTIVE DATE] (the "Effective Date"), by and between [PARTY A], a [STATE] [ENTITY TYPE] with its principal place of business at [ADDRESS] ("Company"), and [PARTY B], a [STATE] [ENTITY TYPE] with its principal place of business at [ADDRESS] ("Recipient").
 
@@ -77,8 +77,9 @@ Company and Recipient wish to explore a potential business relationship in conne
 Each party agrees not to use any Confidential Information of the other party for any purpose except to evaluate and engage in discussions concerning the Purpose. Each party agrees not to disclose any Confidential Information of the other party to third parties or to such party's employees, except to those employees who are required to have the information in order to evaluate or engage in discussions concerning the Purpose and who have signed confidentiality agreements with terms no less restrictive than those contained herein.
 
 4. TERM
-This Agreement shall remain in effect for a period of [TIME PERIOD] from the Effective Date, unless earlier terminated by either party with [NOTICE PERIOD] prior written notice. Each party's obligations under this Agreement shall survive termination of the Agreement and shall be binding upon such party's heirs, successors, and assigns.`);
-  
+This Agreement shall remain in effect for a period of [TIME PERIOD] from the Effective Date, unless earlier terminated by either party with [NOTICE PERIOD] prior written notice. Each party's obligations under this Agreement shall survive termination of the Agreement and shall be binding upon such party's heirs, successors, and assigns.`;
+
+  const [content, setContent] = useState(initialContent || defaultContent);
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [currentTitle, setCurrentTitle] = useState(title);
@@ -86,6 +87,13 @@ This Agreement shall remain in effect for a period of [TIME PERIOD] from the Eff
   const [editorMode, setEditorMode] = useState<'rich' | 'code'>('rich');
   const [showFormatting, setShowFormatting] = useState(false);
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (initialContent) {
+      console.log("ModernContractEditor: Setting content from initialContent:", initialContent.substring(0, 100) + "...");
+      setContent(initialContent);
+    }
+  }, [initialContent]);
 
   const handleSave = () => {
     setIsSaving(true);

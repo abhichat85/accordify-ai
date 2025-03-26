@@ -30,13 +30,19 @@ export const MainPanel: React.FC<MainPanelProps> = ({
   const location = useLocation();
   const path = location.pathname;
   
+  console.log("MainPanel rendering with currentContract:", {
+    title: currentContract.title,
+    type: currentContract.type,
+    contentLength: currentContract.content ? currentContract.content.length : 0
+  });
+  
   // If we're on a specific route, render that content
   if (path.startsWith("/contracts") || path === "/") {
     if (isEditorOpen) {
       return <ModernContractEditor 
         title={currentContract.title} 
         className="h-full" 
-        initialContent={currentContract.content || ""}
+        initialContent={currentContract.content}
       />;
     }
     
