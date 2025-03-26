@@ -1,4 +1,3 @@
-
 import React, { useRef } from "react";
 import { 
   SaveIcon, 
@@ -20,7 +19,9 @@ import {
   CheckCircle,
   Scale,
   GanttChart,
-  Brain
+  Brain,
+  FileCheck,
+  Send
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -48,6 +49,8 @@ interface EditorToolbarProps {
   isSaving: boolean;
   lastSaved: Date | null;
   content?: string;
+  status?: 'draft' | 'submitted' | 'sent_for_signing';
+  onStatusChange?: (status: 'draft' | 'submitted' | 'sent_for_signing') => void;
 }
 
 export const EditorToolbar: React.FC<EditorToolbarProps> = ({
@@ -56,7 +59,9 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
   handleSave,
   isSaving,
   lastSaved,
-  content = ""
+  content = "",
+  status = 'draft',
+  onStatusChange
 }) => {
   const { toast } = useToast();
   const linkRef = useRef<HTMLAnchorElement>(null);
@@ -68,7 +73,6 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
       description: "Opening print dialog...",
     });
     
-    // Create a new window with formatted content
     const printWindow = window.open('', '_blank');
     if (!printWindow) {
       toast({
@@ -79,7 +83,6 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
       return;
     }
     
-    // Add formatted content to the print window
     printWindow.document.write(`
       <!DOCTYPE html>
       <html>
@@ -111,7 +114,6 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
       </html>
     `);
     
-    // Focus the window and trigger print
     printWindow.document.close();
     printWindow.focus();
     setTimeout(() => {
@@ -126,25 +128,22 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
   const formatContentForPrint = (text: string) => {
     let formattedText = text;
     
-    // Format paragraphs
     formattedText = formattedText
       .split('\n\n')
       .map(paragraph => {
         if (!paragraph.trim()) return '';
 
-        // Convert headings
         if (paragraph.startsWith('# ')) {
           return `<h1>${paragraph.substring(2)}</h1>`;
         } else if (paragraph.startsWith('## ')) {
           return `<h2>${paragraph.substring(3)}</h2>`;
         }
         
-        // Convert inline formatting
         let formatted = paragraph
-          .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>') // Bold
-          .replace(/\*(.+?)\*/g, '<em>$1</em>')             // Italic
-          .replace(/\+\+(.+?)\+\+/g, '<u>$1</u>')           // Underline
-          .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2">$1</a>'); // Links
+          .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+          .replace(/\*(.+?)\*/g, '<em>$1</em>')
+          .replace(/\+\+(.+?)\+\+/g, '<u>$1</u>')
+          .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2">$1</a>');
           
         return `<p>${formatted}</p>`;
       })
@@ -159,7 +158,6 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
     let mimeType = 'text/plain';
     let extension = 'txt';
     
-    // Convert content to appropriate format
     switch (format) {
       case 'PDF':
         toast({
@@ -177,19 +175,16 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
         return;
         
       case 'TXT':
-        // Text remains as is
         mimeType = 'text/plain';
         extension = 'txt';
         break;
         
       case 'MD':
-        // Markdown remains as is
         mimeType = 'text/markdown';
         extension = 'md';
         break;
         
       case 'HTML':
-        // Convert to HTML
         exportContent = `<!DOCTYPE html>
 <html>
 <head>
@@ -211,17 +206,14 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
         break;
     }
     
-    // Create download link
     const blob = new Blob([exportContent], { type: mimeType });
     const url = URL.createObjectURL(blob);
     
-    // Use the linkRef to create a temporary download link
     if (linkRef.current) {
       linkRef.current.href = url;
       linkRef.current.download = `${currentTitle.replace(/\s+/g, '_')}.${extension}`;
       linkRef.current.click();
       
-      // Clean up
       setTimeout(() => URL.revokeObjectURL(url), 100);
       
       toast({
@@ -235,7 +227,6 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
   const handleIntegration = (service: string) => {
     switch (service) {
       case 'Email':
-        // Create a mailto link with the document title and content
         const subject = encodeURIComponent(currentTitle);
         const body = encodeURIComponent(`${currentTitle}\n\n${content}`);
         window.open(`mailto:?subject=${subject}&body=${body}`);
@@ -247,8 +238,6 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
         break;
         
       case 'Link':
-        // In a real app, this would create a shareable link to the document
-        // Simulate copy to clipboard
         navigator.clipboard.writeText(`https://example.com/shared-contract/${currentTitle.replace(/\s+/g, '-').toLowerCase()}`)
           .then(() => {
             toast({
@@ -266,12 +255,74 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
         break;
         
       default:
-        // For other services, show integration toast
         toast({
           title: `${service} Integration`,
           description: `Preparing to connect with ${service}. This feature would require authentication and API integration.`,
         });
     }
+  };
+
+  const handleSubmitContract = () => {
+    if (onStatusChange) {
+      onStatusChange('submitted');
+      toast({
+        title: "Contract submitted",
+        description: "Your contract has been submitted for internal review.",
+      });
+    }
+  };
+  
+  const handleSendForSigning = () => {
+    if (onStatusChange) {
+      onStatusChange('sent_for_signing');
+      toast({
+        title: "Contract sent for signing",
+        description: "Your contract has been sent for electronic signatures.",
+      });
+    }
+  };
+
+  const handleAIAnalysis = (analysisType: string) => {
+    const chatInput = document.querySelector('textarea[placeholder*="Ask about contracts"]') as HTMLTextAreaElement;
+    
+    if (!chatInput) {
+      toast({
+        title: "Chat not available",
+        description: "Please make sure the chat panel is visible.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    let prompt = "";
+    switch (analysisType) {
+      case "risk":
+        prompt = "Analyze this contract for potential risk factors. Please identify any clauses with high, medium, or low risk levels and provide specific recommendations for mitigating these risks.";
+        break;
+      case "grammar":
+        prompt = "Review this contract for grammar, clarity, and readability issues. Please identify any confusing language, run-on sentences, or ambiguous terms that should be clarified.";
+        break;
+      case "compliance":
+        prompt = "Analyze this contract for legal compliance. Check if it adheres to standard legal requirements and identify any missing clauses that might be required by law.";
+        break;
+      case "terms":
+        prompt = "Extract and summarize the key terms from this contract. Please identify important dates, monetary values, obligations, and termination conditions.";
+        break;
+      case "full":
+        prompt = "Perform a comprehensive review of this contract. Please analyze for risks, clarity issues, legal compliance, extract key terms, and provide overall recommendations to improve the agreement.";
+        break;
+      default:
+        prompt = "Please analyze this contract and provide feedback.";
+    }
+    
+    chatInput.value = prompt;
+    chatInput.dispatchEvent(new Event('input', { bubbles: true }));
+    chatInput.focus();
+    
+    toast({
+      title: `${analysisType === "full" ? "Full Contract Review" : analysisType.charAt(0).toUpperCase() + analysisType.slice(1) + " Analysis"} prompt ready`,
+      description: "Press Enter to send the prompt to the AI assistant.",
+    });
   };
 
   return (
@@ -287,7 +338,15 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
             placeholder="Contract Title"
           />
           <div className="flex items-center ml-4 space-x-1 text-xs">
-            <span className="px-2 py-0.5 bg-primary/10 text-primary rounded-full font-medium">Template</span>
+            <span className={`px-2 py-0.5 rounded-full font-medium ${
+              status === 'draft' ? 'bg-muted text-muted-foreground' :
+              status === 'submitted' ? 'bg-blue-100 text-blue-800' :
+              'bg-green-100 text-green-800'
+            }`}>
+              {status === 'draft' ? 'Draft' : 
+               status === 'submitted' ? 'Submitted' : 
+               'Sent for Signing'}
+            </span>
             <span className="text-muted-foreground">{new Date().toLocaleDateString()}</span>
           </div>
         </div>
@@ -398,20 +457,20 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
             <DropdownMenuContent align="end" className="w-60">
               <DropdownMenuLabel>Contract Analysis</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="flex items-center gap-2">
+              <DropdownMenuItem className="flex items-center gap-2" onClick={() => handleAIAnalysis("risk")}>
                 <FileSearch size={16} /> Risk Analysis
               </DropdownMenuItem>
-              <DropdownMenuItem className="flex items-center gap-2">
+              <DropdownMenuItem className="flex items-center gap-2" onClick={() => handleAIAnalysis("grammar")}>
                 <CheckCircle size={16} /> Grammar & Clarity Check
               </DropdownMenuItem>
-              <DropdownMenuItem className="flex items-center gap-2">
+              <DropdownMenuItem className="flex items-center gap-2" onClick={() => handleAIAnalysis("compliance")}>
                 <Scale size={16} /> Legal Compliance
               </DropdownMenuItem>
-              <DropdownMenuItem className="flex items-center gap-2">
+              <DropdownMenuItem className="flex items-center gap-2" onClick={() => handleAIAnalysis("terms")}>
                 <GanttChart size={16} /> Term Extraction
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="flex items-center gap-2">
+              <DropdownMenuItem className="flex items-center gap-2" onClick={() => handleAIAnalysis("full")}>
                 <Brain size={16} /> Full AI Contract Review
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -426,24 +485,51 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
             </div>
           )}
           
-          <Button
-            onClick={handleSave}
-            disabled={isSaving}
-            size="sm"
-            className="h-8 rounded-lg shadow-sm"
-          >
-            {isSaving ? (
-              <>
-                <div className="animate-spin mr-1 h-3 w-3 border-2 border-current border-t-transparent rounded-full"></div>
-                <span>Saving...</span>
-              </>
-            ) : (
-              <>
-                <SaveIcon size={16} className="mr-1" />
-                <span>Save</span>
-              </>
+          <div className="flex items-center space-x-2">
+            <Button
+              onClick={handleSave}
+              disabled={isSaving}
+              size="sm"
+              variant={status === 'draft' ? "default" : "outline"}
+              className="h-8 rounded-lg shadow-sm"
+            >
+              {isSaving ? (
+                <>
+                  <div className="animate-spin mr-1 h-3 w-3 border-2 border-current border-t-transparent rounded-full"></div>
+                  <span>Saving...</span>
+                </>
+              ) : (
+                <>
+                  <SaveIcon size={16} className="mr-1" />
+                  <span>Save Draft</span>
+                </>
+              )}
+            </Button>
+            
+            {status === 'draft' && (
+              <Button
+                onClick={handleSubmitContract}
+                size="sm"
+                variant="outline"
+                className="h-8 rounded-lg shadow-sm"
+              >
+                <FileCheck size={16} className="mr-1" />
+                <span>Submit</span>
+              </Button>
             )}
-          </Button>
+            
+            {(status === 'draft' || status === 'submitted') && (
+              <Button
+                onClick={handleSendForSigning}
+                size="sm"
+                variant="outline"
+                className="h-8 rounded-lg shadow-sm"
+              >
+                <Send size={16} className="mr-1" />
+                <span>Send for Signing</span>
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     </div>

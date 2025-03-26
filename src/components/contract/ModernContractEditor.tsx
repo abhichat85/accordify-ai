@@ -23,11 +23,13 @@ export const ModernContractEditor: React.FC<ModernContractEditorProps> = ({
     viewMode,
     editorMode,
     showFormatting,
+    status,
     setContent,
     setCurrentTitle,
     setViewMode,
     setEditorMode,
     setShowFormatting,
+    setStatus,
     handleSave
   } = useContractEditor(title, initialContent);
 
@@ -51,12 +53,14 @@ export const ModernContractEditor: React.FC<ModernContractEditorProps> = ({
       viewMode={viewMode}
       editorMode={editorMode}
       showFormatting={showFormatting}
+      status={status}
       isSaving={isSaving}
       lastSaved={lastSaved}
       setContent={setContent}
       setViewMode={setViewMode}
       setEditorMode={setEditorMode}
       setShowFormatting={setShowFormatting}
+      setStatus={setStatus}
       handleSave={handleSave}
       handleFormatting={handleFormatting}
       textSelection={textSelection}

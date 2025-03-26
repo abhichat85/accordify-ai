@@ -11,6 +11,7 @@ export interface ContractEditorState {
   viewMode: 'edit' | 'preview';
   editorMode: 'rich' | 'code';
   showFormatting: boolean;
+  status: 'draft' | 'submitted' | 'sent_for_signing';
 }
 
 export const useContractEditor = (title: string, initialContent: string) => {
@@ -22,7 +23,8 @@ export const useContractEditor = (title: string, initialContent: string) => {
     lastSaved: null,
     viewMode: 'edit',
     editorMode: 'rich',
-    showFormatting: false
+    showFormatting: false,
+    status: 'draft'
   });
 
   useEffect(() => {
@@ -52,6 +54,10 @@ export const useContractEditor = (title: string, initialContent: string) => {
     setState(prev => ({ ...prev, showFormatting }));
   };
 
+  const setStatus = (status: 'draft' | 'submitted' | 'sent_for_signing') => {
+    setState(prev => ({ ...prev, status }));
+  };
+
   const handleSave = () => {
     setState(prev => ({ ...prev, isSaving: true }));
     // Simulating saving process
@@ -71,6 +77,7 @@ export const useContractEditor = (title: string, initialContent: string) => {
     setViewMode,
     setEditorMode,
     setShowFormatting,
+    setStatus,
     handleSave
   };
 };

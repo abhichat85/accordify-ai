@@ -18,10 +18,12 @@ interface EditorContainerProps {
   showFormatting: boolean;
   isSaving: boolean;
   lastSaved: Date | null;
+  status: 'draft' | 'submitted' | 'sent_for_signing';
   setContent: (content: string) => void;
   setViewMode: (mode: 'edit' | 'preview') => void;
   setEditorMode: (mode: 'rich' | 'code') => void;
   setShowFormatting: (show: boolean) => void;
+  setStatus: (status: 'draft' | 'submitted' | 'sent_for_signing') => void;
   handleSave: () => void;
   handleFormatting: (formatType: string, value?: any) => void;
   textSelection: { start: number; end: number; text: string } | null;
@@ -39,10 +41,12 @@ export const EditorContainer: React.FC<EditorContainerProps> = ({
   showFormatting,
   isSaving,
   lastSaved,
+  status,
   setContent,
   setViewMode,
   setEditorMode,
   setShowFormatting,
+  setStatus,
   handleSave,
   handleFormatting,
   textSelection,
@@ -61,6 +65,8 @@ export const EditorContainer: React.FC<EditorContainerProps> = ({
           isSaving={isSaving}
           lastSaved={lastSaved}
           content={content}
+          status={status}
+          onStatusChange={setStatus}
         />
       </CardHeader>
       
