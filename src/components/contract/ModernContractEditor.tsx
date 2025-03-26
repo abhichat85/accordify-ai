@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { cn } from "@/lib/utils";
 import { 
@@ -56,13 +55,15 @@ import { useToast } from "@/hooks/use-toast";
 interface ModernContractEditorProps {
   title: string;
   className?: string;
+  initialContent?: string;
 }
 
 export const ModernContractEditor: React.FC<ModernContractEditorProps> = ({
   title,
-  className
+  className,
+  initialContent = ""
 }) => {
-  const [content, setContent] = useState(`MUTUAL NON-DISCLOSURE AGREEMENT
+  const [content, setContent] = useState(initialContent || `MUTUAL NON-DISCLOSURE AGREEMENT
 
 THIS MUTUAL NON-DISCLOSURE AGREEMENT (this "Agreement") is made and entered into as of [EFFECTIVE DATE] (the "Effective Date"), by and between [PARTY A], a [STATE] [ENTITY TYPE] with its principal place of business at [ADDRESS] ("Company"), and [PARTY B], a [STATE] [ENTITY TYPE] with its principal place of business at [ADDRESS] ("Recipient").
 
