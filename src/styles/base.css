@@ -33,3 +33,44 @@
     border-radius: 4px;
   }
 }
+
+/* Contract editor styles */
+.contract-preview h1 {
+  @apply text-2xl font-bold mt-6 mb-4;
+}
+
+.contract-preview h2 {
+  @apply text-xl font-bold mt-5 mb-3;
+}
+
+.contract-preview strong {
+  @apply font-bold;
+}
+
+.contract-preview em {
+  @apply italic;
+}
+
+.contract-preview u {
+  @apply underline;
+}
+
+.contract-preview ul {
+  @apply list-disc pl-5 mb-4;
+}
+
+.contract-preview ol {
+  @apply list-decimal pl-5 mb-4;
+}
+
+.contract-preview li {
+  @apply mb-1;
+}
+
+.contract-preview [style*="text-align: center"] {
+  @apply text-center;
+}
+
+.contract-preview [style*="text-align: right"] {
+  @apply text-right;
+}
