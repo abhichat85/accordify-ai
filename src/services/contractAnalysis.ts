@@ -1,7 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 
-export type AnalysisType = "general" | "risk" | "clauses";
+export type AnalysisType = "general" | "risk" | "clauses" | "generate";
 
 export interface Risk {
   type: "high" | "medium" | "low";
@@ -26,10 +26,17 @@ export interface GeneralAnalysis {
   rawAnalysis?: string;
 }
 
+export interface GeneratedContract {
+  title: string;
+  content: string;
+  type: string;
+}
+
 export type AnalysisResult = 
   | { type: "general"; result: GeneralAnalysis }
   | { type: "risk"; result: Risk[] }
   | { type: "clauses"; result: Clause[] }
+  | { type: "generate"; result: GeneratedContract }
   | { type: "error"; error: string };
 
 export const analyzeContract = async (
@@ -66,6 +73,48 @@ export const analyzeContract = async (
     return { 
       type: "error", 
       error: error instanceof Error ? error.message : 'Unknown error during contract analysis'
+    };
+  }
+};
+
+export const generateContract = async (
+  prompt: string,
+  contractType?: string
+): Promise<AnalysisResult> => {
+  try {
+    const { data, error } = await supabase.functions.invoke('analyze-contract', {
+      body: { 
+        contractText: prompt, 
+        analysisType: "generate",
+        contractType 
+      }
+    });
+
+    if (error) {
+      console.error('Error generating contract:', error);
+      return { 
+        type: "error", 
+        error: error.message || 'Failed to generate contract' 
+      };
+    }
+
+    // Return the properly typed result
+    if (data.type === "generate") {
+      return {
+        type: "generate",
+        result: data.result
+      } as AnalysisResult;
+    } else {
+      return {
+        type: "error",
+        error: 'Analysis type mismatch in response'
+      };
+    }
+  } catch (error) {
+    console.error('Exception in generateContract:', error);
+    return { 
+      type: "error", 
+      error: error instanceof Error ? error.message : 'Unknown error during contract generation'
     };
   }
 };

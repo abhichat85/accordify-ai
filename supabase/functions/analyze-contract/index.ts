@@ -16,9 +16,9 @@ serve(async (req) => {
   }
 
   try {
-    const { contractText, analysisType } = await req.json();
+    const { contractText, analysisType, contractType } = await req.json();
     
-    if (!contractText) {
+    if (!contractText && analysisType !== "generate") {
       return new Response(
         JSON.stringify({ error: 'Contract text is required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -49,6 +49,14 @@ serve(async (req) => {
         Extract and categorize all clauses from the provided contract text. 
         Format your response in JSON with an array of clauses, each containing: 
         name, content, and risk (high, medium, low, or null if no risk).`;
+        break;
+      case "generate":
+        systemPrompt = `You are an AI legal assistant specializing in contract drafting. 
+        Generate a comprehensive, professional ${contractType || "legal document"} based on the user's requirements. 
+        Format your response in JSON with these keys: 
+        title (the title of the contract), 
+        content (the full text of the contract with proper formatting and structure), 
+        type (the type of contract generated).`;
         break;
       default:
         systemPrompt = `You are an AI legal assistant specializing in contract analysis. 

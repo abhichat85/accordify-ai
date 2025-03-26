@@ -16,6 +16,7 @@ interface MainPanelProps {
   currentContract: {
     title: string;
     type: string;
+    content?: string;
   };
   setIsReviewOpen: (isOpen: boolean) => void;
 }
@@ -32,7 +33,11 @@ export const MainPanel: React.FC<MainPanelProps> = ({
   // If we're on a specific route, render that content
   if (path.startsWith("/contracts") || path === "/") {
     if (isEditorOpen) {
-      return <ModernContractEditor title={currentContract.title} className="h-full" />;
+      return <ModernContractEditor 
+        title={currentContract.title} 
+        className="h-full" 
+        initialContent={currentContract.content || ""}
+      />;
     }
     
     if (isReviewOpen) {

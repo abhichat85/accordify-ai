@@ -8,6 +8,7 @@ import { MainPanel } from "./MainPanel";
 import { ChatPanel } from "./ChatPanel";
 import { ESignaturePanel } from "../signature/ESignaturePanel";
 import { useLocation } from "react-router-dom";
+import { generateContract } from "@/services/contractAnalysis";
 
 export const MainLayout: React.FC<{children?: React.ReactNode}> = ({ children }) => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -16,7 +17,8 @@ export const MainLayout: React.FC<{children?: React.ReactNode}> = ({ children })
   const [isReviewOpen, setIsReviewOpen] = useState(false);
   const [currentContract, setCurrentContract] = useState({
     title: "Non-Disclosure Agreement",
-    type: "NDA"
+    type: "NDA",
+    content: ""
   });
   const { toast } = useToast();
   const location = useLocation();
@@ -52,7 +54,8 @@ export const MainLayout: React.FC<{children?: React.ReactNode}> = ({ children })
           setIsEditorOpen(false);
           setCurrentContract({
             title: files[0].name.replace(/\.[^/.]+$/, ""),
-            type: "Uploaded Document"
+            type: "Uploaded Document",
+            content: ""
           });
         }, 1500);
       }
@@ -63,7 +66,7 @@ export const MainLayout: React.FC<{children?: React.ReactNode}> = ({ children })
   };
 
   // Simulate agentic AI response with reasoning and multi-step actions
-  const handleAgentResponse = (content: string) => {
+  const handleAgentResponse = async (content: string) => {
     const lowerContent = content.toLowerCase();
     let responseContent = "";
     let actions = [];
@@ -93,24 +96,49 @@ export const MainLayout: React.FC<{children?: React.ReactNode}> = ({ children })
     if (isContractGeneration) {
       reasoning = "I'm analyzing your request to generate a new contract. I'll determine the contract type, required clauses, and customize it based on your specifications.";
       
-      // If it's about an NDA, open the editor with reasoning
-      if (lowerContent.includes("nda") || lowerContent.includes("non-disclosure")) {
-        actions.push("Opening contract editor for NDA");
-        actions.push("Analyzing standard NDA requirements");
-        actions.push("Generating customized clauses");
+      actions.push("Determining contract type required");
+      actions.push("Preparing document structure");
+      actions.push("Generating customized clauses");
+      
+      // Attempt actual contract generation through OpenAI
+      try {
+        // Identify contract type from the content
+        let contractType = "legal agreement";
+        if (lowerContent.includes("nda") || lowerContent.includes("non-disclosure")) {
+          contractType = "Non-Disclosure Agreement";
+        } else if (lowerContent.includes("employment")) {
+          contractType = "Employment Agreement";
+        } else if (lowerContent.includes("service") || lowerContent.includes("consulting")) {
+          contractType = "Service Agreement";
+        } else if (lowerContent.includes("license")) {
+          contractType = "License Agreement";
+        } else if (lowerContent.includes("sales") || lowerContent.includes("purchase")) {
+          contractType = "Sales Agreement";
+        }
         
-        setTimeout(() => {
+        // Generate the contract
+        const result = await generateContract(content, contractType);
+        
+        if (result.type === "generate") {
+          const generatedContract = result.result;
+          
           setIsEditorOpen(true);
           setIsReviewOpen(false);
           setCurrentContract({
-            title: "Non-Disclosure Agreement",
-            type: "NDA"
+            title: generatedContract.title,
+            type: generatedContract.type,
+            content: generatedContract.content
           });
-        }, 500);
-        
-        responseContent = "I've created a draft Non-Disclosure Agreement based on your requirements. The document includes standard confidentiality provisions, but I've also customized the following sections:\n\n1. Term length adjusted to industry standards\n2. Added specific intellectual property protections\n3. Included jurisdiction clause for your location\n\nYou can now review and edit it in the editor. Would you like me to explain any specific section in more detail?";
-      } else {
-        responseContent = "I'd be happy to generate that contract for you. To create the most appropriate document, could you please provide more details about:\n\n1. The parties involved\n2. Key terms and conditions\n3. Any specific clauses you want to include\n4. Applicable jurisdiction\n\nThis will help me customize the contract to your specific needs.";
+          
+          responseContent = `I've created a draft ${generatedContract.type} based on your requirements. The document includes standard provisions customized to your needs. You can now review and edit it in the editor. Would you like me to explain any specific section in more detail?`;
+        } else {
+          // Fallback if generation failed
+          console.error("Contract generation failed:", result);
+          responseContent = "I tried to generate that contract for you, but encountered an issue. Could you provide more specific details about what type of agreement you need?";
+        }
+      } catch (error) {
+        console.error("Error generating contract:", error);
+        responseContent = "I encountered an issue while generating your contract. Let's try a different approach. Could you specify what type of agreement you need?";
       }
     } else if (isContractAnalysis) {
       reasoning = "I'll need to analyze the contract structure, identify key clauses, and assess potential risks or missing elements.";
