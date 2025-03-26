@@ -24,9 +24,9 @@ export const EditorContent: React.FC<EditorContentProps> = ({
     
     const start = textareaRef.current.selectionStart;
     const end = textareaRef.current.selectionEnd;
-    const selectedText = content.substring(start, end);
+    const text = content.substring(start, end);
     
-    onTextSelection({ start, end, selectedText });
+    onTextSelection({ start, end, text });
   };
 
   // Focus method to be called from parent
