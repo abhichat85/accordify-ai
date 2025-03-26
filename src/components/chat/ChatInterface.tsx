@@ -229,9 +229,6 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
     }, 100);
   };
 
-  const hasMessages = messages.length > 0;
-  const showWelcomeMessage = !hasMessages;
-
   return (
     <div className={cn(
       "flex flex-col h-full overflow-hidden bg-background/10", 
@@ -249,87 +246,9 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
         <div className="flex flex-col flex-grow overflow-hidden">
           <TabsContent value="chat" className="flex-grow m-0 p-0 data-[state=active]:flex flex-col">
             <ScrollArea className="h-[calc(100vh-280px)] px-4 py-4">
-              {showWelcomeMessage ? (
-                <div className="flex flex-col items-center justify-center h-full text-center px-4">
-                  <div className="w-20 h-20 rounded-full bg-primary flex items-center justify-center mb-6 animate-scale-in shadow-lg">
-                    <Bot className="text-primary-foreground w-10 h-10" />
-                  </div>
-                  <h2 className="text-2xl font-bold mb-3 text-foreground animate-fade-in bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-                    Welcome to Accord AI
-                  </h2>
-                  <p className="text-muted-foreground mb-6 max-w-md animate-fade-in delay-100">
-                    Your AI-powered contract assistant. Ask me to generate, review, or analyze any contract.
-                  </p>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full max-w-md animate-fade-in delay-200">
-                    <Card 
-                      className="p-3 cursor-pointer hover:shadow-md transition-all duration-300 bg-card/50 backdrop-blur-sm border-border/30"
-                      onClick={() => {
-                        setInputValue("Generate an NDA for my company");
-                        setTimeout(() => {
-                          if (inputRef.current) {
-                            inputRef.current.focus();
-                          }
-                        }, 100);
-                      }}
-                    >
-                      <div className="flex items-center mb-2">
-                        <FileText className="text-primary mr-2" size={18} />
-                        <p className="font-semibold text-foreground">Generate a new NDA</p>
-                      </div>
-                      <p className="text-sm text-muted-foreground">Create a custom non-disclosure agreement</p>
-                    </Card>
-                    <Card 
-                      className="p-3 cursor-pointer hover:shadow-md transition-all duration-300 bg-card/50 backdrop-blur-sm border-border/30"
-                      onClick={() => {
-                        setInputValue("I need you to review a contract");
-                        setTimeout(() => {
-                          if (inputRef.current) {
-                            inputRef.current.focus();
-                          }
-                        }, 100);
-                      }}
-                    >
-                      <div className="flex items-center mb-2">
-                        <FileCheck className="text-primary mr-2" size={18} />
-                        <p className="font-semibold text-foreground">Review my contract</p>
-                      </div>
-                      <p className="text-sm text-muted-foreground">Get analysis and risk assessment</p>
-                    </Card>
-                    <Card 
-                      className="p-3 cursor-pointer hover:shadow-md transition-all duration-300 bg-card/50 backdrop-blur-sm border-border/30"
-                      onClick={() => {
-                        setInputValue("Help me compare two contract versions");
-                        setTimeout(() => {
-                          if (inputRef.current) {
-                            inputRef.current.focus();
-                          }
-                        }, 100);
-                      }}
-                    >
-                      <div className="flex items-center mb-2">
-                        <Workflow className="text-primary mr-2" size={18} />
-                        <p className="font-semibold text-foreground">Compare versions</p>
-                      </div>
-                      <p className="text-sm text-muted-foreground">See what's changed between drafts</p>
-                    </Card>
-                    <Card 
-                      className="p-3 cursor-pointer hover:shadow-md transition-all duration-300 bg-card/50 backdrop-blur-sm border-border/30"
-                      onClick={() => {
-                        setInputValue("I need a Statement of Work template");
-                        setTimeout(() => {
-                          if (inputRef.current) {
-                            inputRef.current.focus();
-                          }
-                        }, 100);
-                      }}
-                    >
-                      <div className="flex items-center mb-2">
-                        <FileText className="text-primary mr-2" size={18} />
-                        <p className="font-semibold text-foreground">Create SOW</p>
-                      </div>
-                      <p className="text-sm text-muted-foreground">Draft a statement of work</p>
-                    </Card>
-                  </div>
+              {messages.length === 0 ? (
+                <div className="flex items-center justify-center py-2 px-4 text-sm text-muted-foreground">
+                  Start a new conversation to see your messages here.
                 </div>
               ) : (
                 <>
