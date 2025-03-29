@@ -1,4 +1,3 @@
-
 import React, { useRef } from "react";
 import { 
   SaveIcon, 
@@ -273,7 +272,7 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
   };
 
   // Set the AI chat prompt and focus the input
-  const setChatPrompt = (prompt: string) => {
+  const setChatPromptInner = (prompt: string) => {
     // Get the chat input
     const chatInput = findChatInput();
     
@@ -306,7 +305,7 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
       // Set prompt for submitted contract
       const prompt = `I've just submitted my contract "${currentTitle}" for internal review. Could you please help me check for any potential issues or suggest improvements before it goes to the next stage? Focus on legal clarity, completeness, and any potential risks.`;
       
-      if (setChatPrompt && setChatPrompt(prompt)) {
+      if (setChatPrompt && setChatPromptInner(prompt)) {
         toast({
           title: "Contract submitted",
           description: "Your contract has been submitted for internal review. AI prompt is ready in the chat.",
@@ -327,7 +326,7 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
       // Set prompt for sending for signing
       const prompt = `I'm about to send my contract "${currentTitle}" for electronic signatures. Before I do, could you please verify that all signature blocks, dates, and party information are correctly formatted? Also, is there anything I should communicate to the signatories?`;
       
-      if (setChatPrompt && setChatPrompt(prompt)) {
+      if (setChatPrompt && setChatPromptInner(prompt)) {
         toast({
           title: "Contract sent for signing",
           description: "Your contract has been sent for signatures. AI prompt is ready in the chat.",
@@ -365,7 +364,7 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
     }
     
     // Set the prompt in the chat input
-    if (setChatPrompt && setChatPrompt(prompt)) {
+    if (setChatPrompt && setChatPromptInner(prompt)) {
       toast({
         title: `${analysisType === "full" ? "Full Contract Review" : analysisType.charAt(0).toUpperCase() + analysisType.slice(1) + " Analysis"} prompt ready`,
         description: "Press Enter to send the prompt to the AI assistant.",
