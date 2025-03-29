@@ -24,20 +24,47 @@ export const AnalysisToolbar: React.FC<AnalysisToolbarProps> = ({
 }) => {
   const { toast } = useToast();
   
-  // Find the chat input field in the DOM
+  // Find the chat input field in the DOM - enhanced version
   const findChatInput = (): HTMLTextAreaElement | null => {
-    const chatInputs = document.querySelectorAll('textarea');
-    // Look for the textarea with a placeholder about contracts or asking questions
-    for (const input of chatInputs) {
-      if (input.placeholder && (
-        input.placeholder.includes("contract") || 
-        input.placeholder.includes("Ask") ||
-        input.placeholder.includes("Listening")
-      )) {
-        return input;
+    // Look for the input element in multiple ways to improve reliability
+    
+    // Try specific selectors first
+    let chatInput = document.querySelector('textarea[placeholder*="Ask about contracts"]') as HTMLTextAreaElement;
+    
+    // If not found, try more generic selectors
+    if (!chatInput) {
+      chatInput = document.querySelector('textarea[placeholder*="contract"]') as HTMLTextAreaElement;
+    }
+    
+    if (!chatInput) {
+      chatInput = document.querySelector('textarea[placeholder*="Ask"]') as HTMLTextAreaElement;
+    }
+    
+    // If still not found, try all textareas
+    if (!chatInput) {
+      const allTextareas = document.querySelectorAll('textarea');
+      // Try to find any textarea in the chat section
+      for (const textarea of allTextareas) {
+        const parent = textarea.closest('[class*="chat"]') || 
+                      textarea.closest('[id*="chat"]') || 
+                      textarea.closest('[aria-label*="chat"]');
+        if (parent) {
+          chatInput = textarea;
+          break;
+        }
       }
     }
-    return null;
+    
+    // Last resort - just grab the last textarea on the page
+    if (!chatInput) {
+      const allTextareas = document.querySelectorAll('textarea');
+      if (allTextareas.length > 0) {
+        chatInput = allTextareas[allTextareas.length - 1] as HTMLTextAreaElement;
+      }
+    }
+    
+    console.log("Found chat input:", chatInput);
+    return chatInput;
   };
 
   // Set a prompt in the chat input and focus it
@@ -53,10 +80,25 @@ export const AnalysisToolbar: React.FC<AnalysisToolbarProps> = ({
       return false;
     }
     
-    // Set the value directly
+    console.log("Setting prompt in chat input:", prompt);
+    
+    // Multiple approaches to ensure the value gets set
+    // 1. Direct value assignment
     chatInput.value = prompt;
     
-    // Trigger an input event to update React state
+    // 2. Use Input event
+    chatInput.dispatchEvent(new Event('input', { bubbles: true }));
+    
+    // 3. If using React controlled components, try to update the internal ReactDOM value
+    const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
+      window.HTMLTextAreaElement.prototype, "value"
+    )?.set;
+    
+    if (nativeInputValueSetter) {
+      nativeInputValueSetter.call(chatInput, prompt);
+    }
+    
+    // 4. Force React to acknowledge the change
     const inputEvent = new Event('input', { bubbles: true });
     chatInput.dispatchEvent(inputEvent);
     
@@ -75,6 +117,8 @@ export const AnalysisToolbar: React.FC<AnalysisToolbarProps> = ({
     // Run the analysis
     runAnalysis(type);
 
+    console.log("Running analysis type:", type);
+    
     // Also populate the chat
     let prompt = "";
     switch (type) {
@@ -90,7 +134,9 @@ export const AnalysisToolbar: React.FC<AnalysisToolbarProps> = ({
     }
 
     if (prompt) {
-      setChatPrompt(prompt);
+      console.log("Setting prompt:", prompt);
+      const success = setChatPrompt(prompt);
+      console.log("Set prompt success:", success);
     }
   };
 

@@ -1,3 +1,4 @@
+
 import React, { useRef } from "react";
 import { 
   SaveIcon, 
@@ -266,8 +267,43 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
 
   // Find the chat input field
   const findChatInput = (): HTMLTextAreaElement | null => {
-    // Try to find the chat input in the DOM
-    const chatInput = document.querySelector('textarea[placeholder*="Ask about contracts"]') as HTMLTextAreaElement;
+    // Look for the input element in multiple ways to improve reliability
+    
+    // Try specific selectors first
+    let chatInput = document.querySelector('textarea[placeholder*="Ask about contracts"]') as HTMLTextAreaElement;
+    
+    // If not found, try more generic selectors
+    if (!chatInput) {
+      chatInput = document.querySelector('textarea[placeholder*="contract"]') as HTMLTextAreaElement;
+    }
+    
+    if (!chatInput) {
+      chatInput = document.querySelector('textarea[placeholder*="Ask"]') as HTMLTextAreaElement;
+    }
+    
+    // If still not found, try all textareas
+    if (!chatInput) {
+      const allTextareas = document.querySelectorAll('textarea');
+      // Try to find any textarea in the chat section
+      for (const textarea of allTextareas) {
+        const parent = textarea.closest('[class*="chat"]') || 
+                      textarea.closest('[id*="chat"]') || 
+                      textarea.closest('[aria-label*="chat"]');
+        if (parent) {
+          chatInput = textarea;
+          break;
+        }
+      }
+    }
+    
+    // Last resort - just grab the last textarea on the page
+    if (!chatInput) {
+      const allTextareas = document.querySelectorAll('textarea');
+      if (allTextareas.length > 0) {
+        chatInput = allTextareas[allTextareas.length - 1] as HTMLTextAreaElement;
+      }
+    }
+    
     return chatInput;
   };
 
@@ -285,15 +321,41 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
       return false;
     }
     
+    console.log("Found chat input:", chatInput);
+    
     // Set the prompt in the chat input
     chatInput.value = prompt;
+    
+    // Using multiple approaches to ensure the value gets set
+    // 1. Direct value assignment
+    chatInput.value = prompt;
+    
+    // 2. Use Input event
     chatInput.dispatchEvent(new Event('input', { bubbles: true }));
+    
+    // 3. If using React controlled components, try to update the internal ReactDOM value
+    const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
+      window.HTMLTextAreaElement.prototype, "value"
+    )?.set;
+    
+    if (nativeInputValueSetter) {
+      nativeInputValueSetter.call(chatInput, prompt);
+    }
+    
+    // 4. Force React to acknowledge the change
+    const inputEvent = new Event('input', { bubbles: true });
+    chatInput.dispatchEvent(inputEvent);
+    
+    // Focus the input
     chatInput.focus();
     
     toast({
       title: "Prompt ready",
       description: "Press Enter to send the prompt to the AI assistant.",
     });
+    
+    // Log for debugging
+    console.log("Prompt set in chat input:", prompt);
     
     return true;
   };
@@ -364,7 +426,10 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
     }
     
     // Set the prompt in the chat input
-    if (setChatPrompt && setChatPromptInner(prompt)) {
+    if (setChatPrompt) {
+      const success = setChatPromptInner(prompt);
+      console.log("Setting chat prompt success:", success);
+      
       toast({
         title: `${analysisType === "full" ? "Full Contract Review" : analysisType.charAt(0).toUpperCase() + analysisType.slice(1) + " Analysis"} prompt ready`,
         description: "Press Enter to send the prompt to the AI assistant.",
