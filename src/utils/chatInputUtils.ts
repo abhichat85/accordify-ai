@@ -1,4 +1,3 @@
-
 /**
  * Utility functions for finding and interacting with the chat input field
  */
@@ -82,17 +81,13 @@ export const setChatInputValue = (prompt: string): boolean => {
       nativeInputValueSetter.call(chatInput, prompt);
     }
     
-    // Method 3: Simulate user typing (more compatible with React)
-    // This approach mimics the user typing character by character
-    // Clear first (if needed)
-    if (originalValue) {
-      chatInput.select();
-      document.execCommand('delete', false);
-    }
+    // Method 3: Dispatch a custom event that the ChatInputArea component can listen for
+    const customEvent = new CustomEvent('chat-prompt-update', { 
+      bubbles: true,
+      detail: { prompt }
+    });
+    chatInput.dispatchEvent(customEvent);
     
-    // Insert the text with execCommand
-    document.execCommand('insertText', false, prompt);
-
     // Method 4: Trigger input event for React controlled components
     const inputEvent = new Event('input', { bubbles: true });
     chatInput.dispatchEvent(inputEvent);

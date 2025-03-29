@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { 
   Mic, 
@@ -12,6 +11,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 
 interface ChatInputAreaProps {
   inputValue: string;
@@ -44,8 +44,21 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
   // Effect to auto-resize textarea
   useEffect(() => {
     if (inputRef.current) {
+      // Reset height to auto to get the correct scrollHeight
       inputRef.current.style.height = "auto";
-      inputRef.current.style.height = `${inputRef.current.scrollHeight}px`;
+      
+      // Calculate new height (capped at max-height CSS value)
+      const newHeight = Math.min(inputRef.current.scrollHeight, 200);
+      
+      // Set the height
+      inputRef.current.style.height = `${newHeight}px`;
+      
+      // Enable scrolling if content exceeds the max height
+      if (inputRef.current.scrollHeight > 200) {
+        inputRef.current.style.overflowY = "auto";
+      } else {
+        inputRef.current.style.overflowY = "hidden";
+      }
     }
   }, [inputValue]);
 
@@ -64,7 +77,51 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
     if (inputRef.current && inputRef.current.value !== inputValue) {
       setInputValue(inputRef.current.value);
     }
-  }, []);
+  }, [inputValue, setInputValue]);
+  
+  // Listen for the custom chat-prompt-update event
+  useEffect(() => {
+    if (!inputRef.current) return;
+    
+    const inputElement = inputRef.current; // Store ref in a variable for cleanup
+    
+    const handleCustomPromptUpdate = (event: CustomEvent) => {
+      const { prompt } = event.detail;
+      console.log("Received custom prompt update event:", prompt);
+      setInputValue(prompt);
+      
+      // Auto-focus the input after setting the value
+      setTimeout(() => {
+        if (inputRef.current) {
+          // Reset height to auto to get the correct scrollHeight
+          inputRef.current.style.height = "auto";
+          
+          // Calculate new height (capped at max-height CSS value)
+          const newHeight = Math.min(inputRef.current.scrollHeight, 200);
+          
+          // Set the height
+          inputRef.current.style.height = `${newHeight}px`;
+          
+          // Enable scrolling if content exceeds the max height
+          if (inputRef.current.scrollHeight > 200) {
+            inputRef.current.style.overflowY = "auto";
+          } else {
+            inputRef.current.style.overflowY = "hidden";
+          }
+          
+          inputRef.current.focus();
+        }
+      }, 10);
+    };
+    
+    // Add event listener for our custom event
+    inputElement.addEventListener('chat-prompt-update', handleCustomPromptUpdate as EventListener);
+    
+    return () => {
+      // Use the stored variable in cleanup to avoid stale ref
+      inputElement.removeEventListener('chat-prompt-update', handleCustomPromptUpdate as EventListener);
+    };
+  }, [setInputValue, inputValue]);
   
   // Special effect to listen for external programmatic changes
   useEffect(() => {
@@ -191,7 +248,7 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
 
       <div 
         className={cn(
-          "border-t border-border/40 p-3 bg-background/60 rounded-b-xl",
+          "border-t border-border/40 p-3 bg-background/60 rounded-b-md",
           isDragging && "bg-primary/5"
         )}
         onDragOver={handleDragOver}
@@ -214,7 +271,7 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
                 onKeyDown={handleKeyDown}
                 placeholder={isRecording ? "Listening..." : "Ask about contracts, upload, or start with a template..."}
                 className={cn(
-                  "w-full p-3 rounded-xl border border-border bg-background/80 text-sm focus:outline-none focus:ring-1 focus:ring-primary resize-none overflow-hidden min-h-[48px] max-h-[120px]",
+                  "w-full p-3 pr-20 rounded-md border border-border bg-[#313131] text-sm focus:outline-none focus:ring-1 focus:ring-primary resize-none overflow-y-auto min-h-[48px] max-h-[200px]",
                   isRecording && "bg-primary/5 border-primary animate-pulse-subtle"
                 )}
                 disabled={isProcessing}
@@ -222,102 +279,108 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
                 data-chat-input="true"
                 aria-label="chat-input"
               />
+              
+              {/* Position voice button inside the textarea */}
+              <div className="absolute right-12 bottom-3">
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className={cn(
+                          "h-6 w-6 rounded-full text-muted-foreground hover:text-foreground",
+                          isRecording && "text-primary"
+                        )}
+                        onClick={handleToggleRecording}
+                      >
+                        <Mic size={16} />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      {isRecording ? "Stop recording" : "Voice input"}
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+              
+              {/* Position send button inside the textarea */}
+              <div className="absolute right-2 bottom-2.5">
+                <Button
+                  type="submit"
+                  onClick={handleSubmit}
+                  disabled={isProcessing || (!inputValue.trim() && files.length === 0)}
+                  className="h-7 w-7 rounded-full p-0 shrink-0"
+                >
+                  <Send size={14} className={isProcessing ? "animate-pulse" : ""} />
+                </Button>
+              </div>
             </div>
-            
-            <Button
-              onClick={handleToggleRecording}
-              variant={isRecording ? "destructive" : "outline"}
-              size="icon"
-              className={cn(
-                "rounded-full h-9 w-9 shadow-sm",
-                isRecording && "animate-pulse"
-              )}
-              title={isRecording ? "Stop recording" : "Start voice input"}
-            >
-              <Mic size={16} />
-            </Button>
-            
-            <Button
-              onClick={handleSubmit}
-              disabled={!inputValue.trim() && files.length === 0}
-              variant="default"
-              size="icon"
-              className={cn(
-                "rounded-full h-9 w-9 shadow-sm",
-                (!inputValue.trim() && files.length === 0) && "opacity-70"
-              )}
-            >
-              <Send size={16} />
-            </Button>
           </div>
           
-          <div className="flex flex-wrap gap-1 mt-1">
-            <Button
-              onClick={() => fileInputRef.current?.click()}
-              variant="outline"
-              size="sm"
-              className="rounded-lg text-xs gap-1 h-7 shadow-sm"
-            >
-              <Paperclip size={12} />
-              Attach
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleFileChange}
-                className="hidden"
-                multiple
-              />
-            </Button>
+          {/* Attachment options in a separate row */}
+          <div className="flex justify-between mt-2">
+            <div className="flex gap-1">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 rounded-full text-muted-foreground hover:text-foreground"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      <Paperclip size={14} />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Attach files</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 rounded-full text-muted-foreground hover:text-foreground"
+                      onClick={handleCameraCapture}
+                    >
+                      <Camera size={14} />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Camera</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 rounded-full text-muted-foreground hover:text-foreground"
+                      onClick={handleScreenCapture}
+                    >
+                      <ScreenShare size={14} />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Screen capture</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
             
-            <Button
-              onClick={handleScreenCapture}
-              variant="outline"
-              size="sm"
-              className="rounded-lg text-xs gap-1 h-7 shadow-sm"
-            >
-              <ScreenShare size={12} />
-              Screenshot
-              <input
-                type="file"
-                ref={screenCaptureRef}
-                onChange={handleFileChange}
-                className="hidden"
-                accept="image/*"
-              />
-            </Button>
-            
-            <Button
-              onClick={handleCameraCapture}
-              variant="outline"
-              size="sm"
-              className="rounded-lg text-xs gap-1 h-7 shadow-sm"
-            >
-              <Camera size={12} />
-              Camera
-              <input
-                type="file"
-                ref={cameraInputRef}
-                onChange={handleFileChange}
-                className="hidden"
-                accept="image/*"
-                capture="environment"
-              />
-            </Button>
-            
-            <Button
-              variant="outline"
-              size="sm"
-              className="rounded-lg text-xs gap-1 h-7 ml-auto shadow-sm"
-              onClick={() => {
-                toast({
-                  title: "AI Suggestions",
-                  description: "Loading smart suggestions based on your history...",
-                });
-              }}
-            >
-              <Lightbulb size={12} className="text-primary" />
-              Suggestions
-            </Button>
+            {/* Model selector dropdown */}
+            <div className="flex items-center text-xs text-muted-foreground">
+              <select 
+                className="bg-transparent border-none text-xs focus:outline-none cursor-pointer"
+                defaultValue="gpt4o"
+              >
+                <option value="gpt4o">GPT-4o</option>
+                <option value="claude3">Claude 3</option>
+                <option value="accordai">Accord AI</option>
+              </select>
+            </div>
           </div>
         </div>
       </div>
