@@ -12,6 +12,8 @@ import { useToast } from "@/hooks/use-toast";
 export const findChatInput = (): HTMLTextAreaElement | null => {
   // Try specific selectors first (ordered from most to least specific)
   const selectors = [
+    'textarea[data-chat-input="true"]',
+    'textarea[aria-label="chat-input"]',
     'textarea[placeholder*="Ask about contracts"]',
     'textarea[placeholder*="contract"]',
     'textarea[placeholder*="Ask"]',
