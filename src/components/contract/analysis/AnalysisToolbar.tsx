@@ -3,6 +3,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { AlertCircle, Loader2, Search, Scale, FileText, Sparkles } from "lucide-react";
 import { AnalysisType } from "@/services/contractAnalysis";
+import { useToast } from "@/hooks/use-toast";
 
 interface AnalysisToolbarProps {
   documentContent: string;
@@ -21,11 +22,91 @@ export const AnalysisToolbar: React.FC<AnalysisToolbarProps> = ({
   runAnalysis,
   openReview,
 }) => {
+  const { toast } = useToast();
+  
+  // Find the chat input field in the DOM
+  const findChatInput = (): HTMLTextAreaElement | null => {
+    const chatInputs = document.querySelectorAll('textarea');
+    // Look for the textarea with a placeholder about contracts or asking questions
+    for (const input of chatInputs) {
+      if (input.placeholder && (
+        input.placeholder.includes("contract") || 
+        input.placeholder.includes("Ask") ||
+        input.placeholder.includes("Listening")
+      )) {
+        return input;
+      }
+    }
+    return null;
+  };
+
+  // Set a prompt in the chat input and focus it
+  const setChatPrompt = (prompt: string) => {
+    const chatInput = findChatInput();
+    
+    if (!chatInput) {
+      toast({
+        title: "Chat not available",
+        description: "Please make sure the chat panel is visible.",
+        variant: "destructive"
+      });
+      return false;
+    }
+    
+    // Set the value directly
+    chatInput.value = prompt;
+    
+    // Trigger an input event to update React state
+    const inputEvent = new Event('input', { bubbles: true });
+    chatInput.dispatchEvent(inputEvent);
+    
+    // Focus the input so user can press Enter
+    chatInput.focus();
+    
+    toast({
+      title: "Analysis prompt ready",
+      description: "Press Enter to send the prompt to the AI assistant.",
+    });
+    
+    return true;
+  };
+
+  const handleRunAnalysis = (type: AnalysisType) => {
+    // Run the analysis
+    runAnalysis(type);
+
+    // Also populate the chat
+    let prompt = "";
+    switch (type) {
+      case "general":
+        prompt = "Please analyze this contract and provide a general overview of its structure, key terms, and any notable features.";
+        break;
+      case "risk":
+        prompt = "Please perform a risk analysis on this contract. Identify any high, medium, or low risk clauses, explain why they pose a risk, and suggest mitigations.";
+        break;
+      case "clauses":
+        prompt = "Please extract and categorize all important clauses from this contract, highlighting any unusual or missing standard clauses.";
+        break;
+    }
+
+    if (prompt) {
+      setChatPrompt(prompt);
+    }
+  };
+
+  const handleOpenReview = () => {
+    openReview();
+    
+    // Also populate the chat with a full review prompt
+    const prompt = "Based on the contract analysis results, please provide a comprehensive review highlighting key issues, risks, and suggesting specific improvements.";
+    setChatPrompt(prompt);
+  };
+
   return (
     <>
       <div className="mb-4 flex flex-col sm:flex-row gap-2">
         <Button
-          onClick={() => runAnalysis("general")}
+          onClick={() => handleRunAnalysis("general")}
           disabled={isAnalyzing}
           className="flex-1"
         >
@@ -42,7 +123,7 @@ export const AnalysisToolbar: React.FC<AnalysisToolbarProps> = ({
           )}
         </Button>
         <Button
-          onClick={() => runAnalysis("risk")}
+          onClick={() => handleRunAnalysis("risk")}
           disabled={isAnalyzing}
           className="flex-1"
         >
@@ -59,7 +140,7 @@ export const AnalysisToolbar: React.FC<AnalysisToolbarProps> = ({
           )}
         </Button>
         <Button
-          onClick={() => runAnalysis("clauses")}
+          onClick={() => handleRunAnalysis("clauses")}
           disabled={isAnalyzing}
           className="flex-1"
         >
@@ -81,7 +162,7 @@ export const AnalysisToolbar: React.FC<AnalysisToolbarProps> = ({
         <Button 
           variant="outline" 
           className="mb-4"
-          onClick={openReview}
+          onClick={handleOpenReview}
         >
           <Sparkles className="mr-2 h-4 w-4 text-primary" />
           Full Contract Review

@@ -1,4 +1,3 @@
-
 import React from "react";
 import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -16,16 +15,17 @@ interface EditorContainerProps {
   viewMode: 'edit' | 'preview';
   editorMode: 'rich' | 'code';
   showFormatting: boolean;
+  status: 'draft' | 'submitted' | 'sent_for_signing';
   isSaving: boolean;
   lastSaved: Date | null;
-  status: 'draft' | 'submitted' | 'sent_for_signing';
   setContent: (content: string) => void;
-  setViewMode: (mode: 'edit' | 'preview') => void;
-  setEditorMode: (mode: 'rich' | 'code') => void;
-  setShowFormatting: (show: boolean) => void;
+  setViewMode: (viewMode: 'edit' | 'preview') => void;
+  setEditorMode: (editorMode: 'rich' | 'code') => void;
+  setShowFormatting: (showFormatting: boolean) => void;
   setStatus: (status: 'draft' | 'submitted' | 'sent_for_signing') => void;
   handleSave: () => void;
-  handleFormatting: (formatType: string, value?: any) => void;
+  setChatPrompt?: (prompt: string) => boolean;
+  handleFormatting: (command: string) => void;
   textSelection: { start: number; end: number; text: string } | null;
   onTextSelection: (selection: { start: number; end: number; text: string }) => void;
   className?: string;
@@ -39,45 +39,42 @@ export const EditorContainer: React.FC<EditorContainerProps> = ({
   viewMode,
   editorMode,
   showFormatting,
+  status,
   isSaving,
   lastSaved,
-  status,
   setContent,
   setViewMode,
   setEditorMode,
   setShowFormatting,
   setStatus,
   handleSave,
+  setChatPrompt,
   handleFormatting,
   textSelection,
   onTextSelection,
   className
 }) => {
   return (
-    <Card className={cn("flex flex-col h-full shadow-md border-border/40 rounded-xl overflow-hidden", className)}>
-      {/* Editor toolbar */}
-      <CardHeader className="p-0">
-        <EditorToolbar 
-          title={title}
-          currentTitle={currentTitle}
-          setCurrentTitle={setCurrentTitle}
-          handleSave={handleSave}
-          isSaving={isSaving}
-          lastSaved={lastSaved}
-          content={content}
-          status={status}
-          onStatusChange={setStatus}
-        />
-      </CardHeader>
+    <div className={`flex flex-col h-full bg-background border border-border/40 rounded-xl shadow-sm overflow-hidden ${className}`}>
+      <EditorToolbar
+        title={title}
+        currentTitle={currentTitle}
+        setCurrentTitle={setCurrentTitle}
+        handleSave={handleSave}
+        isSaving={isSaving}
+        lastSaved={lastSaved}
+        content={content}
+        status={status}
+        onStatusChange={setStatus}
+        setChatPrompt={setChatPrompt}
+      />
       
-      {/* Formatting toolbar */}
       <FormattingToolbar 
         showFormatting={showFormatting} 
         onFormat={handleFormatting}
         selection={textSelection}
       />
       
-      {/* View/Mode Selection */}
       <ViewModeSelector 
         viewMode={viewMode}
         setViewMode={setViewMode}
@@ -87,7 +84,6 @@ export const EditorContainer: React.FC<EditorContainerProps> = ({
         setShowFormatting={setShowFormatting}
       />
       
-      {/* Editor content */}
       <CardContent className="flex-grow p-0 overflow-y-auto">
         <EditorContent 
           viewMode={viewMode}
@@ -97,8 +93,7 @@ export const EditorContainer: React.FC<EditorContainerProps> = ({
         />
       </CardContent>
       
-      {/* Status bar */}
       <StatusBar content={content} />
-    </Card>
+    </div>
   );
 };

@@ -30,7 +30,8 @@ export const ModernContractEditor: React.FC<ModernContractEditorProps> = ({
     setEditorMode,
     setShowFormatting,
     setStatus,
-    handleSave
+    handleSave,
+    setChatPrompt
   } = useContractEditor(title, initialContent);
 
   const {
@@ -62,6 +63,7 @@ export const ModernContractEditor: React.FC<ModernContractEditorProps> = ({
       setShowFormatting={setShowFormatting}
       setStatus={setStatus}
       handleSave={handleSave}
+      setChatPrompt={setChatPrompt}
       handleFormatting={handleFormatting}
       textSelection={textSelection}
       onTextSelection={handleTextSelection}
