@@ -248,7 +248,7 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
 
       <div 
         className={cn(
-          "border-t border-border/40 p-3 bg-background/60 rounded-b-md",
+          "border-t border-border/40 p-3 bg-[#1F1F1F]",
           isDragging && "bg-primary/5"
         )}
         onDragOver={handleDragOver}
@@ -262,128 +262,99 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
         )}
         
         <div className="flex flex-col gap-2">
-          <div className="flex items-end gap-2 relative">
-            <div className="flex-grow relative">
-              <textarea
-                ref={inputRef}
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder={isRecording ? "Listening..." : "Ask about contracts, upload, or start with a template..."}
+          {/* Full-width chatbox with contextual buttons */}
+          <div className="relative">
+            <textarea
+              ref={inputRef}
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder={isRecording ? "Listening..." : "Ask about contracts, upload, or start with a template..."}
+              className={cn(
+                "w-full p-3 pr-20 rounded-md border border-[#7c3aed]/30 bg-[#333333] text-sm focus:outline-none focus:ring-1 focus:ring-[#7c3aed] resize-none overflow-y-auto min-h-[48px] max-h-[200px]",
+                isRecording && "bg-primary/5 border-primary animate-pulse-subtle"
+              )}
+              disabled={isProcessing}
+              rows={1}
+              data-chat-input="true"
+              aria-label="chat-input"
+            />
+            
+            {/* Contextual buttons inside the textarea */}
+            <div className="absolute right-3 bottom-3 flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
                 className={cn(
-                  "w-full p-3 pr-20 rounded-md border border-border bg-[#313131] text-sm focus:outline-none focus:ring-1 focus:ring-primary resize-none overflow-y-auto min-h-[48px] max-h-[200px]",
-                  isRecording && "bg-primary/5 border-primary animate-pulse-subtle"
+                  "h-6 w-6 rounded-full text-muted-foreground hover:text-foreground",
+                  isRecording && "text-primary"
                 )}
-                disabled={isProcessing}
-                rows={1}
-                data-chat-input="true"
-                aria-label="chat-input"
-              />
+                onClick={handleToggleRecording}
+              >
+                <Mic size={16} />
+              </Button>
               
-              {/* Position voice button inside the textarea */}
-              <div className="absolute right-12 bottom-3">
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className={cn(
-                          "h-6 w-6 rounded-full text-muted-foreground hover:text-foreground",
-                          isRecording && "text-primary"
-                        )}
-                        onClick={handleToggleRecording}
-                      >
-                        <Mic size={16} />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      {isRecording ? "Stop recording" : "Voice input"}
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
-              
-              {/* Position send button inside the textarea */}
-              <div className="absolute right-2 bottom-2.5">
-                <Button
-                  type="submit"
-                  onClick={handleSubmit}
-                  disabled={isProcessing || (!inputValue.trim() && files.length === 0)}
-                  className="h-7 w-7 rounded-full p-0 shrink-0"
-                >
-                  <Send size={14} className={isProcessing ? "animate-pulse" : ""} />
-                </Button>
-              </div>
+              <Button
+                type="submit"
+                onClick={handleSubmit}
+                disabled={isProcessing || (!inputValue.trim() && files.length === 0)}
+                className={cn(
+                  "h-7 w-7 rounded-full bg-[#7c3aed] hover:bg-[#7c3aed]/90 flex items-center justify-center p-0",
+                  (isProcessing || (!inputValue.trim() && files.length === 0)) && "opacity-50 cursor-not-allowed"
+                )}
+              >
+                <Send size={14} className="text-white" />
+              </Button>
             </div>
           </div>
           
-          {/* Attachment options in a separate row */}
-          <div className="flex justify-between mt-2">
+          {/* File attachment options */}
+          <div className="flex items-center justify-between mt-1">
             <div className="flex gap-1">
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-7 w-7 rounded-full text-muted-foreground hover:text-foreground"
-                      onClick={() => fileInputRef.current?.click()}
-                    >
-                      <Paperclip size={14} />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Attach files</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-              
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-7 w-7 rounded-full text-muted-foreground hover:text-foreground"
-                      onClick={handleCameraCapture}
-                    >
-                      <Camera size={14} />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Camera</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-              
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-7 w-7 rounded-full text-muted-foreground hover:text-foreground"
-                      onClick={handleScreenCapture}
-                    >
-                      <ScreenShare size={14} />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Screen capture</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-            
-            {/* Model selector dropdown */}
-            <div className="flex items-center text-xs text-muted-foreground">
-              <select 
-                className="bg-transparent border-none text-xs focus:outline-none cursor-pointer"
-                defaultValue="gpt4o"
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                className="hidden"
+                multiple
+              />
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7 rounded-full text-muted-foreground hover:text-foreground"
+                onClick={() => fileInputRef.current?.click()}
               >
-                <option value="gpt4o">GPT-4o</option>
-                <option value="claude3">Claude 3</option>
-                <option value="accordai">Accord AI</option>
-              </select>
+                <Paperclip size={14} />
+              </Button>
+              
+              <input
+                type="file"
+                accept="image/*"
+                ref={cameraInputRef}
+                onChange={handleCameraCapture}
+                className="hidden"
+              />
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7 rounded-full text-muted-foreground hover:text-foreground"
+                onClick={handleCameraCapture}
+              >
+                <Camera size={14} />
+              </Button>
+              
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7 rounded-full text-muted-foreground hover:text-foreground"
+                onClick={handleScreenCapture}
+              >
+                <ScreenShare size={14} />
+              </Button>
             </div>
           </div>
         </div>
       </div>
     </>
   );
-};
+}

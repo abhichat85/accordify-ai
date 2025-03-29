@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { MessageBubble, Message } from "./MessageBubble";
 import { cn } from "@/lib/utils";
@@ -13,16 +12,14 @@ import {
   History,
   FileCheck,
   Hourglass,
-  AlarmClock
+  AlarmClock,
+  Brain
 } from "lucide-react";
 import { nanoid } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AiModes, AiMode } from "./AiModes";
 import { ChatMessageArea } from "./ChatMessageArea";
 import { ChatInputArea } from "./ChatInputArea";
-import { ChatContextTab } from "./ChatContextTab";
-import { ChatCapabilitiesTab } from "./ChatCapabilitiesTab";
 import { AgentCapability } from "./types";
 
 interface ChatInterfaceProps {
@@ -44,7 +41,6 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   const [files, setFiles] = useState<File[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const [aiMode, setAiMode] = useState<AiMode>("normal");
-  const [activeTab, setActiveTab] = useState<string>("chat");
   const [showProactiveSuggestions, setShowProactiveSuggestions] = useState(true);
   const [contextAwareness, setContextAwareness] = useState<string[]>([]);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -111,7 +107,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
     if (defaultInputValue && defaultInputValue !== inputValue) {
       setInputValue(defaultInputValue);
     }
-  }, [defaultInputValue]);
+  }, [defaultInputValue, inputValue]);
 
   const handleSubmit = () => {
     if (inputValue.trim() || files.length > 0) {
@@ -134,70 +130,57 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
     }, 100);
   };
 
-  const handleCapabilityClick = (example: string) => {
-    setInputValue(example);
-    setActiveTab("chat");
-    setTimeout(() => {
-      if (inputRef.current) {
-        inputRef.current.focus();
-      }
-    }, 100);
-  };
-
   return (
     <div className={cn(
       "flex flex-col h-full overflow-hidden bg-background/10", 
       className
     )}>
-      <Tabs defaultValue="chat" value={activeTab} onValueChange={setActiveTab} className="flex flex-col h-full overflow-hidden">
-        <div className="border-b border-border/20 bg-background/10 px-2">
-          <TabsList className="h-8 bg-muted/20 mt-1 mb-1 rounded-md w-full grid grid-cols-3 gap-1 p-0.5">
-            <TabsTrigger value="chat" className="text-xs rounded-sm">Chat</TabsTrigger>
-            <TabsTrigger value="capabilities" className="text-xs rounded-sm">Capabilities</TabsTrigger>
-            <TabsTrigger value="context" className="text-xs rounded-sm">Context</TabsTrigger>
-          </TabsList>
+      <div className="flex flex-col h-full overflow-hidden">
+        <div className="flex-grow overflow-hidden flex flex-col">
+          {/* Main chat area */}
+          <ChatMessageArea 
+            messages={messages}
+            proactiveSuggestions={proactiveSuggestions}
+            showProactiveSuggestions={showProactiveSuggestions}
+            handleSuggestionClick={handleSuggestionClick}
+          />
+          
+          {/* Contextual information panel (collapsed by default) */}
+          {messages.length > 0 && contextAwareness.length > 0 && (
+            <div className="px-3 py-2 border-t border-border/20 bg-muted/5 text-xs text-muted-foreground">
+              <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center">
+                  <Brain size={12} className="mr-1 text-primary" />
+                  <span className="font-medium">Context</span>
+                </div>
+              </div>
+              <div className="space-y-1">
+                {contextAwareness.map((item, index) => (
+                  <div key={index} className="flex items-start">
+                    <span className="w-1 h-1 rounded-full bg-primary/70 mt-1.5 mr-1.5"></span>
+                    <p>{item}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       
-        <div className="flex flex-col flex-grow overflow-hidden">
-          <TabsContent value="chat" className="flex-grow m-0 p-0 data-[state=active]:flex flex-col">
-            <ChatMessageArea 
-              messages={messages}
-              proactiveSuggestions={proactiveSuggestions}
-              showProactiveSuggestions={showProactiveSuggestions}
-              handleSuggestionClick={handleSuggestionClick}
-            />
-          </TabsContent>
-
-          <TabsContent value="capabilities" className="m-0 p-3 max-h-[calc(100vh-240px)] overflow-y-auto">
-            <ChatCapabilitiesTab 
-              agentCapabilities={agentCapabilities}
-              handleCapabilityClick={handleCapabilityClick}
-            />
-          </TabsContent>
-
-          <TabsContent value="context" className="m-0 p-3 max-h-[calc(100vh-240px)] overflow-y-auto">
-            <ChatContextTab 
-              contextAwareness={contextAwareness}
-              messages={messages}
-            />
-          </TabsContent>
+        <div className="shrink-0 px-3 pb-1 pt-0.5">
+          <AiModes activeMode={aiMode} onChange={setAiMode} />
         </div>
-      </Tabs>
 
-      <div className="shrink-0 px-3 pb-1 pt-0.5">
-        <AiModes activeMode={aiMode} onChange={setAiMode} />
+        <ChatInputArea
+          inputValue={inputValue}
+          setInputValue={setInputValue}
+          handleSubmit={handleSubmit}
+          isProcessing={isProcessing}
+          files={files}
+          setFiles={setFiles}
+          isDragging={isDragging}
+          setIsDragging={setIsDragging}
+        />
       </div>
-
-      <ChatInputArea
-        inputValue={inputValue}
-        setInputValue={setInputValue}
-        handleSubmit={handleSubmit}
-        isProcessing={isProcessing}
-        files={files}
-        setFiles={setFiles}
-        isDragging={isDragging}
-        setIsDragging={setIsDragging}
-      />
     </div>
   );
 };

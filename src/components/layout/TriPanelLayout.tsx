@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { cn } from "@/lib/utils";
 import { 
@@ -64,11 +63,11 @@ export const TriPanelLayout: React.FC<TriPanelLayoutProps> = ({
         <div className="flex items-center justify-between h-16 px-4 border-b border-border/40">
           <div className={cn("flex items-center", leftCollapsed ? "justify-center w-full" : "")}>
             <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
-              <FileText size={18} className="text-primary-foreground" />
+              <MessageSquare size={18} className="text-primary-foreground" />
             </div>
             {!leftCollapsed && (
               <h1 className="ml-3 text-xl font-bold bg-gradient-to-r from-primary/90 to-primary bg-clip-text text-transparent">
-                Accord AI
+                Accord AI Agent
               </h1>
             )}
           </div>
@@ -307,7 +306,7 @@ export const TriPanelLayout: React.FC<TriPanelLayoutProps> = ({
           {!rightCollapsed && (
             <div className="flex items-center space-x-2">
               <MessageSquare size={18} className="text-primary" />
-              <h2 className="text-base font-medium">AI Assistant</h2>
+              <h2 className="text-base font-medium">AI Agent</h2>
             </div>
           )}
           

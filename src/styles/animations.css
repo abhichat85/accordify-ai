@@ -55,6 +55,10 @@
   animation: shine 6s infinite;
 }
 
+.animate-spin-slow {
+  animation: spin 3s linear infinite;
+}
+
 .delay-100 {
   animation-delay: 100ms;
 }
@@ -172,5 +176,14 @@
   100% {
     left: 100%;
     opacity: 0;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }
