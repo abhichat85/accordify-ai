@@ -1,9 +1,9 @@
-
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { AlertCircle, Loader2, Search, Scale, FileText, Sparkles } from "lucide-react";
 import { AnalysisType } from "@/services/contractAnalysis";
 import { useToast } from "@/hooks/use-toast";
+import { setChatInputValue } from "@/utils/chatInputUtils";
 
 interface AnalysisToolbarProps {
   documentContent: string;
@@ -23,95 +23,6 @@ export const AnalysisToolbar: React.FC<AnalysisToolbarProps> = ({
   openReview,
 }) => {
   const { toast } = useToast();
-  
-  // Find the chat input field in the DOM - enhanced version
-  const findChatInput = (): HTMLTextAreaElement | null => {
-    // Look for the input element in multiple ways to improve reliability
-    
-    // Try specific selectors first
-    let chatInput = document.querySelector('textarea[placeholder*="Ask about contracts"]') as HTMLTextAreaElement;
-    
-    // If not found, try more generic selectors
-    if (!chatInput) {
-      chatInput = document.querySelector('textarea[placeholder*="contract"]') as HTMLTextAreaElement;
-    }
-    
-    if (!chatInput) {
-      chatInput = document.querySelector('textarea[placeholder*="Ask"]') as HTMLTextAreaElement;
-    }
-    
-    // If still not found, try all textareas
-    if (!chatInput) {
-      const allTextareas = document.querySelectorAll('textarea');
-      // Try to find any textarea in the chat section
-      for (const textarea of allTextareas) {
-        const parent = textarea.closest('[class*="chat"]') || 
-                      textarea.closest('[id*="chat"]') || 
-                      textarea.closest('[aria-label*="chat"]');
-        if (parent) {
-          chatInput = textarea;
-          break;
-        }
-      }
-    }
-    
-    // Last resort - just grab the last textarea on the page
-    if (!chatInput) {
-      const allTextareas = document.querySelectorAll('textarea');
-      if (allTextareas.length > 0) {
-        chatInput = allTextareas[allTextareas.length - 1] as HTMLTextAreaElement;
-      }
-    }
-    
-    console.log("Found chat input:", chatInput);
-    return chatInput;
-  };
-
-  // Set a prompt in the chat input and focus it
-  const setChatPrompt = (prompt: string) => {
-    const chatInput = findChatInput();
-    
-    if (!chatInput) {
-      toast({
-        title: "Chat not available",
-        description: "Please make sure the chat panel is visible.",
-        variant: "destructive"
-      });
-      return false;
-    }
-    
-    console.log("Setting prompt in chat input:", prompt);
-    
-    // Multiple approaches to ensure the value gets set
-    // 1. Direct value assignment
-    chatInput.value = prompt;
-    
-    // 2. Use Input event
-    chatInput.dispatchEvent(new Event('input', { bubbles: true }));
-    
-    // 3. If using React controlled components, try to update the internal ReactDOM value
-    const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
-      window.HTMLTextAreaElement.prototype, "value"
-    )?.set;
-    
-    if (nativeInputValueSetter) {
-      nativeInputValueSetter.call(chatInput, prompt);
-    }
-    
-    // 4. Force React to acknowledge the change
-    const inputEvent = new Event('input', { bubbles: true });
-    chatInput.dispatchEvent(inputEvent);
-    
-    // Focus the input so user can press Enter
-    chatInput.focus();
-    
-    toast({
-      title: "Analysis prompt ready",
-      description: "Press Enter to send the prompt to the AI assistant.",
-    });
-    
-    return true;
-  };
 
   const handleRunAnalysis = (type: AnalysisType) => {
     // Run the analysis
@@ -135,7 +46,21 @@ export const AnalysisToolbar: React.FC<AnalysisToolbarProps> = ({
 
     if (prompt) {
       console.log("Setting prompt:", prompt);
-      const success = setChatPrompt(prompt);
+      const success = setChatInputValue(prompt);
+      
+      if (success) {
+        toast({
+          title: "Analysis prompt ready",
+          description: "Press Enter to send the prompt to the AI assistant.",
+        });
+      } else {
+        toast({
+          title: "Chat not available",
+          description: "Please make sure the chat panel is visible.",
+          variant: "destructive"
+        });
+      }
+      
       console.log("Set prompt success:", success);
     }
   };
@@ -145,7 +70,21 @@ export const AnalysisToolbar: React.FC<AnalysisToolbarProps> = ({
     
     // Also populate the chat with a full review prompt
     const prompt = "Based on the contract analysis results, please provide a comprehensive review highlighting key issues, risks, and suggesting specific improvements.";
-    setChatPrompt(prompt);
+    
+    const success = setChatInputValue(prompt);
+      
+    if (success) {
+      toast({
+        title: "Review prompt ready",
+        description: "Press Enter to send the prompt to the AI assistant.",
+      });
+    } else {
+      toast({
+        title: "Chat not available",
+        description: "Please make sure the chat panel is visible.",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
