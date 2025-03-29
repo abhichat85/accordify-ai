@@ -63,38 +63,87 @@ export const setChatInputValue = (prompt: string): boolean => {
   }
   
   console.log(`Setting prompt in chat input:`, prompt);
-  console.log(`Chat input element:`, chatInput);
   
   try {
-    // 1. Direct value assignment
+    // Store the original value to check if our changes take effect
+    const originalValue = chatInput.value;
+    
+    // Method 1: Direct value assignment
     chatInput.value = prompt;
     
-    // 2. Use Input event
-    const inputEvent = new Event('input', { bubbles: true });
-    chatInput.dispatchEvent(inputEvent);
-    
-    // 3. If using React controlled components, try to update the internal ReactDOM value
+    // Method 2: Use the property descriptor setter
     const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
       window.HTMLTextAreaElement.prototype, "value"
     )?.set;
     
     if (nativeInputValueSetter) {
       nativeInputValueSetter.call(chatInput, prompt);
-      chatInput.dispatchEvent(new Event('input', { bubbles: true }));
     }
     
-    // 4. Try setting innerText as well (some frameworks use this)
-    chatInput.innerText = prompt;
+    // Method 3: Simulate user typing (more compatible with React)
+    // This approach mimics the user typing character by character
+    // Clear first (if needed)
+    if (originalValue) {
+      chatInput.select();
+      document.execCommand('delete', false);
+    }
     
-    // 5. For React controlled components, trigger change event
+    // Insert the text with execCommand
+    document.execCommand('insertText', false, prompt);
+
+    // Method 4: Trigger input event for React controlled components
+    const inputEvent = new Event('input', { bubbles: true });
+    chatInput.dispatchEvent(inputEvent);
+    
+    // Method 5: Trigger change event for React controlled components
     const changeEvent = new Event('change', { bubbles: true });
     chatInput.dispatchEvent(changeEvent);
     
-    // Log the result for debugging
-    console.log(`After setting prompt, input value is:`, chatInput.value);
-    
-    // Focus the input so user can press Enter
+    // Method 6: Focus and blur to trigger React's onBlur handlers
     chatInput.focus();
+    setTimeout(() => {
+      // Small delay to ensure events are processed
+      // Check if our value was set correctly
+      console.log(`Current input value after setting:`, chatInput.value);
+      
+      // If none of our methods worked, try one more approach
+      if (!chatInput.value.includes(prompt)) {
+        console.log("Initial methods failed, trying React state update simulation");
+        
+        // Create and dispatch keyboard events to simulate typing
+        const keyboardEvent = new KeyboardEvent('keydown', {
+          key: 'v',
+          code: 'KeyV',
+          ctrlKey: true, // Simulate Ctrl+V paste operation
+          bubbles: true
+        });
+        
+        chatInput.dispatchEvent(keyboardEvent);
+        
+        // Try one more time with a clipboard approach
+        try {
+          // Save original clipboard content
+          const originalClipboard = navigator.clipboard?.readText();
+          
+          // Set clipboard with our prompt
+          navigator.clipboard?.writeText(prompt).then(() => {
+            // Simulate paste
+            document.execCommand('paste', false);
+            
+            // Restore original clipboard if possible
+            if (originalClipboard) {
+              originalClipboard.then(text => {
+                navigator.clipboard?.writeText(text);
+              });
+            }
+          }).catch(e => {
+            console.log("Clipboard approach failed:", e);
+          });
+        } catch (e) {
+          console.log("Clipboard API not available:", e);
+        }
+      }
+    }, 50);
     
     return true;
   } catch (error) {

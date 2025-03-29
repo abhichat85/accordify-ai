@@ -34,6 +34,7 @@ interface ChatInterfaceProps {
   messages: Message[];
   isProcessing?: boolean;
   className?: string;
+  defaultInputValue?: string;
 }
 
 const agentCapabilities = [
@@ -79,8 +80,9 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   messages,
   isProcessing = false,
   className,
+  defaultInputValue = ""
 }) => {
-  const [inputValue, setInputValue] = useState("");
+  const [inputValue, setInputValue] = useState(defaultInputValue);
   const [isRecording, setIsRecording] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
@@ -112,6 +114,56 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
       ]);
     }
   }, [messages]);
+
+  // Add a special effect to make the textarea accessible to the chatInputUtils
+  useEffect(() => {
+    // Add a special data attribute to make this textarea more easily findable
+    if (inputRef.current) {
+      inputRef.current.setAttribute('data-chat-input', 'true');
+      inputRef.current.setAttribute('aria-label', 'chat-input');
+    }
+  }, []);
+
+  // Effect to synchronize external inputValue changes
+  useEffect(() => {
+    // This makes the component respond to external value updates
+    if (inputRef.current && inputRef.current.value !== inputValue) {
+      setInputValue(inputRef.current.value);
+    }
+  }, []);
+
+  // Effect to synchronize with defaultInputValue when it changes
+  useEffect(() => {
+    if (defaultInputValue && defaultInputValue !== inputValue) {
+      setInputValue(defaultInputValue);
+    }
+  }, [defaultInputValue]);
+  
+  // Special effect to listen for external programmatic changes
+  useEffect(() => {
+    if (!inputRef.current) return;
+    
+    // This creates a MutationObserver to watch for direct DOM mutations
+    // which might happen when other code directly modifies the value
+    const observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'value') {
+          const newValue = (mutation.target as HTMLTextAreaElement).value;
+          if (newValue !== inputValue) {
+            console.log("External value change detected:", newValue);
+            setInputValue(newValue);
+          }
+        }
+      }
+    });
+    
+    observer.observe(inputRef.current, { 
+      attributes: true,
+      attributeFilter: ['value'] 
+    });
+    
+    return () => observer.disconnect();
+  }, [inputValue]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -430,6 +482,8 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
                 )}
                 disabled={isProcessing}
                 rows={1}
+                data-chat-input="true"
+                aria-label="chat-input"
               />
             </div>
             
