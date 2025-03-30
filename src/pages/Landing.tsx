@@ -651,7 +651,7 @@ const Landing = () => {
               <h2 className="text-3xl md:text-4xl font-bold">
                 Legal AI Blog
               </h2>
-              <p className="text-lg text-muted-foreground md:max-w-md">
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
                 Insights and perspectives on AI in the legal industry.
               </p>
             </div>
