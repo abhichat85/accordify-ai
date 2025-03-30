@@ -8,10 +8,13 @@ import {
   Sparkles,
   Send,
   RotateCcw,
-  X
+  X,
+  FileSearch
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { DocumentAnalysis } from "../contract/DocumentAnalysis";
 
 interface ChatPanelProps {
   messages: Message[];
@@ -25,6 +28,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
   onSendMessage 
 }) => {
   const [activeMode, setActiveMode] = useState<"write" | "chat">("write");
+  const [activeTab, setActiveTab] = useState<string>("chat");
   
   return (
     <div className="flex flex-col h-full overflow-hidden border border-border/40 shadow-sm bg-[#282828]">
@@ -43,40 +47,70 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
         </div>
       </div>
       
+      {/* Chat/Document tabs */}
+      <div className="bg-[#1F1F1F] border-b border-border/40 px-4">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="bg-transparent p-0 h-10 w-full flex justify-start gap-4 border-b-0">
+            <TabsTrigger 
+              value="chat" 
+              className="h-10 px-4 rounded-none bg-transparent text-sm font-medium text-muted-foreground data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none"
+            >
+              <MessageSquare size={16} className="mr-2" />
+              Chat
+            </TabsTrigger>
+            <TabsTrigger 
+              value="documents" 
+              className="h-10 px-4 rounded-none bg-transparent text-sm font-medium text-muted-foreground data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none"
+            >
+              <FileSearch size={16} className="mr-2" />
+              Documents
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
+      
       {/* Main content area with Cascade-like styling */}
       <div className="flex-grow flex flex-col h-full relative">
         <div className="flex-grow overflow-hidden">
-          <div className="h-full m-0 p-0 flex flex-col">
-            {messages.length === 0 && (
-              <>
-                {/* Cascade-like logo section */}
-                <div className="flex flex-col items-center justify-center py-8">
-                  <div className="h-16 w-16 rounded-full bg-[#282828] border-4 border-[#3A3A3A] flex items-center justify-center mb-4">
-                    <div className="h-10 w-10 rounded-full border-t-4 border-r-4 border-[#7c3aed] border-b-4 border-l-4 border-[#3A3A3A] animate-spin-slow"></div>
-                  </div>
-                  <h2 className="text-xl font-semibold text-foreground mb-1 text-center">Write with Accord AI</h2>
-                  <p className="text-sm text-muted-foreground text-center px-6">
-                    {activeMode === "write" 
-                      ? "Draft, review, or analyze contracts with AI assistance" 
-                      : "Ask questions about contracts or get legal guidance"}
-                  </p>
-                  
-                  {/* <p className="text-sm text-muted-foreground mt-6 text-center">
-                    Start a new conversation to see your messages here.
-                  </p> */}
-                </div>
-              </>
-            )}
+          <Tabs value={activeTab} className="h-full">
+            <TabsContent value="chat" className="h-full m-0 p-0 data-[state=active]:flex flex-col">
+              <div className="h-full m-0 p-0 flex flex-col">
+                {messages.length === 0 && (
+                  <>
+                    {/* Cascade-like logo section */}
+                    <div className="flex flex-col items-center justify-center py-8">
+                      <div className="h-16 w-16 rounded-full bg-[#282828] border-4 border-[#3A3A3A] flex items-center justify-center mb-4">
+                        <div className="h-10 w-10 rounded-full border-t-4 border-r-4 border-[#7c3aed] border-b-4 border-l-4 border-[#3A3A3A] animate-spin-slow"></div>
+                      </div>
+                      <h2 className="text-xl font-semibold text-foreground mb-1 text-center">Write with Accord AI</h2>
+                      <p className="text-sm text-muted-foreground text-center px-6">
+                        {activeMode === "write" 
+                          ? "Draft, review, or analyze contracts with AI assistance" 
+                          : "Ask questions about contracts or get legal guidance"}
+                      </p>
+                      
+                      {/* <p className="text-sm text-muted-foreground mt-6 text-center">
+                        Start a new conversation to see your messages here.
+                      </p> */}
+                    </div>
+                  </>
+                )}
+                
+                {/* Chat interface */}
+                <ChatInterface
+                  onSendMessage={onSendMessage}
+                  messages={messages}
+                  isProcessing={isProcessing}
+                  className="h-full rounded-none border-none shadow-none"
+                  defaultInputValue={activeMode === "write" ? "" : ""}
+                />
+              </div>
+            </TabsContent>
             
-            {/* Chat interface */}
-            <ChatInterface
-              onSendMessage={onSendMessage}
-              messages={messages}
-              isProcessing={isProcessing}
-              className="h-full rounded-none border-none shadow-none"
-              defaultInputValue={activeMode === "write" ? "" : ""}
-            />
-          </div>
+            <TabsContent value="documents" className="h-full m-0 p-4 overflow-auto data-[state=active]:flex flex-col">
+              <DocumentAnalysis className="h-full" />
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
       
