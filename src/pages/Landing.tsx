@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Helmet } from "react-helmet";
 import { Link } from "react-router-dom";
@@ -12,6 +11,61 @@ import { BackgroundPaths } from "@/components/ui/background-paths";
 import BlogPost from "../components/landing/BlogPost";
 import Feature from "../components/landing/Feature";
 import TechCard from "../components/landing/TechCard";
+
+// Custom icon components - MOVED TO THE TOP before usage
+const CodeIcon = ({ className }: { className?: string }) => (
+  <svg 
+    xmlns="http://www.w3.org/2000/svg" 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth="2" 
+    strokeLinecap="round" 
+    strokeLinejoin="round" 
+    className={className}
+  >
+    <polyline points="16 18 22 12 16 6"></polyline>
+    <polyline points="8 6 2 12 8 18"></polyline>
+  </svg>
+);
+
+const Link2Icon = ({ className }: { className?: string }) => (
+  <svg 
+    xmlns="http://www.w3.org/2000/svg" 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth="2" 
+    strokeLinecap="round" 
+    strokeLinejoin="round" 
+    className={className}
+  >
+    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+  </svg>
+);
+
+const VideoIcon = ({ className }: { className?: string }) => (
+  <svg 
+    xmlns="http://www.w3.org/2000/svg" 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth="2" 
+    strokeLinecap="round" 
+    strokeLinejoin="round" 
+    className={className}
+  >
+    <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect>
+    <line x1="7" y1="2" x2="7" y2="22"></line>
+    <line x1="17" y1="2" x2="17" y2="22"></line>
+    <line x1="2" y1="12" x2="22" y2="12"></line>
+    <line x1="2" y1="7" x2="7" y2="7"></line>
+    <line x1="2" y1="17" x2="7" y2="17"></line>
+    <line x1="17" y1="17" x2="22" y2="17"></line>
+    <line x1="17" y1="7" x2="22" y2="7"></line>
+  </svg>
+);
 
 // Feature data
 const features = [
@@ -134,7 +188,7 @@ const useCases = [
   }
 ];
 
-// Documentation sections
+// Documentation sections - Now custom icon components are defined BEFORE this usage
 const docSections = [
   {
     title: "Quick Start Guide",
@@ -167,61 +221,6 @@ const docSections = [
     icon: <VideoIcon className="h-5 w-5" />
   }
 ];
-
-// Custom icon components
-const CodeIcon = ({ className }: { className?: string }) => (
-  <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    strokeWidth="2" 
-    strokeLinecap="round" 
-    strokeLinejoin="round" 
-    className={className}
-  >
-    <polyline points="16 18 22 12 16 6"></polyline>
-    <polyline points="8 6 2 12 8 18"></polyline>
-  </svg>
-);
-
-const Link2Icon = ({ className }: { className?: string }) => (
-  <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    strokeWidth="2" 
-    strokeLinecap="round" 
-    strokeLinejoin="round" 
-    className={className}
-  >
-    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
-    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
-  </svg>
-);
-
-const VideoIcon = ({ className }: { className?: string }) => (
-  <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    strokeWidth="2" 
-    strokeLinecap="round" 
-    strokeLinejoin="round" 
-    className={className}
-  >
-    <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect>
-    <line x1="7" y1="2" x2="7" y2="22"></line>
-    <line x1="17" y1="2" x2="17" y2="22"></line>
-    <line x1="2" y1="12" x2="22" y2="12"></line>
-    <line x1="2" y1="7" x2="7" y2="7"></line>
-    <line x1="2" y1="17" x2="7" y2="17"></line>
-    <line x1="17" y1="17" x2="22" y2="17"></line>
-    <line x1="17" y1="7" x2="22" y2="7"></line>
-  </svg>
-);
 
 // Custom HeroBackground component that will wrap the hero section
 const HeroBackground = ({ className, children }: { className?: string, children: React.ReactNode }) => {
@@ -262,7 +261,7 @@ const Landing = () => {
   };
 
   return (
-    <div className="bg-background text-foreground flex flex-col overflow-x-hidden">
+    <div className="bg-background text-foreground flex flex-col overflow-x-hidden min-h-screen">
       <Helmet>
         <title>Accord AI | Intelligent Contract Assistant</title>
         <meta name="description" content="AI-powered contract assistant that helps you draft, review, and negotiate contracts with ease. Built with custom SLMs, LoRA fine-tuning, and RAG for superior performance." />
@@ -658,12 +657,12 @@ const Landing = () => {
                 <BlogPost
                   key={index}
                   title={post.title}
-                  description={post.description}
                   image={post.image}
                   date={post.date}
                   author={post.author}
                   category={post.category}
                   className="card-elevation"
+                  excerpt={post.description}
                 />
               ))}
             </div>
