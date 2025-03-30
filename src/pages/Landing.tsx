@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Helmet } from "react-helmet";
 import { Link } from "react-router-dom";
@@ -273,18 +272,16 @@ const Landing = () => {
   }, []);
 
   const openWaitlistForm = () => {
-    // In a real implementation, open a form to collect email for waitlist
     window.open("https://form.typeform.com/to/waitlist-form-id", "_blank");
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col overflow-x-hidden landing-page-scale">
+    <div className="bg-background text-foreground flex flex-col overflow-x-hidden">
       <Helmet>
         <title>Accord AI | Intelligent Contract Assistant</title>
         <meta name="description" content="AI-powered contract assistant that helps you draft, review, and negotiate contracts with ease. Built with custom SLMs, LoRA fine-tuning, and RAG for superior performance." />
       </Helmet>
 
-      {/* Navigation */}
       <header className={`border-b border-border/20 backdrop-blur-md sticky top-0 z-50 bg-background/95 transition-transform duration-300 ${isHeaderVisible ? 'translate-y-0' : '-translate-y-full'}`}>
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center space-x-2">
@@ -296,7 +293,6 @@ const Landing = () => {
             </span>
           </div>
           
-          {/* Navigation Menu - Similar to midday.ai's simple top nav */}
           <NavigationMenu className="hidden md:flex">
             <NavigationMenuList>
               <NavigationMenuItem>
@@ -382,7 +378,6 @@ const Landing = () => {
         </div>
       </header>
 
-      {/* Hero Section - Modified with the new animated background and text */}
       <HeroBackground className="py-20 md:py-28 px-4 md:px-8 lg:px-0">
         <div className="container mx-auto max-w-6xl">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -477,7 +472,6 @@ const Landing = () => {
         </div>
       </HeroBackground>
 
-      {/* NEW: How It Works Section with animated interaction examples */}
       <section id="how-it-works" className="py-20 px-4 md:px-8 lg:px-0 bg-muted/20">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-16 space-y-3">
@@ -518,7 +512,6 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Features Section - Now appears before Technology section */}
       <section id="features" className="py-20 px-4 md:px-8 lg:px-0">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-16 space-y-3">
@@ -571,7 +564,6 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Technology Section - Moved after Features section */}
       <section id="tech" className="py-20 px-4 md:px-8 lg:px-0 bg-muted/20">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-16 space-y-3">
@@ -624,7 +616,6 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Use Cases Section - Moved after Technology section */}
       <section id="use-cases" className="py-20 px-4 md:px-8 lg:px-0">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-16 space-y-3">
@@ -686,7 +677,6 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Enhanced Blog Section - Magazine-style layout */}
       <section id="blog" className="py-20 px-4 md:px-8 lg:px-0 bg-muted/20">
         <div className="container mx-auto max-w-6xl">
           <div className="flex flex-col md:flex-row md:items-center justify-between mb-12">
@@ -722,7 +712,6 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Documentation Section */}
       <section id="documentation" className="py-20 px-4 md:px-8 lg:px-0">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-16 space-y-3">
@@ -779,7 +768,6 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Final CTA Section */}
       <section className="py-24 px-4 md:px-8 lg:px-0 bg-muted/30">
         <div className="container mx-auto max-w-5xl text-center">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm mb-4">
@@ -801,7 +789,6 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Footer */}
       <footer className="border-t border-border py-12 px-4 md:px-8 lg:px-0">
         <div className="container mx-auto max-w-7xl">
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8">
