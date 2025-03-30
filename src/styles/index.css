@@ -17,11 +17,11 @@
 
 /* CSS Variables for RGB values */
 :root {
-  --primary-rgb: 0, 0, 0;
-  --muted-rgb: 240, 240, 240;
+  --primary-rgb: 99, 102, 241;  /* Indigo-500 in RGB */
+  --muted-rgb: 229, 231, 235;   /* Gray-200 in RGB */
 }
 
 [data-theme="dark"] {
-  --primary-rgb: 255, 255, 255;
-  --muted-rgb: 30, 30, 30;
+  --primary-rgb: 165, 180, 252;  /* Indigo-300 in RGB */
+  --muted-rgb: 55, 65, 81;       /* Gray-700 in RGB */
 }
