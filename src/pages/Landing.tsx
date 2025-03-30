@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Helmet } from "react-helmet";
 import { Link } from "react-router-dom";
@@ -39,6 +38,7 @@ import {
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 import { cn } from "@/lib/utils";
+import { HeroBackground, AnimatedHeroText, AnimatedWaitlistButton } from "@/components/ui/hero-background";
 
 interface FeatureProps {
   icon: LucideIcon;
@@ -361,7 +361,7 @@ const Landing = () => {
                 </NavigationMenuContent>
               </NavigationMenuItem>
               <NavigationMenuItem>
-                <Link to="#blog" className={navigationMenuTriggerStyle()}>
+                <Link to="/blog" className={navigationMenuTriggerStyle()}>
                   Blog
                 </Link>
               </NavigationMenuItem>
@@ -381,8 +381,8 @@ const Landing = () => {
         </div>
       </header>
 
-      {/* Hero Section - Modified with new text and single CTA */}
-      <section className="py-20 md:py-28 px-4 md:px-8 lg:px-0">
+      {/* Hero Section - Modified with the new animated background and text */}
+      <HeroBackground className="py-20 md:py-28 px-4 md:px-8 lg:px-0">
         <div className="container mx-auto max-w-6xl">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-6 animate-fade-in">
@@ -391,25 +391,13 @@ const Landing = () => {
                 <span>AI-Powered Legal Intelligence</span>
               </div>
               <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight">
-                <span className="bg-gradient-to-r from-primary/80 to-primary bg-clip-text text-transparent">
-                  Draft, Review and
-                </span>
-                <br />
-                <span className="bg-gradient-to-r from-primary/90 via-primary to-primary/80 bg-clip-text text-transparent">
-                  Intelligence of Contracts,
-                </span>
-                <br />
-                <span className="bg-gradient-to-r from-primary/90 to-primary/80 bg-clip-text text-transparent">
-                  powered by AI Agent
-                </span>
+                <AnimatedHeroText text="Draft, Review and<br>Intelligence of Contracts,<br>powered by AI Agent" />
               </h1>
               <p className="text-lg md:text-xl text-muted-foreground max-w-lg">
                 Draft, review, and negotiate contracts with your intelligent AI assistant. Built with custom SLMs, LoRA fine-tuning, and RAG for unmatched accuracy and performance.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                <Button onClick={openWaitlistForm} size="lg" className="gap-2 rounded-full shadow-lg">
-                  Join Beta Waitlist <ChevronRight size={16} />
-                </Button>
+                <AnimatedWaitlistButton onClick={openWaitlistForm} />
               </div>
               <div className="pt-6 flex flex-col sm:flex-row items-start sm:items-center gap-4 text-sm text-muted-foreground">
                 <div className="flex items-center gap-1.5">
@@ -486,7 +474,7 @@ const Landing = () => {
             </div>
           </div>
         </div>
-      </section>
+      </HeroBackground>
 
       {/* NEW: How It Works Section with animated interaction examples */}
       <section id="how-it-works" className="py-20 px-4 md:px-8 lg:px-0 bg-muted/20">
@@ -703,348 +691,4 @@ const Landing = () => {
           <div className="flex flex-col md:flex-row md:items-center justify-between mb-12">
             <div className="space-y-3 mb-6 md:mb-0">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm mb-2">
-                <ScrollText size={14} />
-                <span>Latest Insights</span>
-              </div>
-              <h2 className="text-3xl md:text-4xl font-bold">
-                Latest from Our Blog
-              </h2>
-              <p className="text-lg text-muted-foreground max-w-2xl">
-                Insights and updates on contract AI, legal tech, and industry trends.
-              </p>
-            </div>
-            <Link to="/blog">
-              <Button variant="outline" className="gap-2">
-                View all articles <ArrowRight size={16} />
-              </Button>
-            </Link>
-          </div>
-          
-          {/* Featured article with larger display */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-            <div className="lg:col-span-2">
-              <div className="rounded-xl border border-border/50 bg-card hover:shadow-md transition-all h-full overflow-hidden">
-                <div className="grid grid-cols-1 md:grid-cols-2 h-full">
-                  <div className="aspect-square md:aspect-auto md:h-full overflow-hidden">
-                    <img 
-                      src="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80" 
-                      alt="Featured Article" 
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-                  <div className="p-8 flex flex-col">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-xs font-medium px-2.5 py-0.5 bg-primary/10 text-primary rounded-full">Featured</span>
-                      <span className="text-xs text-muted-foreground">June 2, 2023</span>
-                    </div>
-                    <h3 className="text-2xl font-semibold mb-4">The Future of Legal AI: Beyond Simple Automation</h3>
-                    <p className="text-muted-foreground flex-grow mb-6">
-                      How next-generation AI tools are transforming the legal industry by moving beyond document automation to true reasoning and analysis.
-                    </p>
-                    <Link to="/blog" className="text-sm font-medium text-primary flex items-center gap-1 hover:gap-2 transition-all mt-auto">
-                      Read the full article <ArrowRight size={14} />
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="space-y-8">
-              <div className="rounded-xl border border-border/50 bg-card p-6 hover:shadow-md transition-all">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-medium px-2.5 py-0.5 bg-primary/10 text-primary rounded-full">News</span>
-                  <span className="text-xs text-muted-foreground">May 15, 2023</span>
-                </div>
-                <h3 className="text-lg font-semibold mb-3">Accord AI Raises $12M Series A Funding</h3>
-                <p className="text-sm text-muted-foreground line-clamp-3 mb-4">
-                  Investment will accelerate development of specialized legal language models and expand the platform's capabilities.
-                </p>
-                <Link to="/blog" className="text-sm font-medium text-primary flex items-center gap-1 hover:gap-2 transition-all">
-                  Read more <ArrowRight size={14} />
-                </Link>
-              </div>
-              <div className="rounded-xl border border-border/50 bg-card p-6 hover:shadow-md transition-all">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-medium px-2.5 py-0.5 bg-primary/10 text-primary rounded-full">Tutorial</span>
-                  <span className="text-xs text-muted-foreground">April 28, 2023</span>
-                </div>
-                <h3 className="text-lg font-semibold mb-3">Getting Started with Accord AI for Legal Teams</h3>
-                <p className="text-sm text-muted-foreground line-clamp-3 mb-4">
-                  A step-by-step guide to implementing AI contract tools in your legal department workflow.
-                </p>
-                <Link to="/blog" className="text-sm font-medium text-primary flex items-center gap-1 hover:gap-2 transition-all">
-                  Read more <ArrowRight size={14} />
-                </Link>
-              </div>
-            </div>
-          </div>
-          
-          {/* More articles in a grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {blogPosts.map((post, index) => (
-              <BlogPost key={index} {...post} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Documentation Section - Cleaner cards with icons */}
-      <section id="documentation" className="py-20 px-4 md:px-8 lg:px-0">
-        <div className="container mx-auto max-w-6xl">
-          <div className="text-center mb-16 space-y-3">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm mb-2">
-              <FileText size={14} />
-              <span>Resources</span>
-            </div>
-            <h2 className="text-3xl md:text-4xl font-bold">
-              Documentation & Resources
-            </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Everything you need to get started and make the most of Accord AI.
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <DocumentationItem 
-              title="Getting Started Guide"
-              description="Learn the basics of Accord AI and how to create your first contract in minutes."
-              href="/docs/getting-started"
-              icon={FileText}
-            />
-            <DocumentationItem 
-              title="API Documentation"
-              description="Integrate Accord AI into your existing workflows and systems with our comprehensive API."
-              href="/docs/api"
-              icon={Code2}
-            />
-            <DocumentationItem 
-              title="Tutorials & Walkthroughs"
-              description="Step-by-step guides for common contract workflows and advanced features."
-              href="/docs/tutorials"
-              icon={Presentation}
-            />
-            <DocumentationItem 
-              title="Technology Deep Dives"
-              description="Technical documentation on our AI models, RAG architecture, and security features."
-              href="/docs/technology"
-              icon={Sparkles}
-            />
-          </div>
-
-          {/* Documentation categories */}
-          <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card className="border border-border/50 hover:shadow-md transition-all">
-              <CardContent className="p-6">
-                <h3 className="text-lg font-semibold mb-4">For Developers</h3>
-                <ul className="space-y-3">
-                  <li>
-                    <a href="/docs/api/authentication" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary">
-                      <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
-                      <span>API Authentication</span>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="/docs/api/endpoints" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary">
-                      <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
-                      <span>API Endpoints</span>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="/docs/api/webhooks" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary">
-                      <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
-                      <span>Webhooks</span>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="/docs/api/sdk" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary">
-                      <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
-                      <span>SDKs & Libraries</span>
-                    </a>
-                  </li>
-                </ul>
-              </CardContent>
-            </Card>
-            <Card className="border border-border/50 hover:shadow-md transition-all">
-              <CardContent className="p-6">
-                <h3 className="text-lg font-semibold mb-4">For Legal Teams</h3>
-                <ul className="space-y-3">
-                  <li>
-                    <a href="/docs/legal/templates" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary">
-                      <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
-                      <span>Contract Templates</span>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="/docs/legal/clauses" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary">
-                      <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
-                      <span>Clause Library</span>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="/docs/legal/review" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary">
-                      <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
-                      <span>Review Guidelines</span>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="/docs/legal/workflows" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary">
-                      <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
-                      <span>Legal Workflows</span>
-                    </a>
-                  </li>
-                </ul>
-              </CardContent>
-            </Card>
-            <Card className="border border-border/50 hover:shadow-md transition-all">
-              <CardContent className="p-6">
-                <h3 className="text-lg font-semibold mb-4">For Administrators</h3>
-                <ul className="space-y-3">
-                  <li>
-                    <a href="/docs/admin/setup" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary">
-                      <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
-                      <span>Setup & Configuration</span>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="/docs/admin/users" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary">
-                      <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
-                      <span>User Management</span>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="/docs/admin/security" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary">
-                      <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
-                      <span>Security Settings</span>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="/docs/admin/integrations" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary">
-                      <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
-                      <span>Third-party Integrations</span>
-                    </a>
-                  </li>
-                </ul>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* NEW CTA Section - With background effect and revised waitlist CTA */}
-      <section className="py-24 px-4 md:px-8 lg:px-0 bg-muted/10">
-        <div className="container mx-auto max-w-5xl">
-          <div className="relative rounded-2xl overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-r from-primary/30 to-primary/10 backdrop-blur-sm"></div>
-            <div className="relative p-12 md:p-16 text-center z-10">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-sm text-primary-foreground text-sm mb-6">
-                <Sparkles size={14} />
-                <span>Early Access</span>
-              </div>
-              <h2 className="text-3xl md:text-4xl font-bold mb-6">
-                Be First To Experience Accord AI
-              </h2>
-              <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
-                Join our beta waitlist to get early access to the future of contract intelligence.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button onClick={openWaitlistForm} size="lg" className="gap-2 rounded-full shadow-lg">
-                  Join Beta Waitlist <ChevronRight size={16} />
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="border-t border-border py-12 px-4 md:px-8 lg:px-0 bg-card">
-        <div className="container mx-auto max-w-6xl">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
-            <div className="lg:col-span-2">
-              <div className="flex items-center space-x-2 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-                  <FileText size={16} className="text-primary-foreground" />
-                </div>
-                <span className="text-lg font-semibold">Accord AI</span>
-              </div>
-              <p className="text-sm text-muted-foreground mb-6 max-w-sm">
-                AI-powered contract intelligence for modern businesses. Generate, analyze, and negotiate contracts with confidence.
-              </p>
-              <div className="flex space-x-4">
-                <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"></path>
-                  </svg>
-                </a>
-                <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
-                    <rect x="2" y="9" width="4" height="12"></rect>
-                    <circle cx="4" cy="4" r="2"></circle>
-                  </svg>
-                </a>
-                <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
-                  </svg>
-                </a>
-              </div>
-            </div>
-            
-            <div>
-              <h3 className="text-sm font-semibold uppercase tracking-wider mb-4">Product</h3>
-              <ul className="space-y-3">
-                <li><a href="#features" className="text-muted-foreground hover:text-primary transition-colors text-sm">Features</a></li>
-                <li><a href="#tech" className="text-muted-foreground hover:text-primary transition-colors text-sm">Technology</a></li>
-                <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors text-sm">Integrations</a></li>
-                <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors text-sm">Changelog</a></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h3 className="text-sm font-semibold uppercase tracking-wider mb-4">Resources</h3>
-              <ul className="space-y-3">
-                <li><a href="#documentation" className="text-muted-foreground hover:text-primary transition-colors text-sm">Documentation</a></li>
-                <li><a href="#blog" className="text-muted-foreground hover:text-primary transition-colors text-sm">Blog</a></li>
-                <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors text-sm">Tutorials</a></li>
-                <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors text-sm">API Reference</a></li>
-                <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors text-sm">Case Studies</a></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h3 className="text-sm font-semibold uppercase tracking-wider mb-4">Company</h3>
-              <ul className="space-y-3">
-                <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors text-sm">About</a></li>
-                <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors text-sm">Careers</a></li>
-                <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors text-sm">Contact</a></li>
-                <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors text-sm">Terms</a></li>
-                <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors text-sm">Privacy</a></li>
-              </ul>
-            </div>
-          </div>
-          
-          <div className="border-t border-border mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
-            <p className="text-sm text-muted-foreground">
-              &copy; {new Date().getFullYear()} Accord AI. All rights reserved.
-            </p>
-            <div className="mt-4 md:mt-0">
-              <select 
-                className="text-sm bg-transparent border border-border rounded-md px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-primary"
-                defaultValue="en"
-              >
-                <option value="en">English</option>
-                <option value="fr">Français</option>
-                <option value="de">Deutsch</option>
-                <option value="es">Español</option>
-              </select>
-            </div>
-          </div>
-        </div>
-      </footer>
-    </div>
-  );
-};
-
-export default Landing;
+                <ScrollText size={1
