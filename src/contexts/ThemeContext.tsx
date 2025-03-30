@@ -14,7 +14,7 @@ interface ThemeContextType {
 
 interface ThemeProviderProps {
   children: React.ReactNode;
-  defaultTheme?: ModeTheme;
+  defaultTheme?: string;
   storageKey?: string;
 }
 
@@ -46,7 +46,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
       return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
     }
     
-    return defaultTheme as ModeTheme;
+    return (defaultTheme as ModeTheme) || "light";
   });
 
   // Effect to apply theme changes
