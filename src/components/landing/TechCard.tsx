@@ -1,19 +1,20 @@
 
 import React, { useState } from "react";
-import { ArrowRight, LucideIcon } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 interface TechCardProps {
   title: string;
   description: string;
-  icon: LucideIcon;
+  icon: React.ReactNode;
+  className?: string;
 }
 
-const TechCard: React.FC<TechCardProps> = ({ icon: Icon, title, description }) => {
+const TechCard: React.FC<TechCardProps> = ({ icon, title, description, className = "" }) => {
   const [isHovered, setIsHovered] = useState(false);
   
   return (
     <div 
-      className="relative h-full"
+      className={`relative h-full ${className}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -21,7 +22,7 @@ const TechCard: React.FC<TechCardProps> = ({ icon: Icon, title, description }) =
       <div className="bg-card/80 backdrop-blur-sm border border-border/30 rounded-xl p-6 hover:shadow-md transition-all hover:bg-card hover:border-primary/20 space-y-3 h-full relative">
         <div className="flex items-center gap-3 mb-2">
           <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-            <Icon size={20} className="text-primary" />
+            {icon}
           </div>
           <h3 className="text-lg font-semibold">{title}</h3>
         </div>

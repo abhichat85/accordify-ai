@@ -8,22 +8,22 @@ const TechnologySection: React.FC = () => {
     {
       title: "SLM Legal Models",
       description: "Specialized small language models optimized for legal understanding and generation.",
-      icon: "🧠"
+      icon: <span className="text-xl">🧠</span>
     },
     {
       title: "RAG Architecture",
       description: "Retrieval-Augmented Generation ensures accurate and reliable information in your contracts.",
-      icon: "📚"
+      icon: <span className="text-xl">📚</span>
     },
     {
       title: "LoRA Fine-tuning",
       description: "Low-Rank Adaptation enables precise domain specialization with minimal compute.",
-      icon: "🛠️"
+      icon: <span className="text-xl">🛠️</span>
     },
     {
       title: "Edge Processing",
       description: "Local model execution for enhanced speed and privacy of sensitive contract data.",
-      icon: "⚡"
+      icon: <span className="text-xl">⚡</span>
     }
   ];
   
