@@ -12,49 +12,54 @@ import BlogPost from "../components/landing/BlogPost";
 import Feature from "../components/landing/Feature";
 import TechCard from "../components/landing/TechCard";
 
-// Custom icon components - MOVED TO THE TOP before usage
-const CodeIcon = ({ className }: { className?: string }) => (
-  <svg 
+// Custom icon components using forwardRef for Lucide compatibility
+const CodeIcon = React.forwardRef<SVGSVGElement, React.ComponentProps<"svg">>((props, ref) => (
+  <svg
+    ref={ref}
+    {...props} 
     xmlns="http://www.w3.org/2000/svg" 
     viewBox="0 0 24 24" 
     fill="none" 
     stroke="currentColor" 
     strokeWidth="2" 
     strokeLinecap="round" 
-    strokeLinejoin="round" 
-    className={className}
+    strokeLinejoin="round"
   >
     <polyline points="16 18 22 12 16 6"></polyline>
     <polyline points="8 6 2 12 8 18"></polyline>
   </svg>
-);
+));
+CodeIcon.displayName = "CodeIcon";
 
-const Link2Icon = ({ className }: { className?: string }) => (
+const Link2Icon = React.forwardRef<SVGSVGElement, React.ComponentProps<"svg">>((props, ref) => (
   <svg 
+    ref={ref}
+    {...props}
     xmlns="http://www.w3.org/2000/svg" 
     viewBox="0 0 24 24" 
     fill="none" 
     stroke="currentColor" 
     strokeWidth="2" 
     strokeLinecap="round" 
-    strokeLinejoin="round" 
-    className={className}
+    strokeLinejoin="round"
   >
     <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
     <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
   </svg>
-);
+));
+Link2Icon.displayName = "Link2Icon";
 
-const VideoIcon = ({ className }: { className?: string }) => (
-  <svg 
+const VideoIcon = React.forwardRef<SVGSVGElement, React.ComponentProps<"svg">>((props, ref) => (
+  <svg
+    ref={ref}
+    {...props} 
     xmlns="http://www.w3.org/2000/svg" 
     viewBox="0 0 24 24" 
     fill="none" 
     stroke="currentColor" 
     strokeWidth="2" 
     strokeLinecap="round" 
-    strokeLinejoin="round" 
-    className={className}
+    strokeLinejoin="round"
   >
     <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect>
     <line x1="7" y1="2" x2="7" y2="22"></line>
@@ -65,7 +70,8 @@ const VideoIcon = ({ className }: { className?: string }) => (
     <line x1="17" y1="17" x2="22" y2="17"></line>
     <line x1="17" y1="7" x2="22" y2="7"></line>
   </svg>
-);
+));
+VideoIcon.displayName = "VideoIcon";
 
 // Feature data
 const features = [
@@ -188,7 +194,7 @@ const useCases = [
   }
 ];
 
-// Documentation sections - Now custom icon components are defined BEFORE this usage
+// Documentation sections with updated icon references
 const docSections = [
   {
     title: "Quick Start Guide",
@@ -222,7 +228,7 @@ const docSections = [
   }
 ];
 
-// Custom HeroBackground component that will wrap the hero section
+// Custom HeroBackground component
 const HeroBackground = ({ className, children }: { className?: string, children: React.ReactNode }) => {
   return (
     <div className={`relative overflow-hidden ${className}`}>

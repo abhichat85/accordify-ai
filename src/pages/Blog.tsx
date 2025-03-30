@@ -32,42 +32,48 @@ const Blog = () => {
       excerpt: "How specialized language models are transforming contract analysis with domain-specific knowledge and reasoning capabilities.",
       category: "AI Technology",
       date: "June 15, 2023",
-      imageUrl: "https://images.unsplash.com/photo-1432821596592-e2c18b78144f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80"
+      image: "https://images.unsplash.com/photo-1432821596592-e2c18b78144f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80",
+      author: "Alex Johnson"
     },
     {
       title: "RAG vs. Fine-tuning: Which is Better for Legal AI?",
       excerpt: "A detailed comparison of Retrieval-Augmented Generation and fine-tuning approaches for legal contract assistant systems.",
       category: "Technology",
       date: "May 28, 2023",
-      imageUrl: "https://images.unsplash.com/photo-1607799279861-4dd421887fb3?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80"
+      image: "https://images.unsplash.com/photo-1607799279861-4dd421887fb3?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80",
+      author: "Maria Chen"
     },
     {
       title: "Measuring ROI: How AI Contract Tools Save Time and Money",
       excerpt: "A case study of how companies have reduced legal costs by up to 60% with AI-powered contract management solutions.",
       category: "Business",
       date: "April 12, 2023",
-      imageUrl: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80"
+      image: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80",
+      author: "David Park"
     },
     {
       title: "Legal Compliance and AI: Navigating the Regulatory Landscape",
       excerpt: "How modern legal teams are using AI to stay compliant with evolving regulations across different jurisdictions.",
       category: "Legal",
       date: "March 5, 2023",
-      imageUrl: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80"
+      image: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80",
+      author: "Emma Watson"
     },
     {
       title: "The Rise of Custom SLMs in Legal Tech",
       excerpt: "Why specialized language models are becoming essential for high-performance legal AI applications.",
       category: "AI Technology",
       date: "February 18, 2023",
-      imageUrl: "https://images.unsplash.com/photo-1531297484001-80022131f5a1?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80"
+      image: "https://images.unsplash.com/photo-1531297484001-80022131f5a1?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80",
+      author: "James Miller"
     },
     {
       title: "How LoRA Fine-tuning Revolutionizes Legal AI",
       excerpt: "A technical deep dive into how Low-Rank Adaptation enables more efficient and accurate legal language models.",
       category: "Technology",
       date: "January 30, 2023",
-      imageUrl: "https://images.unsplash.com/photo-1605810230434-7631ac76ec81?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80"
+      image: "https://images.unsplash.com/photo-1605810230434-7631ac76ec81?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80",
+      author: "Sophie Rodriguez"
     }
   ];
   
@@ -101,7 +107,7 @@ const Blog = () => {
               <span className="text-xl font-semibold">Accord AI</span>
             </Link>
             <h1 className="text-4xl font-bold mt-8">Our Blog</h1>
-            <p className="text-muted-foreground text-lg max-w-2xl">
+            <p className="text-xl text-muted-foreground max-w-2xl">
               Latest insights and updates on contract AI, legal technology, and industry trends
             </p>
             
