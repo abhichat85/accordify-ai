@@ -39,6 +39,8 @@ import {
 } from "@/components/ui/navigation-menu";
 import { cn } from "@/lib/utils";
 import { HeroBackground, AnimatedHeroText, AnimatedWaitlistButton } from "@/components/ui/hero-background";
+import Feature from "@/components/landing/Feature";
+import TechCard from "@/components/landing/TechCard";
 
 interface FeatureProps {
   icon: LucideIcon;
@@ -378,7 +380,7 @@ const Landing = () => {
         </div>
       </header>
 
-      <HeroBackground className="py-20 md:py-28 px-4 md:px-8 lg:px-0">
+      <HeroBackground className="py-20 md:py-28 px-4 md:px-8 lg:px-0 bg-subtle-accent">
         <div className="container mx-auto max-w-6xl">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-6 animate-fade-in">
@@ -472,7 +474,7 @@ const Landing = () => {
         </div>
       </HeroBackground>
 
-      <section id="how-it-works" className="py-20 px-4 md:px-8 lg:px-0 bg-muted/20">
+      <section id="how-it-works" className="py-20 px-4 md:px-8 lg:px-0 bg-grid">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-16 space-y-3">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm mb-2">
@@ -512,7 +514,7 @@ const Landing = () => {
         </div>
       </section>
 
-      <section id="features" className="py-20 px-4 md:px-8 lg:px-0">
+      <section id="features" className="py-20 px-4 md:px-8 lg:px-0 bg-soft-gradient">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-16 space-y-3">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm mb-2">
@@ -564,7 +566,7 @@ const Landing = () => {
         </div>
       </section>
 
-      <section id="tech" className="py-20 px-4 md:px-8 lg:px-0 bg-muted/20">
+      <section id="tech" className="py-20 px-4 md:px-8 lg:px-0 bg-dots">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-16 space-y-3">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm mb-2">
@@ -616,7 +618,7 @@ const Landing = () => {
         </div>
       </section>
 
-      <section id="use-cases" className="py-20 px-4 md:px-8 lg:px-0">
+      <section id="use-cases" className="py-20 px-4 md:px-8 lg:px-0 bg-wave">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-16 space-y-3">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm mb-2">
@@ -677,7 +679,7 @@ const Landing = () => {
         </div>
       </section>
 
-      <section id="blog" className="py-20 px-4 md:px-8 lg:px-0 bg-muted/20">
+      <section id="blog" className="py-20 px-4 md:px-8 lg:px-0 bg-soft-mesh">
         <div className="container mx-auto max-w-6xl">
           <div className="flex flex-col md:flex-row md:items-center justify-between mb-12">
             <div className="space-y-3 mb-6 md:mb-0">
@@ -712,7 +714,7 @@ const Landing = () => {
         </div>
       </section>
 
-      <section id="documentation" className="py-20 px-4 md:px-8 lg:px-0">
+      <section id="documentation" className="py-20 px-4 md:px-8 lg:px-0 bg-light-noise">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-16 space-y-3">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm mb-2">

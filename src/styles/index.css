@@ -14,3 +14,14 @@
 
 /* Import animations */
 @import './animations.css';
+
+/* CSS Variables for RGB values */
+:root {
+  --primary-rgb: 0, 0, 0;
+  --muted-rgb: 240, 240, 240;
+}
+
+[data-theme="dark"] {
+  --primary-rgb: 255, 255, 255;
+  --muted-rgb: 30, 30, 30;
+}
