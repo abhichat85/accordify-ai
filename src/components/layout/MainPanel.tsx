@@ -9,6 +9,7 @@ import { WorkspacesSection } from "../sections/WorkspacesSection";
 import { TeamSection } from "../sections/TeamSection";
 import { SettingsSection } from "../sections/SettingsSection";
 import { PricingSection } from "../sections/PricingSection";
+import { BackgroundPaths } from "@/components/ui/background-paths";
 
 interface MainPanelProps {
   isEditorOpen: boolean;
@@ -85,8 +86,11 @@ export const MainPanel: React.FC<MainPanelProps> = ({
   
   // Default view when no contract is open
   return (
-    <div className="flex items-center justify-center h-full">
-      <div className="text-center max-w-lg p-6">
+    <div className="flex items-center justify-center h-full relative overflow-hidden">
+      <div className="absolute inset-0 z-0">
+        <BackgroundPaths title="Welcome" />
+      </div>
+      <div className="text-center max-w-lg p-6 relative z-10 bg-background/60 backdrop-blur-md rounded-xl">
         <h3 className="text-2xl font-bold mb-4">No Contract Open</h3>
         <p className="text-muted-foreground mb-6">
           Ask the AI assistant to create a new contract or upload an existing document to get started.

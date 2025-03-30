@@ -1,275 +1,261 @@
+
 import React, { useState, useEffect } from "react";
 import { Helmet } from "react-helmet";
 import { Link } from "react-router-dom";
-import { useTheme } from "@/contexts/ThemeContext";
+import { motion } from "framer-motion";
+import { ArrowRight, Menu, X, CheckCircle2, FileText, ShieldCheck, Users, Zap, BookOpen, ChevronRight, ArrowUpRight } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  ArrowRight,
-  Bot,
-  BrainCircuit,
-  CheckCircle2,
-  ChevronRight,
-  Code2,
-  Database,
-  ExternalLink,
-  FileText,
-  Layers,
-  LucideIcon,
-  Network,
-  Presentation,
-  ScrollText,
-  ServerCog,
-  Shield,
-  Sparkles,
-  Users,
-  Zap,
-  PenLine,
-  ClipboardCheck,
-  FileSearch
-} from "lucide-react";
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-  navigationMenuTriggerStyle,
-} from "@/components/ui/navigation-menu";
-import { cn } from "@/lib/utils";
-import { HeroBackground, AnimatedHeroText, AnimatedWaitlistButton } from "@/components/ui/hero-background";
+import { NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuLink } from "@/components/ui/navigation-menu";
+import { BackgroundPaths } from "@/components/ui/background-paths";
+import BlogPost from "../components/landing/BlogPost";
+import Feature from "../components/landing/Feature";
+import TechCard from "../components/landing/TechCard";
 
-interface FeatureProps {
-  icon: LucideIcon;
-  title: string;
-  description: string;
-}
+// Feature data
+const features = [
+  {
+    icon: <FileText className="h-6 w-6 text-primary" />,
+    title: "Contract Generation",
+    description: "Create customized contracts in minutes with AI that understands legal language and best practices."
+  },
+  {
+    icon: <ShieldCheck className="h-6 w-6 text-primary" />,
+    title: "Risk Analysis",
+    description: "Identify potential risks and issues in contracts with advanced legal pattern recognition."
+  },
+  {
+    icon: <Users className="h-6 w-6 text-primary" />,
+    title: "Collaboration",
+    description: "Share contracts with team members and clients with controlled permissions and tracking."
+  },
+  {
+    icon: <Zap className="h-6 w-6 text-primary" />,
+    title: "E-Signatures",
+    description: "Legally binding electronic signatures with robust verification and security."
+  }
+];
 
-interface TechCardProps {
-  title: string;
-  description: string;
-  icon: LucideIcon;
-}
+// Technology cards
+const techCards = [
+  {
+    title: "SLM Legal Models",
+    description: "Specialized small language models optimized for legal understanding and generation.",
+    icon: "🧠"
+  },
+  {
+    title: "RAG Architecture",
+    description: "Retrieval-Augmented Generation ensures accurate and reliable information in your contracts.",
+    icon: "📚"
+  },
+  {
+    title: "LoRA Fine-tuning",
+    description: "Low-Rank Adaptation enables precise domain specialization with minimal compute.",
+    icon: "🛠️"
+  },
+  {
+    title: "Edge Processing",
+    description: "Local model execution for enhanced speed and privacy of sensitive contract data.",
+    icon: "⚡"
+  }
+];
 
-interface BlogPostProps {
-  title: string;
-  excerpt: string;
-  category: string;
-  date: string;
-  imageUrl: string;
-}
+// Blog posts
+const blogPosts = [
+  {
+    title: "The Future of Legal Tech: AI and Contract Management",
+    description: "Examining how AI is transforming contract workflows and management in the legal industry.",
+    image: "https://images.unsplash.com/photo-1543286386-2e659306cd6c",
+    date: "May 10, 2023",
+    author: "Sarah Chen",
+    category: "Legal Tech"
+  },
+  {
+    title: "Understanding Retrieval-Augmented Generation in Legal AI",
+    description: "How RAG technology enhances the accuracy and reliability of AI-generated legal documents.",
+    image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa",
+    date: "April 22, 2023",
+    author: "Michael Rodriguez",
+    category: "AI Technology"
+  },
+  {
+    title: "Legal Compliance Automation: Benefits and Implementation",
+    description: "Strategies for implementing automated compliance checks in your contract workflow.",
+    image: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85",
+    date: "March 15, 2023", 
+    author: "David Thompson",
+    category: "Compliance"
+  },
+  {
+    title: "Smart Contracts and Blockchain: Legal Considerations",
+    description: "Navigating the complex legal landscape of blockchain-based smart contracts.",
+    image: "https://images.unsplash.com/photo-1639322537504-6427a16b0a28",
+    date: "February 28, 2023",
+    author: "Lisa Wong",
+    category: "Blockchain"
+  }
+];
 
-interface DocumentationItemProps {
-  title: string;
-  description: string;
-  href: string;
-  icon: LucideIcon;
-}
+// Use cases
+const useCases = [
+  {
+    title: "Legal Departments",
+    description: "Streamline contract workflows and reduce outside counsel spend with AI-powered contract generation, review, and management.",
+    icon: "⚖️",
+    benefits: [
+      "40% reduction in contract processing time",
+      "Standardized templates across departments",
+      "Risk identification and mitigation",
+      "Contract portfolio analytics"
+    ]
+  },
+  {
+    title: "Law Firms",
+    description: "Enhance client service and increase efficiency with intelligent contract analysis and generation tools.",
+    icon: "📝",
+    benefits: [
+      "Focus attorney time on high-value tasks",
+      "Improve accuracy of contract review",
+      "Consistent quality across junior associates",
+      "Higher client satisfaction"
+    ]
+  },
+  {
+    title: "Startups & SMBs",
+    description: "Access enterprise-quality legal support without the enterprise budget through AI-powered contract assistance.",
+    icon: "🚀",
+    benefits: [
+      "Reduced legal spend",
+      "Quick generation of standard agreements",
+      "Risk identification for non-legal professionals",
+      "Simplified contract language"
+    ]
+  }
+];
 
-interface InteractionStepProps {
-  userMessage: string;
-  aiResponse: string;
-  icon: LucideIcon;
-  title: string;
-}
+// Documentation sections
+const docSections = [
+  {
+    title: "Quick Start Guide",
+    description: "Get up and running with Accord AI in less than 5 minutes",
+    icon: <Zap className="h-5 w-5" />
+  },
+  {
+    title: "API Reference",
+    description: "Comprehensive documentation for our REST and GraphQL APIs",
+    icon: <CodeIcon className="h-5 w-5" />
+  },
+  {
+    title: "Contract Templates",
+    description: "Library of customizable templates for common business needs",
+    icon: <FileText className="h-5 w-5" />
+  },
+  {
+    title: "Security & Compliance",
+    description: "Our approach to data security, privacy, and regulatory compliance",
+    icon: <ShieldCheck className="h-5 w-5" />
+  },
+  {
+    title: "Integration Guides",
+    description: "Connect Accord AI with your existing tools and workflows",
+    icon: <Link2Icon className="h-5 w-5" />
+  },
+  {
+    title: "Video Tutorials",
+    description: "Step-by-step visual guides to mastering Accord AI",
+    icon: <VideoIcon className="h-5 w-5" />
+  }
+];
 
-const NavLink = ({ href, children }: { href: string, children: React.ReactNode }) => (
-  <a 
-    href={href} 
-    className="text-sm font-medium hover:text-primary transition-colors"
+// Custom icon components
+const CodeIcon = ({ className }: { className?: string }) => (
+  <svg 
+    xmlns="http://www.w3.org/2000/svg" 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth="2" 
+    strokeLinecap="round" 
+    strokeLinejoin="round" 
+    className={className}
   >
-    {children}
-  </a>
+    <polyline points="16 18 22 12 16 6"></polyline>
+    <polyline points="8 6 2 12 8 18"></polyline>
+  </svg>
 );
 
-const ListItem = React.forwardRef<
-  React.ElementRef<"a">,
-  React.ComponentPropsWithoutRef<"a">
->(({ className, title, children, ...props }, ref) => {
-  return (
-    <li>
-      <NavigationMenuLink asChild>
-        <a
-          ref={ref}
-          className={cn(
-            "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
-            className
-          )}
-          {...props}
-        >
-          <div className="text-sm font-medium leading-none">{title}</div>
-          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-            {children}
-          </p>
-        </a>
-      </NavigationMenuLink>
-    </li>
-  );
-});
-ListItem.displayName = "ListItem";
-
-const Feature: React.FC<FeatureProps> = ({ icon: Icon, title, description }) => (
-  <div className="bg-card border border-border/50 rounded-xl p-6 hover:shadow-md transition-shadow space-y-4 animate-fade-in delay-100 relative group overflow-hidden">
-    <div className="absolute -right-8 -top-8 w-24 h-24 bg-primary/5 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
-    <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center relative z-10">
-      <Icon size={24} className="text-primary" />
-    </div>
-    <h3 className="text-xl font-semibold relative z-10">{title}</h3>
-    <p className="text-muted-foreground relative z-10">{description}</p>
-  </div>
+const Link2Icon = ({ className }: { className?: string }) => (
+  <svg 
+    xmlns="http://www.w3.org/2000/svg" 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth="2" 
+    strokeLinecap="round" 
+    strokeLinejoin="round" 
+    className={className}
+  >
+    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+  </svg>
 );
 
-const TechCard: React.FC<TechCardProps> = ({ icon: Icon, title, description }) => {
-  const [isHovered, setIsHovered] = useState(false);
-  
+const VideoIcon = ({ className }: { className?: string }) => (
+  <svg 
+    xmlns="http://www.w3.org/2000/svg" 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth="2" 
+    strokeLinecap="round" 
+    strokeLinejoin="round" 
+    className={className}
+  >
+    <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect>
+    <line x1="7" y1="2" x2="7" y2="22"></line>
+    <line x1="17" y1="2" x2="17" y2="22"></line>
+    <line x1="2" y1="12" x2="22" y2="12"></line>
+    <line x1="2" y1="7" x2="7" y2="7"></line>
+    <line x1="2" y1="17" x2="7" y2="17"></line>
+    <line x1="17" y1="17" x2="22" y2="17"></line>
+    <line x1="17" y1="7" x2="22" y2="7"></line>
+  </svg>
+);
+
+// Custom HeroBackground component that will wrap the hero section
+const HeroBackground = ({ className, children }: { className?: string, children: React.ReactNode }) => {
   return (
-    <div 
-      className="relative h-full"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      <div className={`absolute inset-0 bg-primary/5 rounded-xl transform transition-transform duration-300 ${isHovered ? 'scale-95' : 'scale-0'}`}></div>
-      <div className="bg-card/80 backdrop-blur-sm border border-border/30 rounded-xl p-6 hover:shadow-md transition-all hover:bg-card hover:border-primary/20 space-y-3 h-full relative">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-            <Icon size={20} className="text-primary" />
-          </div>
-          <h3 className="text-lg font-semibold">{title}</h3>
-        </div>
-        <p className="text-sm text-muted-foreground">{description}</p>
-        <div className={`absolute bottom-6 right-6 transform transition-all duration-300 ${isHovered ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-2'}`}>
-          <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
-            <ArrowRight size={14} className="text-primary" />
-          </div>
-        </div>
+    <div className={`relative overflow-hidden ${className}`}>
+      <BackgroundPaths title="Accord AI" />
+      <div className="relative z-10">
+        {children}
       </div>
     </div>
   );
 };
 
-const BlogPost: React.FC<BlogPostProps> = ({ title, excerpt, category, date, imageUrl }) => (
-  <div className="group overflow-hidden rounded-xl border border-border/50 bg-card hover:shadow-md transition-all h-full flex flex-col">
-    <div className="aspect-video w-full overflow-hidden">
-      <img 
-        src={imageUrl} 
-        alt={title} 
-        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" 
-      />
-    </div>
-    <div className="p-6 space-y-4 flex flex-col flex-grow">
-      <div className="flex items-center justify-between">
-        <span className="text-xs font-medium px-2.5 py-0.5 bg-primary/10 text-primary rounded-full">{category}</span>
-        <span className="text-xs text-muted-foreground">{date}</span>
-      </div>
-      <h3 className="text-xl font-semibold group-hover:text-primary transition-colors">{title}</h3>
-      <p className="text-sm text-muted-foreground line-clamp-2 flex-grow">{excerpt}</p>
-      <div className="pt-2 mt-auto">
-        <Link to="/blog" className="text-sm font-medium text-primary flex items-center gap-1 hover:gap-2 transition-all">
-          Read more <ArrowRight size={14} />
-        </Link>
-      </div>
-    </div>
-  </div>
-);
-
-const DocumentationItem: React.FC<DocumentationItemProps> = ({ title, description, href, icon: Icon }) => (
-  <a 
-    href={href}
-    className="block p-6 rounded-xl border border-border/50 bg-card hover:border-primary/30 hover:shadow-md transition-all h-full"
-  >
-    <div className="flex items-start gap-4">
-      <div className="mt-1 w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-        <Icon size={20} className="text-primary" />
-      </div>
-      <div>
-        <h3 className="text-lg font-semibold mb-2 group-hover:text-primary transition-colors">{title}</h3>
-        <p className="text-sm text-muted-foreground">{description}</p>
-      </div>
-    </div>
-  </a>
-);
-
-const InteractionStep: React.FC<InteractionStepProps> = ({ userMessage, aiResponse, icon: Icon, title }) => (
-  <div className="bg-card border border-border/50 rounded-xl p-6 space-y-6 animate-fade-in">
-    <div className="flex items-center gap-3">
-      <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-        <Icon size={24} className="text-primary" />
-      </div>
-      <div>
-        <h3 className="text-xl font-semibold">{title}</h3>
-      </div>
-    </div>
-    
-    <div className="space-y-4">
-      <div className="flex gap-3">
-        <div className="w-8 h-8 shrink-0 rounded-full bg-muted flex items-center justify-center text-xs font-medium">
-          ME
-        </div>
-        <div className="bg-muted px-4 py-3 rounded-2xl rounded-tl-none text-sm max-w-md">
-          <p className="typing-step">{userMessage}</p>
-        </div>
-      </div>
-      
-      <div className="flex gap-3 justify-end">
-        <div className="bg-primary/10 px-4 py-3 rounded-2xl rounded-tr-none text-sm max-w-md">
-          <p>{aiResponse}</p>
-        </div>
-        <div className="w-8 h-8 shrink-0 rounded-full bg-primary flex items-center justify-center">
-          <Bot size={16} className="text-primary-foreground" />
-        </div>
-      </div>
-    </div>
-  </div>
-);
-
 const Landing = () => {
-  const { colorTheme } = useTheme();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
-  const [blogPosts, setBlogPosts] = useState<BlogPostProps[]>([
-    {
-      title: "The Future of Legal AI: Beyond GPT-4",
-      excerpt: "How specialized language models are transforming contract analysis with domain-specific knowledge and reasoning capabilities.",
-      category: "AI Technology",
-      date: "June 15, 2023",
-      imageUrl: "https://images.unsplash.com/photo-1432821596592-e2c18b78144f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80"
-    },
-    {
-      title: "RAG vs. Fine-tuning: Which is Better for Legal AI?",
-      excerpt: "A detailed comparison of Retrieval-Augmented Generation and fine-tuning approaches for legal contract assistant systems.",
-      category: "Technology",
-      date: "May 28, 2023",
-      imageUrl: "https://images.unsplash.com/photo-1607799279861-4dd421887fb3?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80"
-    },
-    {
-      title: "Measuring ROI: How AI Contract Tools Save Time and Money",
-      excerpt: "A case study of how companies have reduced legal costs by up to 60% with AI-powered contract management solutions.",
-      category: "Business",
-      date: "April 12, 2023",
-      imageUrl: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80"
-    },
-    {
-      title: "Legal Compliance and AI: Navigating the Regulatory Landscape",
-      excerpt: "How modern legal teams are using AI to stay compliant with evolving regulations across different jurisdictions.",
-      category: "Legal",
-      date: "March 5, 2023",
-      imageUrl: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80"
-    }
-  ]);
-  
+  const [lastScrollY, setLastScrollY] = useState(0);
+
   useEffect(() => {
     const handleScroll = () => {
-      const scrollPosition = window.scrollY;
-      if (scrollPosition > 100) {
+      const currentScrollY = window.scrollY;
+      
+      if (currentScrollY > lastScrollY && currentScrollY > 80) {
         setIsHeaderVisible(false);
       } else {
         setIsHeaderVisible(true);
       }
+      
+      setLastScrollY(currentScrollY);
     };
     
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [lastScrollY]);
 
   const openWaitlistForm = () => {
     window.open("https://form.typeform.com/to/waitlist-form-id", "_blank");
@@ -288,7 +274,7 @@ const Landing = () => {
             <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
               <FileText size={18} className="text-primary-foreground" />
             </div>
-            <span className="text-xl font-semibold bg-gradient-to-r from-primary/90 to-primary bg-clip-text text-transparent">
+            <span className="text-xl font-bold bg-gradient-to-r from-primary/90 to-primary bg-clip-text text-transparent">
               Accord AI
             </span>
           </div>
@@ -296,562 +282,562 @@ const Landing = () => {
           <NavigationMenu className="hidden md:flex">
             <NavigationMenuList>
               <NavigationMenuItem>
-                <NavigationMenuTrigger>Features</NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
-                    <ListItem
-                      title="Contract Drafting"
-                      href="#features"
-                    >
-                      Generate customized contracts from scratch with intelligent AI
-                    </ListItem>
-                    <ListItem
-                      title="Contract Review"
-                      href="#features"
-                    >
-                      Analyze and identify risks in any contract automatically
-                    </ListItem>
-                    <ListItem
-                      title="Negotiation Advisor"
-                      href="#features"
-                    >
-                      Get expert guidance on contract negotiation points
-                    </ListItem>
-                    <ListItem
-                      title="AI Technology"
-                      href="#tech"
-                    >
-                      Custom SLMs, LoRA fine-tuning, and RAG for superior performance
-                    </ListItem>
-                  </ul>
-                </NavigationMenuContent>
+                <a href="#features" className="px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  Features
+                </a>
               </NavigationMenuItem>
               <NavigationMenuItem>
-                <NavigationMenuTrigger>Solutions</NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
-                    <ListItem
-                      title="Legal Teams"
-                      href="#use-cases"
-                    >
-                      Streamline routine contract work and free your legal team
-                    </ListItem>
-                    <ListItem
-                      title="Business Founders"
-                      href="#use-cases"
-                    >
-                      Generate founder-friendly agreements instantly
-                    </ListItem>
-                    <ListItem
-                      title="HR Departments"
-                      href="#use-cases"
-                    >
-                      Standardize employee documents with compliance assurance
-                    </ListItem>
-                    <ListItem
-                      title="Sales Teams"
-                      href="#use-cases"
-                    >
-                      Close deals faster with quick contract generation
-                    </ListItem>
-                  </ul>
-                </NavigationMenuContent>
+                <a href="#tech" className="px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  Technology
+                </a>
               </NavigationMenuItem>
               <NavigationMenuItem>
-                <Link to="/blog" className={navigationMenuTriggerStyle()}>
+                <a href="#use-cases" className="px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  Use Cases
+                </a>
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                <a href="#blog" className="px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
                   Blog
-                </Link>
+                </a>
               </NavigationMenuItem>
               <NavigationMenuItem>
-                <Link to="#documentation" className={navigationMenuTriggerStyle()}>
+                <a href="#documentation" className="px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
                   Documentation
-                </Link>
+                </a>
               </NavigationMenuItem>
             </NavigationMenuList>
           </NavigationMenu>
-          
-          <div className="flex items-center space-x-4">
-            <Button size="sm" onClick={openWaitlistForm}>
-              Join Beta Waitlist
+
+          <div className="flex items-center space-x-3">
+            <Link to="/app">
+              <Button variant="outline" size="sm" className="hidden md:flex">
+                Sign In
+              </Button>
+            </Link>
+            <Button size="sm" className="hidden md:flex gap-1 bg-primary text-primary-foreground hover:bg-primary/90">
+              Join Waitlist <ArrowRight size={14} />
+            </Button>
+            
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="md:hidden"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </Button>
           </div>
         </div>
+        
+        {/* Mobile menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden py-4 px-4 bg-background border-t border-border/20 animate-fade-in">
+            <div className="flex flex-col space-y-3">
+              <a 
+                href="#features" 
+                className="px-3 py-2 text-sm rounded-md hover:bg-muted transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Features
+              </a>
+              <a 
+                href="#tech" 
+                className="px-3 py-2 text-sm rounded-md hover:bg-muted transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Technology
+              </a>
+              <a 
+                href="#use-cases" 
+                className="px-3 py-2 text-sm rounded-md hover:bg-muted transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Use Cases
+              </a>
+              <a 
+                href="#blog" 
+                className="px-3 py-2 text-sm rounded-md hover:bg-muted transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Blog
+              </a>
+              <a 
+                href="#documentation" 
+                className="px-3 py-2 text-sm rounded-md hover:bg-muted transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Documentation
+              </a>
+              <div className="pt-3 flex flex-col space-y-3">
+                <Link to="/app" className="w-full">
+                  <Button variant="outline" className="w-full">
+                    Sign In
+                  </Button>
+                </Link>
+                <Button className="w-full gap-1">
+                  Join Waitlist <ArrowRight size={14} />
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
       </header>
 
-      <HeroBackground className="py-20 md:py-28 px-4 md:px-8 lg:px-0">
-        <div className="container mx-auto max-w-6xl">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-6 animate-fade-in">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm mb-4">
-                <Sparkles size={14} />
-                <span>AI-Powered Legal Intelligence</span>
-              </div>
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight">
-                <AnimatedHeroText text="Draft, Review and<br>Intelligence of Contracts,<br>powered by AI Agent" />
-              </h1>
-              <p className="text-lg md:text-xl text-muted-foreground max-w-lg">
-                Draft, review, and negotiate contracts with your intelligent AI assistant. Built with custom SLMs, LoRA fine-tuning, and RAG for unmatched accuracy and performance.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                <AnimatedWaitlistButton onClick={openWaitlistForm} />
-              </div>
-              <div className="pt-6 flex flex-col sm:flex-row items-start sm:items-center gap-4 text-sm text-muted-foreground">
-                <div className="flex items-center gap-1.5">
+      <main>
+        <HeroBackground className="py-20 md:py-28 px-4 md:px-8 lg:px-0">
+          <div className="container mx-auto max-w-6xl">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+              <div className="space-y-6">
+                <motion.div 
+                  className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm"
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                >
+                  <span className="flex h-2 w-2 rounded-full bg-primary"></span>
+                  Now in private beta
+                </motion.div>
+                
+                <motion.h1 
+                  className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight"
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  <span className="bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">AI-powered</span> contract assistant
+                </motion.h1>
+                
+                <motion.p 
+                  className="text-xl text-muted-foreground"
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                >
+                  Create, analyze, and manage contracts with unmatched precision using specialized AI models trained on millions of legal documents.
+                </motion.p>
+                
+                <motion.div 
+                  className="flex flex-col sm:flex-row gap-3"
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4 }}
+                >
+                  <Button onClick={openWaitlistForm} size="lg" className="gap-2 emboss">
+                    Join the waitlist <ArrowRight size={16} />
+                  </Button>
+                  <Link to="/app">
+                    <Button variant="outline" size="lg" className="gap-2 deboss">
+                      View demo <ArrowUpRight size={16} />
+                    </Button>
+                  </Link>
+                </motion.div>
+                
+                <motion.div 
+                  className="flex items-center gap-2 text-muted-foreground text-sm"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.5 }}
+                >
                   <CheckCircle2 size={16} className="text-primary" />
-                  <span>AI-powered contract analysis</span>
-                </div>
-                <div className="flex items-center gap-1.5">
+                  <span>No credit card required</span>
+                  <span className="mx-1">•</span>
                   <CheckCircle2 size={16} className="text-primary" />
-                  <span>Enterprise-grade security</span>
-                </div>
+                  <span>Free trial available</span>
+                </motion.div>
               </div>
-            </div>
-            
-            <div className="relative animate-fade-in delay-100">
-              <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-primary/5 rounded-3xl blur-3xl"></div>
-              <div className="relative shadow-xl rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm overflow-hidden">
-                <div className="border-b border-border/20 p-4 flex items-center gap-4">
-                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Bot size={16} className="text-primary" />
-                  </div>
-                  <span className="font-medium">Accord AI Assistant</span>
-                </div>
-                <div className="p-6 space-y-4">
-                  <div className="flex gap-3">
-                    <div className="w-8 h-8 shrink-0 rounded-full bg-muted flex items-center justify-center text-xs font-medium">
-                      ME
-                    </div>
-                    <div className="bg-muted px-4 py-3 rounded-2xl rounded-tl-none text-sm max-w-xs">
-                      Draft an SaaS agreement with custom IP protection clauses for a B2B AI software product.
-                    </div>
-                  </div>
-                  
-                  <div className="flex gap-3 justify-end">
-                    <div className="bg-primary/10 px-4 py-3 rounded-2xl rounded-tr-none text-sm max-w-sm">
-                      <p>I'll create a comprehensive SaaS agreement tailored for your B2B AI software with enhanced IP protection. This will include:</p>
-                      <ul className="list-disc pl-5 mt-2 space-y-1">
-                        <li>Custom AI-specific IP protection clauses</li>
-                        <li>Data usage and ownership provisions</li>
-                        <li>Model training restrictions</li>
-                        <li>Confidentiality terms for AI algorithms</li>
-                      </ul>
-                    </div>
-                    <div className="w-8 h-8 shrink-0 rounded-full bg-primary flex items-center justify-center">
-                      <Bot size={16} className="text-primary-foreground" />
-                    </div>
-                  </div>
-                  
-                  <div className="flex gap-3">
-                    <div className="w-8 h-8 shrink-0 rounded-full bg-muted flex items-center justify-center text-xs font-medium">
-                      ME
-                    </div>
-                    <div className="bg-muted px-4 py-3 rounded-2xl rounded-tl-none text-sm max-w-xs">
-                      Can you add specific language about model outputs and derivative works?
-                    </div>
-                  </div>
-                  
-                  <div className="flex gap-3 justify-end animate-pulse-subtle">
-                    <div className="bg-primary/10 px-4 py-3 rounded-2xl rounded-tr-none text-sm max-w-sm">
-                      <p>Absolutely. I'll incorporate specific provisions addressing:</p>
-                      <ul className="list-disc pl-5 mt-2 space-y-1">
-                        <li>Ownership of model outputs generated by end-users</li>
-                        <li>Clear definitions of "derivative works" in AI context</li>
-                        <li>Rights to improvements derived from customer data</li>
-                        <li>License limitations for AI-generated content</li>
-                      </ul>
-                      <p className="mt-2">Would you like to see a draft of these clauses now?</p>
-                    </div>
-                    <div className="w-8 h-8 shrink-0 rounded-full bg-primary flex items-center justify-center">
-                      <Bot size={16} className="text-primary-foreground" />
-                    </div>
-                  </div>
-                </div>
+              
+              <div className="lg:ml-10 relative">
+                <motion.img 
+                  src="https://images.unsplash.com/photo-1589829085413-56de8ae18c73?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2342&q=80"
+                  alt="Contract Management UI" 
+                  className="rounded-2xl shadow-2xl border border-border/20 layered-paper card-elevation"
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.3, duration: 0.5 }}
+                />
               </div>
             </div>
           </div>
-        </div>
-      </HeroBackground>
+        </HeroBackground>
 
-      <section id="how-it-works" className="py-20 px-4 md:px-8 lg:px-0 bg-muted/20">
-        <div className="container mx-auto max-w-6xl">
-          <div className="text-center mb-16 space-y-3">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm mb-2">
-              <Bot size={14} />
-              <span>Intelligent Interaction</span>
-            </div>
-            <h2 className="text-3xl md:text-4xl font-bold">
-              How Accord AI Works
-            </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              See how our AI agent helps you draft, review, and summarize contracts through natural conversation.
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <InteractionStep 
-              icon={PenLine}
-              title="Draft Contracts"
-              userMessage="Draft a simple NDA for a software development project with standard confidentiality clauses."
-              aiResponse="I've prepared a comprehensive NDA tailored for software development with standard confidentiality provisions, disclosure protocols, and a 2-year term. Would you like me to customize any specific sections?"
-            />
-            
-            <InteractionStep 
-              icon={ClipboardCheck}
-              title="Review Contracts"
-              userMessage="Review this employment agreement and identify any clauses that favor the employer too heavily."
-              aiResponse="I've identified 3 clauses that disproportionately favor the employer: 1) The non-compete is overly broad in scope and duration, 2) The IP assignment has no exceptions for prior work, and 3) The termination terms lack reciprocal notice periods."
-            />
-            
-            <InteractionStep 
-              icon={FileSearch}
-              title="Summarize Contracts"
-              userMessage="Summarize the key terms of this 45-page service agreement for cloud infrastructure services."
-              aiResponse="This agreement covers cloud infrastructure services with: 1) A 3-year term with auto-renewal, 2) 99.9% uptime SLA with defined penalties, 3) Monthly billing with net-30 terms, and 4) Data protection terms compliant with GDPR and CCPA."
-            />
-          </div>
-        </div>
-      </section>
-
-      <section id="features" className="py-20 px-4 md:px-8 lg:px-0">
-        <div className="container mx-auto max-w-6xl">
-          <div className="text-center mb-16 space-y-3">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm mb-2">
-              <Zap size={14} />
-              <span>Powerful Features</span>
-            </div>
-            <h2 className="text-3xl md:text-4xl font-bold">
-              Powerful AI Contract Tools
-            </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Accord AI combines advanced language models with legal expertise to transform your contract workflow.
-            </p>
-          </div>
-          
-          <div className="relative">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              <Feature
-                icon={FileText}
-                title="Intelligent Drafting"
-                description="Generate customized contracts from scratch in seconds, tailored to your specific business needs and industry requirements."
-              />
-              <Feature
-                icon={BrainCircuit}
-                title="Comprehensive Review"
-                description="Analyze contracts for risks, missing clauses, and compliance issues with detailed recommendations and explanations."
-              />
-              <Feature
-                icon={Zap}
-                title="Negotiation Advisor"
-                description="Get expert guidance on negotiation points and alternative language with pros and cons analysis based on your position."
-              />
-              <Feature
-                icon={Users}
-                title="Collaborative Workflow"
-                description="Share contracts with your team, assign roles, and track changes in a secure environment with role-based permissions."
-              />
-              <Feature
-                icon={ScrollText}
-                title="Contract Timeline"
-                description="Track important deadlines, renewal dates, and obligations with automated reminders and calendar integration."
-              />
-              <Feature
-                icon={Shield}
-                title="Enterprise Security"
-                description="Bank-level encryption, role-based access control, and data privacy compliance with SOC 2 Type II certification."
-              />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="tech" className="py-20 px-4 md:px-8 lg:px-0 bg-muted/20">
-        <div className="container mx-auto max-w-6xl">
-          <div className="text-center mb-16 space-y-3">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm mb-2">
-              <BrainCircuit size={14} />
-              <span>Advanced Technology</span>
-            </div>
-            <h2 className="text-3xl md:text-4xl font-bold">
-              Advanced AI Technology
-            </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Our contract intelligence platform is powered by cutting-edge AI technologies for unmatched accuracy and performance.
-            </p>
-          </div>
-          
-          <div className="relative">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              <TechCard 
-                icon={BrainCircuit}
-                title="Custom SLMs"
-                description="Specialized Language Models designed specifically for legal and contract analysis, trained on vast corpora of legal documents for superior understanding of legal concepts and terminology."
-              />
-              <TechCard 
-                icon={Layers}
-                title="LoRA Fine-tuning"
-                description="Low-Rank Adaptation provides efficient and targeted fine-tuning of our models on specific contract types and legal domains, ensuring higher precision with minimal computational overhead."
-              />
-              <TechCard 
-                icon={Database}
-                title="RAG Architecture"
-                description="Retrieval-Augmented Generation combines the power of large language models with specialized legal knowledge bases to ensure responses are grounded in accurate and relevant legal information."
-              />
-              <TechCard 
-                icon={Network}
-                title="Domain Adaptation"
-                description="Our models adapt to specific industries and use cases, learning the unique language and requirements of different business sectors for more relevant contract generation."
-              />
-              <TechCard 
-                icon={ServerCog}
-                title="Legal Reasoning Engines"
-                description="Specialized reasoning modules that analyze contractual clauses for risks, inconsistencies, and compliance issues across multiple jurisdictions."
-              />
-              <TechCard 
-                icon={Code2}
-                title="Custom Embeddings"
-                description="Proprietary embedding models that capture the semantic relationships between legal concepts for more accurate document comparison and clause recommendation."
-              />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="use-cases" className="py-20 px-4 md:px-8 lg:px-0">
-        <div className="container mx-auto max-w-6xl">
-          <div className="text-center mb-16 space-y-3">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm mb-2">
-              <Users size={14} />
-              <span>For Every Team</span>
-            </div>
-            <h2 className="text-3xl md:text-4xl font-bold">
-              Perfect For Every Contract Need
-            </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Trusted by legal teams, entrepreneurs, and business professionals across industries.
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {[
-              {
-                title: "In-House Legal Teams",
-                description: "Streamline routine contract work and free your legal team to focus on strategic matters. Reduce review time by up to 80%.",
-                tasks: ["NDA automation", "Vendor contract review", "Policy compliance checks", "Legal risk assessment"]
-              },
-              {
-                title: "Business Founders",
-                description: "Get the legal protection you need without the expensive attorney fees. Generate founder-friendly agreements instantly.",
-                tasks: ["Consultant agreements", "Employment contracts", "Customer agreements", "Partnership documents"]
-              },
-              {
-                title: "HR Departments",
-                description: "Standardize your employee documents while ensuring compliance with changing regulations across jurisdictions.",
-                tasks: ["Offer letters", "Employment policies", "Severance agreements", "Benefits documentation"]
-              },
-              {
-                title: "Sales Teams",
-                description: "Close deals faster with quick contract generation, redlining, and negotiation assistance for your sales agreements.",
-                tasks: ["Sales agreements", "Term sheets", "Partnership contracts", "SLA documentation"]
-              }
-            ].map((useCase, index) => (
-              <div 
-                key={index} 
-                className="bg-card border border-border/50 rounded-xl p-8 animate-fade-in hover:shadow-md transition-all"
-                style={{ animationDelay: `${index * 100}ms` }}
-              >
-                <h3 className="text-xl font-semibold mb-3">{useCase.title}</h3>
-                <p className="text-muted-foreground mb-6">{useCase.description}</p>
-                <div className="space-y-2">
-                  {useCase.tasks.map((task, i) => (
-                    <div key={i} className="flex items-center gap-2 text-sm">
-                      <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center">
-                        <CheckCircle2 size={12} className="text-primary" />
-                      </div>
-                      <span>{task}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section id="blog" className="py-20 px-4 md:px-8 lg:px-0 bg-muted/20">
-        <div className="container mx-auto max-w-6xl">
-          <div className="flex flex-col md:flex-row md:items-center justify-between mb-12">
-            <div className="space-y-3 mb-6 md:mb-0">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm mb-2">
-                <ScrollText size={14} />
-                <span>Latest Insights</span>
-              </div>
-              <h2 className="text-3xl md:text-4xl font-bold">
-                Legal AI Blog
-              </h2>
-              <p className="text-lg text-muted-foreground md:max-w-md">
-                Insights and perspectives on AI in the legal industry.
+        <section id="how-it-works" className="py-20 px-4 md:px-8 lg:px-0 bg-muted/20 texture-overlay">
+          <div className="container mx-auto max-w-6xl">
+            <div className="text-center mb-16 space-y-3">
+              <h2 className="text-3xl md:text-4xl font-bold">How It Works</h2>
+              <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+                Accord AI simplifies contract workflows through intelligent automation and analysis.
               </p>
             </div>
-            <Link to="/blog" className="flex items-center gap-2 text-sm font-medium text-primary hover:underline">
-              View all articles <ArrowRight size={14} />
-            </Link>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {blogPosts.map((post, index) => (
-              <BlogPost 
-                key={index} 
-                title={post.title} 
-                excerpt={post.excerpt} 
-                category={post.category} 
-                date={post.date}
-                imageUrl={post.imageUrl}
-              />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section id="documentation" className="py-20 px-4 md:px-8 lg:px-0">
-        <div className="container mx-auto max-w-6xl">
-          <div className="text-center mb-16 space-y-3">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm mb-2">
-              <FileText size={14} />
-              <span>Resources</span>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <Card className="bg-background/50 backdrop-blur-sm card-elevation">
+                <CardContent className="p-6 space-y-4">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                    <span className="text-2xl">1</span>
+                  </div>
+                  <h3 className="text-xl font-semibold">Upload or Create</h3>
+                  <p className="text-muted-foreground">
+                    Start with an existing contract or create a new one from our template library.
+                  </p>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-background/50 backdrop-blur-sm card-elevation">
+                <CardContent className="p-6 space-y-4">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                    <span className="text-2xl">2</span>
+                  </div>
+                  <h3 className="text-xl font-semibold">AI Analysis</h3>
+                  <p className="text-muted-foreground">
+                    Our AI models analyze the content, identifying risks and suggesting improvements.
+                  </p>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-background/50 backdrop-blur-sm card-elevation">
+                <CardContent className="p-6 space-y-4">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                    <span className="text-2xl">3</span>
+                  </div>
+                  <h3 className="text-xl font-semibold">Finalize & Sign</h3>
+                  <p className="text-muted-foreground">
+                    Make revisions based on AI insights, then collect secure electronic signatures.
+                  </p>
+                </CardContent>
+              </Card>
             </div>
-            <h2 className="text-3xl md:text-4xl font-bold">
-              Documentation & Resources
-            </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Everything you need to get started and make the most of Accord AI.
-            </p>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <DocumentationItem 
-              icon={Presentation}
-              title="Quick Start Guide"
-              description="Get up and running with Accord AI in minutes with our step-by-step quick start guide."
-              href="/docs/quickstart"
-            />
-            <DocumentationItem 
-              icon={Bot}
-              title="AI Agent Capabilities"
-              description="Learn about the capabilities of our AI agent and how to leverage its full potential."
-              href="/docs/ai-capabilities"
-            />
-            <DocumentationItem 
-              icon={FileText}
-              title="Contract Templates"
-              description="Browse our library of pre-built contract templates for various industries and use cases."
-              href="/docs/templates"
-            />
-            <DocumentationItem 
-              icon={ServerCog}
-              title="API Reference"
-              description="Comprehensive API documentation for integrating Accord AI into your existing systems."
-              href="/docs/api"
-            />
-            <DocumentationItem 
-              icon={ExternalLink}
-              title="Integration Guides"
-              description="Step-by-step guides for integrating with popular tools like Salesforce, Notion, and more."
-              href="/docs/integrations"
-            />
-            <DocumentationItem 
-              icon={Shield}
-              title="Security & Compliance"
-              description="Details about our security practices, data handling, and compliance certifications."
-              href="/docs/security"
-            />
-          </div>
-        </div>
-      </section>
+        </section>
 
-      <section className="py-24 px-4 md:px-8 lg:px-0 bg-muted/30">
-        <div className="container mx-auto max-w-5xl text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm mb-4">
-            <Sparkles size={14} />
-            <span>Limited Beta Access</span>
+        <section id="features" className="py-20 px-4 md:px-8 lg:px-0 paper-texture">
+          <div className="container mx-auto max-w-6xl">
+            <div className="text-center mb-16 space-y-3">
+              <h2 className="text-3xl md:text-4xl font-bold">Key Features</h2>
+              <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+                Our platform combines legal expertise and AI technology to streamline your contract processes.
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {features.map((feature, index) => (
+                <Feature
+                  key={index}
+                  icon={feature.icon}
+                  title={feature.title}
+                  description={feature.description}
+                  className="card-elevation"
+                />
+              ))}
+            </div>
+            
+            <div className="mt-16 text-center">
+              <Button onClick={openWaitlistForm} variant="default" size="lg" className="gap-2 emboss">
+                Get Started <ArrowRight size={16} />
+              </Button>
+            </div>
           </div>
-          <h2 className="text-3xl md:text-5xl font-bold mb-6 max-w-3xl mx-auto">
-            Join the waitlist for early access to Accord AI
-          </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-10">
-            We're rolling out access to our beta program in phases. Sign up now to secure your spot and be among the first to experience the future of contract intelligence.
-          </p>
-          
-          <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Button size="lg" onClick={openWaitlistForm} className="gap-2 rounded-full shadow-lg">
-              Join Beta Waitlist <ChevronRight size={16} />
-            </Button>
+        </section>
+
+        <section id="tech" className="py-20 px-4 md:px-8 lg:px-0 bg-muted/20 gradient-mesh">
+          <div className="container mx-auto max-w-6xl">
+            <div className="text-center mb-16 space-y-3">
+              <h2 className="text-3xl md:text-4xl font-bold">Our Technology</h2>
+              <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+                Powered by specialized AI models for unmatched understanding of legal language and context.
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {techCards.map((card, index) => (
+                <TechCard
+                  key={index}
+                  title={card.title}
+                  description={card.description}
+                  icon={card.icon}
+                  className="h-full card-elevation"
+                />
+              ))}
+            </div>
+            
+            <div className="mt-16 bg-background/80 backdrop-blur-sm rounded-2xl p-6 md:p-8 border border-border/20 card-elevation">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <div>
+                  <h3 className="text-2xl font-semibold mb-4">Built for Performance and Privacy</h3>
+                  <p className="text-muted-foreground mb-4">
+                    Our technology stack prioritizes both powerful AI capabilities and strict data security. We've engineered our platform to provide enterprise-grade performance while maintaining the highest standards of privacy.
+                  </p>
+                  <ul className="space-y-2">
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 size={18} className="text-primary mt-0.5" />
+                      <span>Edge computing for sensitive data processing</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 size={18} className="text-primary mt-0.5" />
+                      <span>SOC 2 Type II compliant infrastructure</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 size={18} className="text-primary mt-0.5" />
+                      <span>Model training on anonymized legal corpora</span>
+                    </li>
+                  </ul>
+                </div>
+                <div className="bg-muted/30 rounded-xl p-6 relative deboss">
+                  <div className="aspect-video rounded-lg overflow-hidden">
+                    <img 
+                      src="https://images.unsplash.com/photo-1581092921461-eab10380b606?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80" 
+                      alt="Technology visualization" 
+                      className="object-cover w-full h-full"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+
+        <section id="use-cases" className="py-20 px-4 md:px-8 lg:px-0 texture-overlay">
+          <div className="container mx-auto max-w-6xl">
+            <div className="text-center mb-16 space-y-3">
+              <h2 className="text-3xl md:text-4xl font-bold">Use Cases</h2>
+              <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+                Accord AI adapts to the needs of different organizations and legal professionals.
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {useCases.map((useCase, index) => (
+                <Card key={index} className="card-elevation bg-background/50 backdrop-blur-sm">
+                  <CardContent className="p-6">
+                    <div className="text-3xl mb-4">{useCase.icon}</div>
+                    <h3 className="text-xl font-semibold mb-2">{useCase.title}</h3>
+                    <p className="text-muted-foreground mb-4">{useCase.description}</p>
+                    <div className="pt-2">
+                      <h4 className="text-sm font-semibold text-primary mb-2">Key Benefits:</h4>
+                      <ul className="space-y-1">
+                        {useCase.benefits.map((benefit, i) => (
+                          <li key={i} className="flex items-start gap-2 text-sm">
+                            <CheckCircle2 size={14} className="text-primary mt-0.5 shrink-0" />
+                            <span>{benefit}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+            
+            <div className="mt-16 text-center">
+              <p className="text-muted-foreground mb-4">
+                Ready to see how Accord AI can work for your organization?
+              </p>
+              <Button onClick={openWaitlistForm} size="lg" className="gap-2 emboss">
+                Request a Demo <ArrowRight size={16} />
+              </Button>
+            </div>
+          </div>
+        </section>
+
+        <section id="blog" className="py-20 px-4 md:px-8 lg:px-0 bg-muted/20 gradient-mesh">
+          <div className="container mx-auto max-w-6xl">
+            <div className="flex flex-col md:flex-row md:items-center justify-between mb-12">
+              <div>
+                <h2 className="text-3xl md:text-4xl font-bold">Latest Insights</h2>
+                <p className="text-muted-foreground mt-2">Industry trends and best practices in contract management.</p>
+              </div>
+              <Link to="/blog" className="mt-4 md:mt-0">
+                <Button variant="outline" className="gap-1 deboss">
+                  View all articles <ChevronRight size={16} />
+                </Button>
+              </Link>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {blogPosts.map((post, index) => (
+                <BlogPost
+                  key={index}
+                  title={post.title}
+                  description={post.description}
+                  image={post.image}
+                  date={post.date}
+                  author={post.author}
+                  category={post.category}
+                  className="card-elevation"
+                />
+              ))}
+            </div>
+            
+            <div className="mt-12 bg-primary/5 rounded-2xl p-6 border border-primary/10 deboss">
+              <div className="flex flex-col md:flex-row gap-6 items-center">
+                <div className="text-2xl">📬</div>
+                <div className="flex-grow">
+                  <h3 className="text-lg font-semibold">Subscribe to our newsletter</h3>
+                  <p className="text-muted-foreground text-sm">Get the latest updates and insights delivered to your inbox.</p>
+                </div>
+                <Button variant="default" className="whitespace-nowrap emboss">
+                  Subscribe Now
+                </Button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="documentation" className="py-20 px-4 md:px-8 lg:px-0 paper-texture">
+          <div className="container mx-auto max-w-6xl">
+            <div className="text-center mb-16 space-y-3">
+              <h2 className="text-3xl md:text-4xl font-bold">Documentation</h2>
+              <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+                Comprehensive resources to help you get the most out of Accord AI.
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {docSections.map((section, index) => (
+                <Card key={index} className="card-elevation border-border/30">
+                  <CardContent className="p-5 flex items-start gap-3">
+                    <div className="mt-1 p-2 bg-muted rounded-md">
+                      {section.icon}
+                    </div>
+                    <div>
+                      <h3 className="font-semibold">{section.title}</h3>
+                      <p className="text-sm text-muted-foreground">{section.description}</p>
+                      <Link to="/docs" className="text-primary text-sm flex items-center gap-1 mt-2 hover:underline">
+                        <span>Read more</span>
+                        <ChevronRight size={14} />
+                      </Link>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+            
+            <div className="mt-16 bg-muted/20 rounded-2xl p-8 border border-border/20 flex flex-col md:flex-row justify-between items-center gap-6 card-elevation">
+              <div>
+                <h3 className="text-xl font-semibold mb-2">Need additional help?</h3>
+                <p className="text-muted-foreground">Our team is available to provide personalized support.</p>
+              </div>
+              <div className="flex flex-wrap gap-3">
+                <Button variant="outline" className="gap-1 deboss">
+                  <BookOpen size={16} />
+                  <span>Knowledge Base</span>
+                </Button>
+                <Button className="gap-1 emboss">
+                  Contact Support
+                </Button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="py-24 px-4 md:px-8 lg:px-0 bg-muted/30 gradient-mesh">
+          <div className="container mx-auto max-w-5xl text-center">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm mb-4">
+              <span className="flex h-2 w-2 rounded-full bg-primary"></span>
+              Limited early access
+            </div>
+            <h2 className="text-3xl md:text-5xl font-bold mb-6">Ready to transform your contract workflow?</h2>
+            <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
+              Join our early access program and be among the first to experience the future of AI-powered contract management.
+            </p>
+            <div className="flex flex-col sm:flex-row justify-center gap-3">
+              <Button onClick={openWaitlistForm} size="lg" className="gap-2 emboss">
+                Join the waitlist <ArrowRight size={16} />
+              </Button>
+              <Button variant="outline" size="lg" className="gap-2 deboss">
+                Schedule a demo
+              </Button>
+            </div>
+          </div>
+        </section>
+      </main>
 
       <footer className="border-t border-border py-12 px-4 md:px-8 lg:px-0">
         <div className="container mx-auto max-w-7xl">
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8">
-            <div className="col-span-2 lg:col-span-2 mb-8 lg:mb-0">
+            <div className="col-span-2 md:col-span-1">
               <div className="flex items-center space-x-2 mb-6">
-                <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-                  <FileText size={14} className="text-primary-foreground" />
+                <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
+                  <FileText size={18} className="text-primary-foreground" />
                 </div>
-                <span className="text-lg font-semibold">Accord AI</span>
+                <span className="text-xl font-bold">
+                  Accord AI
+                </span>
               </div>
-              <p className="text-muted-foreground text-sm mb-6 max-w-xs">
-                AI-powered contract intelligence platform for legal teams and business professionals.
+              <p className="text-muted-foreground mb-4 text-sm">
+                AI-powered contract assistant for legal professionals and businesses.
               </p>
               <div className="flex space-x-4">
-                <a href="#" className="text-muted-foreground hover:text-primary">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"></path></svg>
+                <a href="#" className="text-muted-foreground hover:text-foreground">
+                  <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"></path>
+                  </svg>
                 </a>
-                <a href="#" className="text-muted-foreground hover:text-primary">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+                <a href="#" className="text-muted-foreground hover:text-foreground">
+                  <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"></path>
+                  </svg>
                 </a>
-                <a href="#" className="text-muted-foreground hover:text-primary">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+                <a href="#" className="text-muted-foreground hover:text-foreground">
+                  <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path>
+                  </svg>
                 </a>
               </div>
             </div>
             
             <div>
-              <h3 className="font-semibold mb-4 text-sm">Product</h3>
+              <h3 className="font-semibold mb-3">Product</h3>
               <ul className="space-y-2 text-sm">
-                <li><a href="#features" className="text-muted-foreground hover:text-primary">Features</a></li>
-                <li><a href="#tech" className="text-muted-foreground hover:text-primary">Technology</a></li>
-                <li><a href="#use-cases" className="text-muted-foreground hover:text-primary">Use Cases</a></li>
-                <li><a href="#documentation" className="text-muted-foreground hover:text-primary">Documentation</a></li>
+                <li><a href="#features" className="text-muted-foreground hover:text-foreground">Features</a></li>
+                <li><a href="#tech" className="text-muted-foreground hover:text-foreground">Technology</a></li>
+                <li><a href="#pricing" className="text-muted-foreground hover:text-foreground">Pricing</a></li>
+                <li><a href="#use-cases" className="text-muted-foreground hover:text-foreground">Use Cases</a></li>
+                <li><a href="#integrations" className="text-muted-foreground hover:text-foreground">Integrations</a></li>
               </ul>
             </div>
             
             <div>
-              <h3 className="font-semibold mb-4 text-sm">Resources</h3>
+              <h3 className="font-semibold mb-3">Resources</h3>
               <ul className="space-y-2 text-sm">
-                <li><Link to="/blog" className="text-muted-foreground hover:text-primary">Blog</Link></li>
-                <li><a href="#" className="text-muted-foreground hover:text-primary">Help Center</a></li>
-                <li><a href="#" className="text-muted-foreground hover:text-primary">Community</a></li>
+                <li><a href="#documentation" className="text-muted-foreground hover:text-foreground">Documentation</a></li>
+                <li><a href="#blog" className="text-muted-foreground hover:text-foreground">Blog</a></li>
+                <li><a href="#guides" className="text-muted-foreground hover:text-foreground">Guides</a></li>
+                <li><a href="#webinars" className="text-muted-foreground hover:text-foreground">Webinars</a></li>
+                <li><a href="#api-docs" className="text-muted-foreground hover:text-foreground">API</a></li>
               </ul>
             </div>
             
             <div>
-              <h3 className="font-semibold mb-4 text-sm">Company</h3>
+              <h3 className="font-semibold mb-3">Company</h3>
               <ul className="space-y-2 text-sm">
-                <li><a href="#" className="text-muted-foreground hover:text-primary">About Us</a></li>
-                <li><a href="#" className="text-muted-foreground hover:text-primary">Contact</a></li>
-                <li><a href="#" className="text-muted-foreground hover:text-primary">Privacy Policy</a></li>
-                <li><a href="#" className="text-muted-foreground hover:text-primary">Terms of Service</a></li>
+                <li><a href="#about" className="text-muted-foreground hover:text-foreground">About Us</a></li>
+                <li><a href="#careers" className="text-muted-foreground hover:text-foreground">Careers</a></li>
+                <li><a href="#contact" className="text-muted-foreground hover:text-foreground">Contact</a></li>
+                <li><a href="#partners" className="text-muted-foreground hover:text-foreground">Partners</a></li>
+                <li><a href="#legal" className="text-muted-foreground hover:text-foreground">Legal</a></li>
+              </ul>
+            </div>
+            
+            <div>
+              <h3 className="font-semibold mb-3">Legal</h3>
+              <ul className="space-y-2 text-sm">
+                <li><a href="#privacy" className="text-muted-foreground hover:text-foreground">Privacy Policy</a></li>
+                <li><a href="#terms" className="text-muted-foreground hover:text-foreground">Terms of Service</a></li>
+                <li><a href="#cookies" className="text-muted-foreground hover:text-foreground">Cookie Policy</a></li>
+                <li><a href="#security" className="text-muted-foreground hover:text-foreground">Security</a></li>
               </ul>
             </div>
           </div>
           
-          <div className="mt-12 pt-6 border-t border-border text-sm text-muted-foreground">
-            <div className="flex flex-col sm:flex-row justify-between items-center">
-              <p>© 2023 Accord AI, Inc. All rights reserved.</p>
-              <div className="mt-4 sm:mt-0 flex items-center gap-6">
-                <a href="#" className="hover:text-foreground">Privacy Policy</a>
-                <a href="#" className="hover:text-foreground">Terms of Service</a>
-              </div>
+          <div className="border-t border-border/60 mt-12 pt-8 flex flex-col sm:flex-row justify-between items-center text-sm">
+            <p className="text-muted-foreground mb-4 sm:mb-0">
+              © {new Date().getFullYear()} Accord AI Ltd. All rights reserved.
+            </p>
+            <div className="flex items-center space-x-4 text-muted-foreground">
+              <a href="#privacy" className="hover:text-foreground">Privacy</a>
+              <a href="#terms" className="hover:text-foreground">Terms</a>
+              <a href="#cookies" className="hover:text-foreground">Cookies</a>
             </div>
           </div>
         </div>
