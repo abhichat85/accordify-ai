@@ -37,7 +37,7 @@ export const MainPanel: React.FC<MainPanelProps> = ({
   });
   
   // If we're on a specific route, render that content
-  if (path.startsWith("/contracts") || path === "/") {
+  if (path.startsWith("/contracts") || path === "/app") {
     if (isEditorOpen) {
       return <ModernContractEditor 
         title={currentContract.title} 
