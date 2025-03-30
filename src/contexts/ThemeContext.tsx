@@ -12,6 +12,12 @@ interface ThemeContextType {
   setModeTheme: (mode: ModeTheme) => void;
 }
 
+interface ThemeProviderProps {
+  children: React.ReactNode;
+  defaultTheme?: ModeTheme;
+  storageKey?: string;
+}
+
 const ThemeContext = createContext<ThemeContextType>({
   colorTheme: "purple", // Default color theme
   modeTheme: "light",   // Default mode
@@ -19,23 +25,34 @@ const ThemeContext = createContext<ThemeContextType>({
   setModeTheme: () => {},
 });
 
-export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const ThemeProvider: React.FC<ThemeProviderProps> = ({ 
+  children, 
+  defaultTheme = "system",
+  storageKey = "color-theme" 
+}) => {
   // Initialize from localStorage or defaults
   const [colorTheme, setColorTheme] = useState<ColorTheme>(() => {
-    const savedColorTheme = localStorage.getItem("color-theme");
+    const savedColorTheme = localStorage.getItem(storageKey);
     return (savedColorTheme as ColorTheme) || "purple";
   });
   
   const [modeTheme, setModeTheme] = useState<ModeTheme>(() => {
     const savedModeTheme = localStorage.getItem("mode-theme");
-    return (savedModeTheme as ModeTheme) || 
-      (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    if (savedModeTheme) {
+      return savedModeTheme as ModeTheme;
+    }
+    
+    if (defaultTheme === "system") {
+      return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    }
+    
+    return defaultTheme as ModeTheme;
   });
 
   // Effect to apply theme changes
   useEffect(() => {
     // Save preferences to localStorage
-    localStorage.setItem("color-theme", colorTheme);
+    localStorage.setItem(storageKey, colorTheme);
     localStorage.setItem("mode-theme", modeTheme);
     
     // Apply theme classes to document
@@ -61,7 +78,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       root.classList.remove("dark");
     }
     
-  }, [colorTheme, modeTheme]);
+  }, [colorTheme, modeTheme, storageKey]);
 
   return (
     <ThemeContext.Provider value={{ colorTheme, modeTheme, setColorTheme, setModeTheme }}>
