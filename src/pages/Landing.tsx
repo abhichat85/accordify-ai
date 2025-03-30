@@ -24,7 +24,10 @@ import {
   Shield,
   Sparkles,
   Users,
-  Zap
+  Zap,
+  PenLine,
+  ClipboardCheck,
+  FileSearch
 } from "lucide-react";
 import {
   NavigationMenu,
@@ -62,6 +65,13 @@ interface DocumentationItemProps {
   description: string;
   href: string;
   icon: LucideIcon;
+}
+
+interface InteractionStepProps {
+  userMessage: string;
+  aiResponse: string;
+  icon: LucideIcon;
+  title: string;
 }
 
 const NavLink = ({ href, children }: { href: string, children: React.ReactNode }) => (
@@ -180,6 +190,39 @@ const DocumentationItem: React.FC<DocumentationItemProps> = ({ title, descriptio
   </a>
 );
 
+const InteractionStep: React.FC<InteractionStepProps> = ({ userMessage, aiResponse, icon: Icon, title }) => (
+  <div className="bg-card border border-border/50 rounded-xl p-6 space-y-6 animate-fade-in">
+    <div className="flex items-center gap-3">
+      <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
+        <Icon size={24} className="text-primary" />
+      </div>
+      <div>
+        <h3 className="text-xl font-semibold">{title}</h3>
+      </div>
+    </div>
+    
+    <div className="space-y-4">
+      <div className="flex gap-3">
+        <div className="w-8 h-8 shrink-0 rounded-full bg-muted flex items-center justify-center text-xs font-medium">
+          ME
+        </div>
+        <div className="bg-muted px-4 py-3 rounded-2xl rounded-tl-none text-sm max-w-md">
+          <p className="typing-step">{userMessage}</p>
+        </div>
+      </div>
+      
+      <div className="flex gap-3 justify-end">
+        <div className="bg-primary/10 px-4 py-3 rounded-2xl rounded-tr-none text-sm max-w-md">
+          <p>{aiResponse}</p>
+        </div>
+        <div className="w-8 h-8 shrink-0 rounded-full bg-primary flex items-center justify-center">
+          <Bot size={16} className="text-primary-foreground" />
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
 const Landing = () => {
   const { colorTheme } = useTheme();
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
@@ -228,13 +271,13 @@ const Landing = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const openTypeform = () => {
-    // In a real implementation, redirect to Typeform
-    window.open("https://form.typeform.com/to/your-form-id", "_blank");
+  const openWaitlistForm = () => {
+    // In a real implementation, open a form to collect email for waitlist
+    window.open("https://form.typeform.com/to/waitlist-form-id", "_blank");
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col overflow-x-hidden">
+    <div className="min-h-screen bg-background text-foreground flex flex-col overflow-x-hidden landing-page-scale">
       <Helmet>
         <title>Accord AI | Intelligent Contract Assistant</title>
         <meta name="description" content="AI-powered contract assistant that helps you draft, review, and negotiate contracts with ease. Built with custom SLMs, LoRA fine-tuning, and RAG for superior performance." />
@@ -318,11 +361,6 @@ const Landing = () => {
                 </NavigationMenuContent>
               </NavigationMenuItem>
               <NavigationMenuItem>
-                <Link to="/pricing" className={navigationMenuTriggerStyle()}>
-                  Pricing
-                </Link>
-              </NavigationMenuItem>
-              <NavigationMenuItem>
                 <Link to="#blog" className={navigationMenuTriggerStyle()}>
                   Blog
                 </Link>
@@ -336,19 +374,14 @@ const Landing = () => {
           </NavigationMenu>
           
           <div className="flex items-center space-x-4">
-            <Link to="/">
-              <Button variant="outline" size="sm">
-                Sign In
-              </Button>
-            </Link>
-            <Button size="sm" onClick={openTypeform}>
-              Request Demo
+            <Button size="sm" onClick={openWaitlistForm}>
+              Join Beta Waitlist
             </Button>
           </div>
         </div>
       </header>
 
-      {/* Hero Section - Inspired by midday.ai's cleaner layout */}
+      {/* Hero Section - Modified with new text and single CTA */}
       <section className="py-20 md:py-28 px-4 md:px-8 lg:px-0">
         <div className="container mx-auto max-w-6xl">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -357,27 +390,26 @@ const Landing = () => {
                 <Sparkles size={14} />
                 <span>AI-Powered Legal Intelligence</span>
               </div>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight">
                 <span className="bg-gradient-to-r from-primary/80 to-primary bg-clip-text text-transparent">
-                  AI-Powered Contract
+                  Draft, Review and
                 </span>
                 <br />
                 <span className="bg-gradient-to-r from-primary/90 via-primary to-primary/80 bg-clip-text text-transparent">
-                  Intelligence
+                  Intelligence of Contracts,
+                </span>
+                <br />
+                <span className="bg-gradient-to-r from-primary/90 to-primary/80 bg-clip-text text-transparent">
+                  powered by AI Agent
                 </span>
               </h1>
               <p className="text-lg md:text-xl text-muted-foreground max-w-lg">
                 Draft, review, and negotiate contracts with your intelligent AI assistant. Built with custom SLMs, LoRA fine-tuning, and RAG for unmatched accuracy and performance.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                <Button onClick={openTypeform} size="lg" className="gap-2 rounded-full shadow-lg">
-                  Request Demo <ChevronRight size={16} />
+                <Button onClick={openWaitlistForm} size="lg" className="gap-2 rounded-full shadow-lg">
+                  Join Beta Waitlist <ChevronRight size={16} />
                 </Button>
-                <Link to="/">
-                  <Button variant="outline" size="lg" className="gap-2 rounded-full">
-                    Sign In
-                  </Button>
-                </Link>
               </div>
               <div className="pt-6 flex flex-col sm:flex-row items-start sm:items-center gap-4 text-sm text-muted-foreground">
                 <div className="flex items-center gap-1.5">
@@ -456,61 +488,48 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Technology Section - Reimagined display */}
-      <section id="tech" className="py-20 px-4 md:px-8 lg:px-0 bg-muted/20">
+      {/* NEW: How It Works Section with animated interaction examples */}
+      <section id="how-it-works" className="py-20 px-4 md:px-8 lg:px-0 bg-muted/20">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-16 space-y-3">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm mb-2">
-              <BrainCircuit size={14} />
-              <span>Advanced Technology</span>
+              <Bot size={14} />
+              <span>Intelligent Interaction</span>
             </div>
             <h2 className="text-3xl md:text-4xl font-bold">
-              Advanced AI Technology
+              How Accord AI Works
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Our contract intelligence platform is powered by cutting-edge AI technologies for unmatched accuracy and performance.
+              See how our AI agent helps you draft, review, and summarize contracts through natural conversation.
             </p>
           </div>
           
-          {/* Tech cards displayed in an innovative 3D-like rotating grid */}
-          <div className="relative">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              <TechCard 
-                icon={BrainCircuit}
-                title="Custom SLMs"
-                description="Specialized Language Models designed specifically for legal and contract analysis, trained on vast corpora of legal documents for superior understanding of legal concepts and terminology."
-              />
-              <TechCard 
-                icon={Layers}
-                title="LoRA Fine-tuning"
-                description="Low-Rank Adaptation provides efficient and targeted fine-tuning of our models on specific contract types and legal domains, ensuring higher precision with minimal computational overhead."
-              />
-              <TechCard 
-                icon={Database}
-                title="RAG Architecture"
-                description="Retrieval-Augmented Generation combines the power of large language models with specialized legal knowledge bases to ensure responses are grounded in accurate and relevant legal information."
-              />
-              <TechCard 
-                icon={Network}
-                title="Domain Adaptation"
-                description="Our models adapt to specific industries and use cases, learning the unique language and requirements of different business sectors for more relevant contract generation."
-              />
-              <TechCard 
-                icon={ServerCog}
-                title="Legal Reasoning Engines"
-                description="Specialized reasoning modules that analyze contractual clauses for risks, inconsistencies, and compliance issues across multiple jurisdictions."
-              />
-              <TechCard 
-                icon={Code2}
-                title="Custom Embeddings"
-                description="Proprietary embedding models that capture the semantic relationships between legal concepts for more accurate document comparison and clause recommendation."
-              />
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <InteractionStep 
+              icon={PenLine}
+              title="Draft Contracts"
+              userMessage="Draft a simple NDA for a software development project with standard confidentiality clauses."
+              aiResponse="I've prepared a comprehensive NDA tailored for software development with standard confidentiality provisions, disclosure protocols, and a 2-year term. Would you like me to customize any specific sections?"
+            />
+            
+            <InteractionStep 
+              icon={ClipboardCheck}
+              title="Review Contracts"
+              userMessage="Review this employment agreement and identify any clauses that favor the employer too heavily."
+              aiResponse="I've identified 3 clauses that disproportionately favor the employer: 1) The non-compete is overly broad in scope and duration, 2) The IP assignment has no exceptions for prior work, and 3) The termination terms lack reciprocal notice periods."
+            />
+            
+            <InteractionStep 
+              icon={FileSearch}
+              title="Summarize Contracts"
+              userMessage="Summarize the key terms of this 45-page service agreement for cloud infrastructure services."
+              aiResponse="This agreement covers cloud infrastructure services with: 1) A 3-year term with auto-renewal, 2) 99.9% uptime SLA with defined penalties, 3) Monthly billing with net-30 terms, and 4) Data protection terms compliant with GDPR and CCPA."
+            />
           </div>
         </div>
       </section>
 
-      {/* Features Section - Interactive cards with hover effects */}
+      {/* Features Section - Now appears before Technology section */}
       <section id="features" className="py-20 px-4 md:px-8 lg:px-0">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-16 space-y-3">
@@ -526,7 +545,6 @@ const Landing = () => {
             </p>
           </div>
           
-          {/* Interactive feature cards with gradient borders on hover */}
           <div className="relative">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               <Feature
@@ -564,62 +582,60 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* How It Works - With animated step numbers */}
-      <section id="how-it-works" className="py-20 px-4 md:px-8 lg:px-0 bg-muted/20">
+      {/* Technology Section - Moved after Features section */}
+      <section id="tech" className="py-20 px-4 md:px-8 lg:px-0 bg-muted/20">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-16 space-y-3">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm mb-2">
-              <Layers size={14} />
-              <span>Simple Process</span>
+              <BrainCircuit size={14} />
+              <span>Advanced Technology</span>
             </div>
             <h2 className="text-3xl md:text-4xl font-bold">
-              How Accord AI Works
+              Advanced AI Technology
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Our intelligent agent guides you through your entire contract lifecycle with minimal effort.
+              Our contract intelligence platform is powered by cutting-edge AI technologies for unmatched accuracy and performance.
             </p>
           </div>
           
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 relative">
-            {/* Connection line (desktop only) */}
-            <div className="hidden lg:block absolute top-1/2 left-0 w-full h-0.5 bg-border -translate-y-1/2 z-0"></div>
-            
-            {[
-              {
-                step: "01",
-                title: "Describe Your Needs",
-                description: "Simply tell Accord AI what you need in plain language - generate a contract, review a document, or ask legal questions."
-              },
-              {
-                step: "02",
-                title: "AI Takes Action",
-                description: "Our agent analyzes your request, accesses relevant legal knowledge, and performs the requested task with reasoning."
-              },
-              {
-                step: "03",
-                title: "Review & Finalize",
-                description: "Get instant results with explanations. Edit, ask follow-up questions, or approve the work to finalize your document."
-              }
-            ].map((item, index) => (
-              <div 
-                key={index} 
-                className="relative z-10 animate-fade-in"
-                style={{ animationDelay: `${index * 150}ms` }}
-              >
-                <div className="bg-card border border-border/50 rounded-xl p-6 h-full">
-                  <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold text-lg mb-6 animate-pulse-subtle">
-                    {item.step}
-                  </div>
-                  <h3 className="text-xl font-semibold mb-3">{item.title}</h3>
-                  <p className="text-muted-foreground">{item.description}</p>
-                </div>
-              </div>
-            ))}
+          <div className="relative">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <TechCard 
+                icon={BrainCircuit}
+                title="Custom SLMs"
+                description="Specialized Language Models designed specifically for legal and contract analysis, trained on vast corpora of legal documents for superior understanding of legal concepts and terminology."
+              />
+              <TechCard 
+                icon={Layers}
+                title="LoRA Fine-tuning"
+                description="Low-Rank Adaptation provides efficient and targeted fine-tuning of our models on specific contract types and legal domains, ensuring higher precision with minimal computational overhead."
+              />
+              <TechCard 
+                icon={Database}
+                title="RAG Architecture"
+                description="Retrieval-Augmented Generation combines the power of large language models with specialized legal knowledge bases to ensure responses are grounded in accurate and relevant legal information."
+              />
+              <TechCard 
+                icon={Network}
+                title="Domain Adaptation"
+                description="Our models adapt to specific industries and use cases, learning the unique language and requirements of different business sectors for more relevant contract generation."
+              />
+              <TechCard 
+                icon={ServerCog}
+                title="Legal Reasoning Engines"
+                description="Specialized reasoning modules that analyze contractual clauses for risks, inconsistencies, and compliance issues across multiple jurisdictions."
+              />
+              <TechCard 
+                icon={Code2}
+                title="Custom Embeddings"
+                description="Proprietary embedding models that capture the semantic relationships between legal concepts for more accurate document comparison and clause recommendation."
+              />
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Use Cases */}
+      {/* Use Cases Section - Moved after Technology section */}
       <section id="use-cases" className="py-20 px-4 md:px-8 lg:px-0">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-16 space-y-3">
@@ -913,7 +929,7 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* CTA Section - With background effect */}
+      {/* NEW CTA Section - With background effect and revised waitlist CTA */}
       <section className="py-24 px-4 md:px-8 lg:px-0 bg-muted/10">
         <div className="container mx-auto max-w-5xl">
           <div className="relative rounded-2xl overflow-hidden">
@@ -921,23 +937,18 @@ const Landing = () => {
             <div className="relative p-12 md:p-16 text-center z-10">
               <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-sm text-primary-foreground text-sm mb-6">
                 <Sparkles size={14} />
-                <span>Try Accord AI Today</span>
+                <span>Early Access</span>
               </div>
               <h2 className="text-3xl md:text-4xl font-bold mb-6">
-                Transform Your Contract Workflow Today
+                Be First To Experience Accord AI
               </h2>
               <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
-                Join thousands of professionals who save time and reduce risk with Accord AI.
+                Join our beta waitlist to get early access to the future of contract intelligence.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button onClick={openTypeform} size="lg" className="gap-2 rounded-full shadow-lg">
-                  Request Demo <ChevronRight size={16} />
+                <Button onClick={openWaitlistForm} size="lg" className="gap-2 rounded-full shadow-lg">
+                  Join Beta Waitlist <ChevronRight size={16} />
                 </Button>
-                <Link to="/">
-                  <Button variant="outline" size="lg" className="gap-2 rounded-full bg-background">
-                    Sign In
-                  </Button>
-                </Link>
               </div>
             </div>
           </div>
@@ -986,7 +997,6 @@ const Landing = () => {
               <ul className="space-y-3">
                 <li><a href="#features" className="text-muted-foreground hover:text-primary transition-colors text-sm">Features</a></li>
                 <li><a href="#tech" className="text-muted-foreground hover:text-primary transition-colors text-sm">Technology</a></li>
-                <li><a href="/pricing" className="text-muted-foreground hover:text-primary transition-colors text-sm">Pricing</a></li>
                 <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors text-sm">Integrations</a></li>
                 <li><a href="#" className="text-muted-foreground hover:text-primary transition-colors text-sm">Changelog</a></li>
               </ul>

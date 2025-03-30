@@ -83,6 +83,38 @@
   box-shadow: 0 0 10px 1px rgba(var(--primary), 0.2);
 }
 
+/* Landing page scale */
+.landing-page-scale {
+  transform: scale(0.9);
+  transform-origin: top center;
+  width: 111.11%; /* Compensate for the 90% scale to maintain full width */
+  margin-left: -5.55%; /* Center the wider container */
+  margin-right: -5.55%;
+}
+
+/* Animation showing interaction between user and agent */
+.typing-animation::after {
+  content: '|';
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.typing-step {
+  overflow: hidden;
+  white-space: nowrap;
+  animation: typing 3.5s steps(40, end);
+  display: inline-block;
+}
+
+@keyframes typing {
+  from { width: 0 }
+  to { width: 100% }
+}
+
 @keyframes pulse-subtle {
   0%, 100% {
     opacity: 1;
