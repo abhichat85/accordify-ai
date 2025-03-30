@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Bot, CheckCircle2 } from "lucide-react";
+import { Bot, CheckCircle2, Sparkles } from "lucide-react";
 import { HeroBackground, AnimatedHeroText, AnimatedWaitlistButton } from "@/components/ui/hero-background";
 
 interface HeroSectionProps {
