@@ -21,7 +21,6 @@ const queryClient = new QueryClient({
   },
 });
 
-// Fix import paths and ensure the app has correct structure
 const App = () => {
   return (
     <QueryClientProvider client={queryClient}>

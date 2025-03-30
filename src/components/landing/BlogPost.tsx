@@ -1,59 +1,77 @@
 
-import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { CalendarIcon, UserIcon } from 'lucide-react';
+import React from "react";
+import { Link } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
 
-interface BlogPostProps {
+export interface BlogPostProps {
   title: string;
-  image?: string;
-  imageUrl?: string; // Add optional imageUrl for compatibility
-  date: string;
-  author: string;
-  category: string;
   excerpt: string;
-  className?: string;
-  featured?: boolean; // Add optional featured property
+  category: string;
+  date: string;
+  imageUrl: string;
+  featured?: boolean;
 }
 
-const BlogPost: React.FC<BlogPostProps> = ({
-  title,
-  image,
-  imageUrl, // Support both image and imageUrl
-  date,
-  author,
-  category,
-  excerpt,
-  className = "",
-  featured = false // Default to false
+const BlogPost: React.FC<BlogPostProps> = ({ 
+  title, 
+  excerpt, 
+  category, 
+  date, 
+  imageUrl,
+  featured = false
 }) => {
-  // Use either image or imageUrl, preferring image if both are provided
-  const imageSource = image || imageUrl || "";
-  
-  return (
-    <Card className={`overflow-hidden ${featured ? 'col-span-full' : ''} ${className}`}>
-      <div className={`aspect-video w-full overflow-hidden ${featured ? 'md:aspect-[21/9]' : ''}`}>
-        <img 
-          src={imageSource} 
-          alt={title} 
-          className="w-full h-full object-cover transition-transform hover:scale-105 duration-500"
-        />
-      </div>
-      <CardContent className={`p-4 ${featured ? 'md:p-6' : ''}`}>
-        <div className="text-xs text-primary font-medium mb-2">{category}</div>
-        <h3 className={`font-semibold mb-2 line-clamp-2 ${featured ? 'text-xl md:text-2xl' : ''}`}>{title}</h3>
-        <p className={`text-sm text-muted-foreground mb-3 ${featured ? 'line-clamp-3' : 'line-clamp-2'}`}>{excerpt}</p>
-        <div className="flex items-center justify-between text-xs text-muted-foreground">
-          <div className="flex items-center">
-            <UserIcon className="w-3 h-3 mr-1" />
-            {author}
+  if (featured) {
+    return (
+      <div className="rounded-xl border border-border/50 bg-card hover:shadow-md transition-all h-full overflow-hidden">
+        <div className="grid grid-cols-1 md:grid-cols-2 h-full">
+          <div className="aspect-square md:aspect-auto md:h-full overflow-hidden">
+            <img 
+              src={imageUrl} 
+              alt={title} 
+              className="h-full w-full object-cover"
+            />
           </div>
-          <div className="flex items-center">
-            <CalendarIcon className="w-3 h-3 mr-1" />
-            {date}
+          <div className="p-8 flex flex-col">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-xs font-medium px-2.5 py-0.5 bg-primary/10 text-primary rounded-full">{category}</span>
+              <span className="text-xs text-muted-foreground">{date}</span>
+            </div>
+            <h3 className="text-2xl font-semibold mb-4">{title}</h3>
+            <p className="text-muted-foreground flex-grow mb-6">
+              {excerpt}
+            </p>
+            <Link to="/blog" className="text-sm font-medium text-primary flex items-center gap-1 hover:gap-2 transition-all mt-auto">
+              Read the full article <ArrowRight size={14} />
+            </Link>
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    );
+  }
+  
+  return (
+    <div className="group overflow-hidden rounded-xl border border-border/50 bg-card hover:shadow-md transition-all h-full flex flex-col">
+      <div className="aspect-video w-full overflow-hidden">
+        <img 
+          src={imageUrl} 
+          alt={title} 
+          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" 
+        />
+      </div>
+      <div className="p-6 space-y-4 flex flex-col flex-grow">
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-medium px-2.5 py-0.5 bg-primary/10 text-primary rounded-full">{category}</span>
+          <span className="text-xs text-muted-foreground">{date}</span>
+        </div>
+        <h3 className="text-xl font-semibold group-hover:text-primary transition-colors">{title}</h3>
+        <p className="text-sm text-muted-foreground line-clamp-2 flex-grow">{excerpt}</p>
+        <div className="pt-2 mt-auto">
+          <Link to="/blog" className="text-sm font-medium text-primary flex items-center gap-1 hover:gap-2 transition-all">
+            Read more <ArrowRight size={14} />
+          </Link>
+        </div>
+      </div>
+    </div>
   );
 };
 
