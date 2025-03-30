@@ -10,8 +10,8 @@ interface HeroSectionProps {
 
 const HeroSection: React.FC<HeroSectionProps> = ({ openWaitlistForm }) => {
   return (
-    <HeroBackground className="py-20 md:py-28 px-4 md:px-8 lg:px-0 bg-subtle-accent">
-      <div className="container mx-auto max-w-6xl">
+    <section className="py-20 md:py-28 px-4 md:px-8 lg:px-0 bg-subtle-accent">
+      <HeroBackground className="container mx-auto max-w-6xl">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div className="space-y-6 animate-fade-in">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm mb-4">
@@ -101,8 +101,8 @@ const HeroSection: React.FC<HeroSectionProps> = ({ openWaitlistForm }) => {
             </div>
           </div>
         </div>
-      </div>
-    </HeroBackground>
+      </HeroBackground>
+    </section>
   );
 };
 

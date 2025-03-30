@@ -19,9 +19,17 @@
 :root {
   --primary-rgb: 99, 102, 241;  /* Indigo-500 in RGB */
   --muted-rgb: 229, 231, 235;   /* Gray-200 in RGB */
+  --foreground-rgb: 15, 23, 42; /* Slate-900 in RGB */
+  --background-rgb: 255, 255, 255; /* White in RGB */
+  --card-rgb: 249, 250, 251;    /* Gray-50 in RGB */
+  --border-rgb: 229, 231, 235;  /* Gray-200 in RGB */
 }
 
-[data-theme="dark"] {
+.dark {
   --primary-rgb: 165, 180, 252;  /* Indigo-300 in RGB */
   --muted-rgb: 55, 65, 81;       /* Gray-700 in RGB */
+  --foreground-rgb: 241, 245, 249; /* Slate-100 in RGB */
+  --background-rgb: 15, 23, 42;    /* Slate-900 in RGB */
+  --card-rgb: 30, 41, 59;         /* Slate-800 in RGB */
+  --border-rgb: 51, 65, 85;       /* Slate-700 in RGB */
 }
