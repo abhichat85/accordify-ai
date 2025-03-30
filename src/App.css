@@ -4,9 +4,6 @@
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
-  zoom: 90%;
-  -moz-transform: scale(0.9);
-  -moz-transform-origin: 0 0;
 }
 
 .logo {
