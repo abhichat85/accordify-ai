@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from "react";
 import { Helmet } from "react-helmet";
 import { useTheme } from "@/contexts/ThemeContext";
-import { Sparkles } from "lucide-react";
 
 // Import refactored components
 import Header from "@/components/landing/Header";
