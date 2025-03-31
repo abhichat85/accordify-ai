@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ChatInterface } from "../chat/ChatInterface";
 import { Message } from "../chat/MessageBubble";
 import { 
@@ -38,6 +38,22 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
   const [activeMode, setActiveMode] = useState<"write" | "chat">("write");
   const [activeTab, setActiveTab] = useState<string>("chat");
   const [selectedModel, setSelectedModel] = useState<string>("GPT-4o");
+  const [defaultInputValue, setDefaultInputValue] = useState<string>("");
+
+  // Listen for custom events from setChatInputValue
+  useEffect(() => {
+    const handleCustomEvent = (event: CustomEvent) => {
+      if (event.detail && event.detail.prompt) {
+        setDefaultInputValue(event.detail.prompt);
+      }
+    };
+
+    document.addEventListener('chat-prompt-update', handleCustomEvent as EventListener);
+
+    return () => {
+      document.removeEventListener('chat-prompt-update', handleCustomEvent as EventListener);
+    };
+  }, []);
   
   return (
     <div className="flex flex-col h-full overflow-hidden border border-border/40 shadow-sm bg-[#282828]">
@@ -55,30 +71,6 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
           </Button>
         </div>
       </div>
-      
-      {/* Chat/Document tabs - Commented out as requested */}
-      {/* 
-      <div className="bg-[#1F1F1F] border-b border-border/40 px-4">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="bg-transparent p-0 h-10 w-full flex justify-start gap-4 border-b-0">
-            <TabsTrigger 
-              value="chat" 
-              className="h-10 px-4 rounded-none bg-transparent text-sm font-medium text-muted-foreground data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none"
-            >
-              <MessageSquare size={16} className="mr-2" />
-              Chat
-            </TabsTrigger>
-            <TabsTrigger 
-              value="documents" 
-              className="h-10 px-4 rounded-none bg-transparent text-sm font-medium text-muted-foreground data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none"
-            >
-              <FileSearch size={16} className="mr-2" />
-              Documents
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
-      </div>
-      */}
       
       {/* Main content area with Cascade-like styling */}
       <div className="flex-grow flex flex-col h-full relative">
@@ -109,7 +101,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
                   messages={messages}
                   isProcessing={isProcessing}
                   className="h-full rounded-none border-none shadow-none"
-                  defaultInputValue={activeMode === "write" ? "" : ""}
+                  defaultInputValue={defaultInputValue}
                   selectedModel={selectedModel}
                   onModelSelect={setSelectedModel}
                 />

@@ -112,7 +112,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
     if (defaultInputValue && defaultInputValue !== inputValue) {
       setInputValue(defaultInputValue);
     }
-  }, [defaultInputValue, inputValue]);
+  }, [defaultInputValue]);
 
   const handleSubmit = () => {
     if (inputValue.trim() || files.length > 0) {
@@ -134,6 +134,21 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
       }
     }, 100);
   };
+
+  // Listen for custom events from setChatInputValue
+  useEffect(() => {
+    const handleCustomEvent = (event: CustomEvent) => {
+      if (event.detail && event.detail.prompt) {
+        setInputValue(event.detail.prompt);
+      }
+    };
+
+    document.addEventListener('chat-prompt-update', handleCustomEvent as EventListener);
+
+    return () => {
+      document.removeEventListener('chat-prompt-update', handleCustomEvent as EventListener);
+    };
+  }, []);
 
   return (
     <div className={cn(

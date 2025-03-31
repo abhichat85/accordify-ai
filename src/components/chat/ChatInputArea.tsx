@@ -60,10 +60,16 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
       inputRef.current.focus();
       
       // Auto-resize the textarea based on content
-      inputRef.current.style.height = "auto";
-      inputRef.current.style.height = `${inputRef.current.scrollHeight}px`;
+      adjustTextareaHeight();
     }
   }, [inputValue]);
+
+  const adjustTextareaHeight = () => {
+    if (inputRef.current) {
+      inputRef.current.style.height = "auto";
+      inputRef.current.style.height = `${Math.min(inputRef.current.scrollHeight, 200)}px`;
+    }
+  };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -180,6 +186,8 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
             onKeyDown={handleKeyDown}
             placeholder="Message Accord AI..."
             className="min-h-[60px] max-h-[200px] py-4 px-4 flex-1 bg-transparent border-0 focus-visible:ring-0 resize-none overflow-hidden"
+            data-chat-input="true"
+            aria-label="chat-input"
           />
         </div>
 
@@ -197,34 +205,34 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
             <Button
               type="button"
               variant="ghost"
-              size="icon"
-              className="h-8 w-8 rounded-full"
+              size="sm"
+              className="h-8 gap-1.5 text-xs"
               onClick={handleFileUpload}
             >
               <Paperclip size={16} />
-              <span className="sr-only">Upload file</span>
+              <span className="hidden sm:inline">Attach</span>
             </Button>
             
             {/* Image upload button */}
             <Button
               type="button"
               variant="ghost"
-              size="icon"
-              className="h-8 w-8 rounded-full"
+              size="sm"
+              className="h-8 gap-1.5 text-xs"
             >
               <Image size={16} />
-              <span className="sr-only">Upload image</span>
+              <span className="hidden sm:inline">Image</span>
             </Button>
             
             {/* Suggestions button */}
             <Button
               type="button"
               variant="ghost"
-              size="icon"
-              className="h-8 w-8 rounded-full"
+              size="sm"
+              className="h-8 gap-1.5 text-xs"
             >
               <Sparkles size={16} />
-              <span className="sr-only">Get suggestions</span>
+              <span className="hidden sm:inline">Suggest</span>
             </Button>
             
             {/* Model selection dropdown */}
@@ -239,7 +247,7 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
                   <ChevronDown size={14} />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-48">
+              <DropdownMenuContent align="start" className="w-48 bg-popover">
                 {availableModels.map((model) => (
                   <DropdownMenuItem 
                     key={model} 
@@ -259,16 +267,16 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
           {/* Send button */}
           <Button
             type="button"
-            size="icon"
+            size="sm"
             className={cn(
-              "h-8 w-8 rounded-full",
+              "h-8 gap-1.5",
               !inputValue.trim() && files.length === 0 ? "opacity-50 cursor-not-allowed" : "opacity-100"
             )}
             disabled={!inputValue.trim() && files.length === 0 || isProcessing}
             onClick={handleSubmit}
           >
             <ArrowUp size={16} />
-            <span className="sr-only">Send message</span>
+            <span className="hidden sm:inline">Send</span>
           </Button>
         </div>
       </div>

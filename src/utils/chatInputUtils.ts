@@ -1,3 +1,4 @@
+
 /**
  * Utility functions for finding and interacting with the chat input field
  */
@@ -13,6 +14,7 @@ export const findChatInput = (): HTMLTextAreaElement | null => {
   const selectors = [
     'textarea[data-chat-input="true"]',
     'textarea[aria-label="chat-input"]',
+    'textarea[placeholder*="Message Accord AI"]',
     'textarea[placeholder*="Ask about contracts"]',
     'textarea[placeholder*="contract"]',
     'textarea[placeholder*="Ask"]',
@@ -96,10 +98,14 @@ export const setChatInputValue = (prompt: string): boolean => {
     const changeEvent = new Event('change', { bubbles: true });
     chatInput.dispatchEvent(changeEvent);
     
-    // Method 6: Focus and blur to trigger React's onBlur handlers
+    // Method 6: Focus the chatInput
     chatInput.focus();
+    
+    // Method 7: Set the value again and force React to update (last resort)
     setTimeout(() => {
-      // Small delay to ensure events are processed
+      chatInput.value = prompt;
+      chatInput.dispatchEvent(new Event('input', { bubbles: true }));
+      
       // Check if our value was set correctly
       console.log(`Current input value after setting:`, chatInput.value);
       
@@ -107,38 +113,14 @@ export const setChatInputValue = (prompt: string): boolean => {
       if (!chatInput.value.includes(prompt)) {
         console.log("Initial methods failed, trying React state update simulation");
         
-        // Create and dispatch keyboard events to simulate typing
-        const keyboardEvent = new KeyboardEvent('keydown', {
-          key: 'v',
-          code: 'KeyV',
-          ctrlKey: true, // Simulate Ctrl+V paste operation
-          bubbles: true
-        });
-        
-        chatInput.dispatchEvent(keyboardEvent);
-        
-        // Try one more time with a clipboard approach
-        try {
-          // Save original clipboard content
-          const originalClipboard = navigator.clipboard?.readText();
-          
-          // Set clipboard with our prompt
-          navigator.clipboard?.writeText(prompt).then(() => {
-            // Simulate paste
-            document.execCommand('paste', false);
-            
-            // Restore original clipboard if possible
-            if (originalClipboard) {
-              originalClipboard.then(text => {
-                navigator.clipboard?.writeText(text);
-              });
-            }
-          }).catch(e => {
-            console.log("Clipboard approach failed:", e);
+        // Try creating and dispatching keyboard events to simulate typing
+        Array.from(prompt).forEach(char => {
+          const keyEvent = new KeyboardEvent('keypress', {
+            key: char,
+            bubbles: true
           });
-        } catch (e) {
-          console.log("Clipboard API not available:", e);
-        }
+          chatInput.dispatchEvent(keyEvent);
+        });
       }
     }, 50);
     
