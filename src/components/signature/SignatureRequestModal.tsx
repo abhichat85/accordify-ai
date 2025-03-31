@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { 
   Dialog, DialogContent, DialogHeader, 
   DialogTitle, DialogDescription, DialogFooter
@@ -7,10 +7,12 @@ import {
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import { 
   Plus, Trash2, Users, Mail, Send, 
   FileCheck, AlertCircle, Loader2, 
-  ChevronLeft, ChevronRight, FileSignature
+  ChevronLeft, ChevronRight, FileSignature,
+  UserCheck, Info, Book
 } from "lucide-react";
 import { PDFViewer } from "./PDFViewer";
 import { useToast } from "@/hooks/use-toast";
@@ -28,6 +30,16 @@ import {
 } from "@/components/ui/pagination";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 type SignatureRequestStatus = Database["public"]["Enums"]["signature_request_status"];
 type SignerStatus = Database["public"]["Enums"]["signer_status"];
@@ -74,6 +86,8 @@ export const SignatureRequestModal: React.FC<SignatureRequestModalProps> = ({
   const [totalPages, setTotalPages] = useState<number>(1);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [showSignerSheet, setShowSignerSheet] = useState<boolean>(false);
+  const [confirmCancel, setConfirmCancel] = useState<boolean>(false);
+  const [documentLoaded, setDocumentLoaded] = useState<boolean>(false);
 
   useEffect(() => {
     if (signers.length > 0 && !currentSignerId) {
@@ -84,6 +98,7 @@ export const SignatureRequestModal: React.FC<SignatureRequestModalProps> = ({
   useEffect(() => {
     if (isOpen && documentContent) {
       setIsProcessing(true);
+      setDocumentLoaded(false);
       convertToPDF(documentContent, documentTitle)
         .then(url => {
           setPdfDataUrl(url);
@@ -106,6 +121,7 @@ export const SignatureRequestModal: React.FC<SignatureRequestModalProps> = ({
 
   const convertToPDF = async (content: string, title: string): Promise<string> => {
     return new Promise((resolve) => {
+      // Simulating PDF conversion delay for the prototype
       setTimeout(() => {
         resolve("data:application/pdf;base64,JVBERi0xLjcKJeLjz9MKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZwovUGFnZXMgMiAwIFIKPj4KZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzCi9LaWRzIFszIDAgUl0KL0NvdW50IDEKPj4KZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UKL01lZGlhQm94IFswIDAgNjEyIDc5Ml0KL1Jlc291cmNlcyA8PCAvRm9udCA8PCAvRjEgNCAwIFIgPj4gPj4KL0NvbnRlbnRzIDUgMCBSCi9QYXJlbnQgMiAwIFIKPj4KZW5kb2JqCjQgMCBvYmoKPDwgL1R5cGUgL0ZvbnQKL1N1YnR5cGUgL1R5cGUxCi9CYXNlRm9udCAvSGVsdmV0aWNhCj4+CmVuZG9iago1IDAgb2JqCjw8IC9MZW5ndGggNzQgPj4Kc3RyZWFtCkJUCi9GMSAxOCBUZgoxMDAgNzAwIFRkCihTYW1wbGUgUERGIERvY3VtZW50IC0gKSBUagoxMDAgNjgwIFRkCihDb250cmFjdDogKSBUagpFVAplbmRzdHJlYW0KZW5kb2JqCnhyZWYKMCA2CjAwMDAwMDAwMDAgNjU1MzUgZgowMDAwMDAwMDA5IDAwMDAwIG4KMDAwMDAwMDA2NiAwMDAwMCBuCjAwMDAwMDAxMjUgMDAwMDAgbgowMDAwMDAwMjQ4IDAwMDAwIG4KMDAwMDAwMDMxNSAwMDAwMCBuCnRyYWlsZXIKPDwKL1NpemUgNgovUm9vdCAxIDAgUgo+PgpzdGFydHhyZWYKNDM5CiUlRU9GCg==");
       }, 1000);
@@ -196,6 +212,12 @@ export const SignatureRequestModal: React.FC<SignatureRequestModalProps> = ({
   const handlePrevPage = () => {
     if (currentPage > 1) {
       setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleGoToPage = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
     }
   };
 
@@ -325,10 +347,10 @@ export const SignatureRequestModal: React.FC<SignatureRequestModalProps> = ({
   };
 
   const steps = [
-    { title: "Review Document", description: "Review the document before sending for signature" },
-    { title: "Add Signers", description: "Add the people who need to sign this document" },
-    { title: "Place Signatures", description: "Specify where signatures should appear" },
-    { title: "Send Document", description: "Review and send document for signatures" }
+    { title: "Review Document", description: "Review the document before sending for signature", icon: <Book className="w-4 h-4" /> },
+    { title: "Add Signers", description: "Add the people who need to sign this document", icon: <UserCheck className="w-4 h-4" /> },
+    { title: "Place Signatures", description: "Specify where signatures should appear", icon: <FileSignature className="w-4 h-4" /> },
+    { title: "Send Document", description: "Review and send document for signatures", icon: <Send className="w-4 h-4" /> }
   ];
 
   const nextStep = () => {
@@ -347,437 +369,532 @@ export const SignatureRequestModal: React.FC<SignatureRequestModalProps> = ({
     return signatureFields.filter(field => field.pageNumber === currentPage);
   };
 
-  return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-7xl max-h-[90vh] overflow-hidden flex flex-col p-0">
-        <div className="p-6 pb-0">
-          <DialogHeader>
-            <div className="flex items-center">
-              <FileSignature className="h-6 w-6 text-primary mr-2" />
-              <DialogTitle className="text-xl">Send "{documentTitle}" for Signature</DialogTitle>
-            </div>
-            <DialogDescription>
-              {steps[currentStep].description}
-            </DialogDescription>
-          </DialogHeader>
+  const renderPaginationControls = () => {
+    // Show up to 5 page numbers, with ellipsis for larger ranges
+    const pageButtons = [];
+    const maxVisiblePages = 5;
+    
+    if (totalPages <= maxVisiblePages) {
+      // Show all pages if there are fewer than maxVisiblePages
+      for (let i = 1; i <= totalPages; i++) {
+        pageButtons.push(
+          <PaginationItem key={i}>
+            <PaginationLink 
+              onClick={() => handleGoToPage(i)}
+              isActive={currentPage === i}
+            >
+              {i}
+            </PaginationLink>
+          </PaginationItem>
+        );
+      }
+    } else {
+      // Always show first page
+      pageButtons.push(
+        <PaginationItem key={1}>
+          <PaginationLink 
+            onClick={() => handleGoToPage(1)}
+            isActive={currentPage === 1}
+          >
+            1
+          </PaginationLink>
+        </PaginationItem>
+      );
+      
+      // Calculate start and end of the middle section
+      let startPage = Math.max(2, currentPage - 1);
+      let endPage = Math.min(totalPages - 1, startPage + 2);
+      
+      // Adjust if we're near the end
+      if (endPage === totalPages - 1) {
+        startPage = Math.max(2, endPage - 2);
+      }
+      
+      // Show ellipsis if needed at the beginning
+      if (startPage > 2) {
+        pageButtons.push(
+          <PaginationItem key="ellipsis-start">
+            <span className="flex h-9 w-9 items-center justify-center">&hellip;</span>
+          </PaginationItem>
+        );
+      }
+      
+      // Show middle pages
+      for (let i = startPage; i <= endPage; i++) {
+        pageButtons.push(
+          <PaginationItem key={i}>
+            <PaginationLink 
+              onClick={() => handleGoToPage(i)}
+              isActive={currentPage === i}
+            >
+              {i}
+            </PaginationLink>
+          </PaginationItem>
+        );
+      }
+      
+      // Show ellipsis if needed at the end
+      if (endPage < totalPages - 1) {
+        pageButtons.push(
+          <PaginationItem key="ellipsis-end">
+            <span className="flex h-9 w-9 items-center justify-center">&hellip;</span>
+          </PaginationItem>
+        );
+      }
+      
+      // Always show last page
+      pageButtons.push(
+        <PaginationItem key={totalPages}>
+          <PaginationLink 
+            onClick={() => handleGoToPage(totalPages)}
+            isActive={currentPage === totalPages}
+          >
+            {totalPages}
+          </PaginationLink>
+        </PaginationItem>
+      );
+    }
+    
+    return (
+      <Pagination>
+        <PaginationContent>
+          <PaginationItem>
+            <PaginationPrevious 
+              onClick={handlePrevPage}
+              className={cn(currentPage === 1 && "pointer-events-none opacity-50")}
+            />
+          </PaginationItem>
           
-          <div className="flex justify-between mb-6 mt-3 px-1">
-            {steps.map((step, index) => (
-              <div 
-                key={index} 
+          {pageButtons}
+          
+          <PaginationItem>
+            <PaginationNext 
+              onClick={handleNextPage}
+              className={cn(currentPage === totalPages && "pointer-events-none opacity-50")}
+            />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
+    );
+  };
+
+  // The enhanced progress indicator 
+  const renderStepProgress = () => (
+    <div className="relative mt-6 mb-8">
+      <div className="absolute inset-0 flex items-center">
+        <div className="w-full h-1 bg-muted-foreground/20 rounded-full">
+          <div className="h-full bg-primary rounded-full transition-all" 
+            style={{ 
+              width: `${(currentStep / (steps.length - 1)) * 100}%` 
+            }}
+          />
+        </div>
+      </div>
+      
+      <div className="relative flex justify-between">
+        {steps.map((step, index) => {
+          const isActive = index === currentStep;
+          const isCompleted = index < currentStep;
+          
+          return (
+            <div key={index} className="flex flex-col items-center" style={{ zIndex: 1 }}>
+              <div
                 className={cn(
-                  "relative flex flex-col items-center",
-                  index < steps.length - 1 && "w-full"
+                  "w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all",
+                  isActive
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : isCompleted
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-muted-foreground/30 bg-background text-muted-foreground"
                 )}
               >
-                <div 
-                  className={cn(
-                    "w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium z-10",
-                    index === currentStep 
-                      ? "bg-primary text-primary-foreground shadow-lg" 
-                      : index < currentStep 
-                        ? "bg-primary/80 text-primary-foreground" 
-                        : "bg-muted text-muted-foreground"
-                  )}
-                >
-                  {index + 1}
-                </div>
-                <span className="text-xs mt-1 text-muted-foreground hidden md:block">{step.title}</span>
-                
-                {index < steps.length - 1 && (
-                  <div className="absolute top-5 left-[50%] w-full h-[2px] bg-border">
-                    <div 
-                      className="h-full bg-primary transition-all" 
-                      style={{ 
-                        width: currentStep > index ? "100%" : "0%"
-                      }}
-                    />
-                  </div>
-                )}
+                {step.icon}
               </div>
-            ))}
-          </div>
-        </div>
-        
-        <div className="flex-1 overflow-hidden flex flex-col">
-          {currentStep === 0 && (
-            <div className="flex-1 overflow-hidden flex flex-col p-6 pt-0">
-              {isProcessing ? (
-                <div className="flex-1 flex items-center justify-center">
-                  <div className="flex flex-col items-center">
-                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                    <p className="mt-2">Converting document to PDF...</p>
+              <span className={cn(
+                "text-xs font-medium mt-2",
+                isActive ? "text-primary" : "text-muted-foreground"
+              )}>
+                {step.title}
+              </span>
+              <Progress 
+                value={isCompleted ? 100 : isActive ? 50 : 0} 
+                className="h-1 w-16 mt-1" 
+              />
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+
+  const handleClose = useCallback(() => {
+    if (signatureFields.length > 0 || signers.some(s => s.name || s.email)) {
+      setConfirmCancel(true);
+    } else {
+      onClose();
+    }
+  }, [onClose, signatureFields, signers]);
+
+  return (
+    <>
+      <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
+        <DialogContent className="max-w-[95vw] max-h-[90vh] w-[1200px] p-0 overflow-hidden">
+          <div className="flex flex-col h-full">
+            {/* Header with step progress */}
+            <div className="p-6 border-b">
+              <DialogHeader>
+                <div className="flex items-center">
+                  <FileSignature className="h-6 w-6 text-primary mr-2" />
+                  <DialogTitle className="text-xl">Send "{documentTitle}" for Signature</DialogTitle>
+                </div>
+                <DialogDescription className="mt-1">
+                  {steps[currentStep].description}
+                </DialogDescription>
+              </DialogHeader>
+
+              {renderStepProgress()}
+            </div>
+
+            {/* Main content area */}
+            <div className="flex-1 overflow-hidden flex flex-col">
+              {/* Step 1: Document Review */}
+              {currentStep === 0 && (
+                <div className="flex-1 overflow-hidden p-6 pt-4">
+                  {isProcessing ? (
+                    <div className="flex-1 flex items-center justify-center h-full">
+                      <div className="flex flex-col items-center">
+                        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+                        <p className="mt-4 text-lg">Converting document to PDF...</p>
+                        <p className="text-sm text-muted-foreground mt-2">This may take a moment</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex-1 overflow-hidden flex flex-col h-full bg-muted/5 rounded-lg shadow-inner">
+                      <div className="flex items-center justify-between bg-muted/10 p-3 border-b">
+                        <div className="flex items-center">
+                          <Info className="h-4 w-4 text-muted-foreground mr-2" />
+                          <span className="text-sm text-muted-foreground">
+                            Review the document before proceeding to the next step
+                          </span>
+                        </div>
+                        <div className="text-sm font-medium">
+                          Page {currentPage} of {totalPages}
+                        </div>
+                      </div>
+                      
+                      <div className="flex-1 flex items-center justify-center bg-muted/10 p-6 overflow-auto">
+                        {pdfDataUrl ? (
+                          <div 
+                            className="w-full h-full shadow-lg" 
+                            style={{ maxWidth: '900px', margin: '0 auto' }}
+                          >
+                            <PDFViewer 
+                              pdfUrl={pdfDataUrl} 
+                              className="h-full rounded-lg border shadow-sm bg-white" 
+                              onLoad={() => setDocumentLoaded(true)}
+                            />
+                          </div>
+                        ) : (
+                          <div className="flex flex-col items-center">
+                            <AlertCircle className="h-12 w-12 text-destructive mb-3" />
+                            <p className="text-lg font-medium">Failed to load PDF</p>
+                            <p className="text-muted-foreground mt-1">
+                              The document could not be loaded
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                      
+                      {totalPages > 1 && (
+                        <div className="py-3 px-4 bg-muted/10 border-t">
+                          {renderPaginationControls()}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Step 2: Add Signers */}
+              {currentStep === 1 && (
+                <div className="flex-1 overflow-auto p-6 pt-4">
+                  <div className="bg-background rounded-md border shadow-sm p-6">
+                    <h3 className="text-lg font-medium mb-4 flex items-center">
+                      <Users className="mr-2 h-5 w-5 text-primary" />
+                      Document Signers
+                    </h3>
+                    
+                    <div className="space-y-6">
+                      {signers.map((signer, index) => (
+                        <div key={signer.id} className="flex gap-4 items-start bg-muted/10 p-5 rounded-md border shadow-sm">
+                          <div className="flex-shrink-0 h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-medium">
+                            {index + 1}
+                          </div>
+                          <div className="flex-1 grid gap-4 grid-cols-1 md:grid-cols-2">
+                            <div className="space-y-2">
+                              <Label htmlFor={`name-${signer.id}`}>Full Name</Label>
+                              <Input 
+                                id={`name-${signer.id}`} 
+                                value={signer.name} 
+                                placeholder="John Doe"
+                                className="bg-background"
+                                onChange={(e) => handleSignerChange(signer.id, 'name', e.target.value)} 
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label htmlFor={`email-${signer.id}`}>Email</Label>
+                              <Input 
+                                id={`email-${signer.id}`} 
+                                type="email" 
+                                value={signer.email} 
+                                placeholder="john@example.com"
+                                className="bg-background"
+                                onChange={(e) => handleSignerChange(signer.id, 'email', e.target.value)} 
+                              />
+                            </div>
+                          </div>
+                          <Button 
+                            variant="ghost" 
+                            size="icon"
+                            className="flex-shrink-0 text-muted-foreground hover:text-destructive"
+                            onClick={() => handleRemoveSigner(signer.id)}
+                          >
+                            <Trash2 size={18} />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    <Button 
+                      variant="outline" 
+                      className="mt-6"
+                      onClick={handleAddSigner}
+                    >
+                      <Plus size={16} className="mr-2" />
+                      Add Another Signer
+                    </Button>
+                    
+                    {signers.length > 1 && (
+                      <div className="mt-6 pt-4 border-t">
+                        <div className="flex items-center text-sm bg-primary/5 p-4 rounded-md border border-primary/20">
+                          <Info className="h-5 w-5 text-primary mr-2 flex-shrink-0" />
+                          <span>
+                            Signers will be asked to sign in the order listed above. Each signer will receive an email notification when it's their turn to sign.
+                          </span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
-              ) : (
-                <div className="flex-1 overflow-hidden flex flex-col">
-                  <div className="text-sm text-muted-foreground mb-2 flex items-center justify-between">
-                    <span>Preview of your document</span>
-                    <div className="flex items-center space-x-1">
-                      <span>Page {currentPage} of {totalPages}</span>
+              )}
+
+              {/* Step 3: Place Signatures */}
+              {currentStep === 2 && (
+                <div className="flex-1 overflow-hidden p-6 pt-4 flex flex-col">
+                  <div className="grid grid-cols-12 gap-4 mb-4">
+                    <div className="col-span-8 flex items-center space-x-4">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        className={cn(
+                          isPlacingSignature && "bg-primary/10 border-primary text-primary", 
+                          "shadow-sm transition-all"
+                        )}
+                        onClick={handleAddSignatureField}
+                      >
+                        <Plus size={16} className="mr-2" />
+                        Add Signature Field
+                      </Button>
+                      {isPlacingSignature && (
+                        <span className="text-sm text-primary animate-pulse font-medium">
+                          Click on the document where the signature should appear
+                        </span>
+                      )}
+                    </div>
+                    <div className="col-span-4">
+                      <div className="flex items-center justify-end space-x-2">
+                        <span className="text-sm text-muted-foreground">Current signer:</span>
+                        <select 
+                          className="h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm"
+                          value={currentSignerId || ''}
+                          onChange={(e) => setCurrentSignerId(e.target.value)}
+                        >
+                          {signers.map((signer) => (
+                            <option key={signer.id} value={signer.id}>
+                              {signer.name || `Signer ${signers.findIndex(s => s.id === signer.id) + 1}`}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
                     </div>
                   </div>
                   
-                  <div className="flex-1 overflow-auto bg-muted/30 rounded-md relative">
+                  <div className="flex-1 overflow-auto relative border rounded-md shadow-sm bg-muted/5">
                     {pdfDataUrl ? (
-                      <div className="h-full flex flex-col">
-                        <div className="flex-1 relative">
+                      <div className="relative w-full h-full flex flex-col">
+                        <div
+                          className="flex-1 relative"
+                          onClick={(e) => handlePDFClick(e, currentPage)}
+                        >
                           <PDFViewer pdfUrl={pdfDataUrl} className="w-full h-full" />
+                          
+                          {getPageSignatureFields().map((field) => (
+                            <div 
+                              key={field.id}
+                              className="absolute border-2 border-primary bg-primary/10 rounded-md flex items-center justify-center cursor-pointer hover:bg-primary/20 transition-all shadow-sm"
+                              style={{
+                                left: `${field.x}%`,
+                                top: `${field.y}%`,
+                                width: `${field.width}%`,
+                                height: `${field.height}%`,
+                              }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleRemoveSignatureField(field.id);
+                              }}
+                            >
+                              <span className="text-xs truncate px-1 text-primary font-medium">
+                                {signers.find(s => s.id === field.signerId)?.name || "Signature"}
+                              </span>
+                            </div>
+                          ))}
                         </div>
                         
                         {totalPages > 1 && (
-                          <div className="py-2 bg-background border-t">
-                            <Pagination>
-                              <PaginationContent>
-                                <PaginationItem>
-                                  <PaginationPrevious 
-                                    onClick={handlePrevPage}
-                                    className={cn(currentPage === 1 && "pointer-events-none opacity-50")}
-                                  />
-                                </PaginationItem>
-                                
-                                {Array.from({length: totalPages}).map((_, i) => (
-                                  <PaginationItem key={i}>
-                                    <PaginationLink 
-                                      onClick={() => setCurrentPage(i + 1)}
-                                      isActive={currentPage === i + 1}
-                                    >
-                                      {i + 1}
-                                    </PaginationLink>
-                                  </PaginationItem>
-                                ))}
-                                
-                                <PaginationItem>
-                                  <PaginationNext 
-                                    onClick={handleNextPage}
-                                    className={cn(currentPage === totalPages && "pointer-events-none opacity-50")}
-                                  />
-                                </PaginationItem>
-                              </PaginationContent>
-                            </Pagination>
+                          <div className="py-3 px-4 bg-muted/10 border-t">
+                            {renderPaginationControls()}
                           </div>
                         )}
                       </div>
                     ) : (
                       <div className="flex items-center justify-center h-full">
                         <div className="flex flex-col items-center">
-                          <AlertCircle className="h-8 w-8 text-destructive" />
-                          <p className="mt-2">Failed to load PDF</p>
+                          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                          <p className="mt-2">Loading document...</p>
                         </div>
                       </div>
                     )}
                   </div>
-                </div>
-              )}
-            </div>
-          )}
-          
-          {currentStep === 1 && (
-            <div className="flex-1 overflow-auto p-6 pt-0">
-              <div className="bg-background rounded-md border p-6 shadow-sm">
-                <h3 className="text-base font-medium mb-4 flex items-center">
-                  <Users className="mr-2 h-5 w-5 text-primary" />
-                  Document Signers
-                </h3>
-                
-                <div className="space-y-6">
-                  {signers.map((signer, index) => (
-                    <div key={signer.id} className="flex gap-4 items-start bg-muted/30 p-4 rounded-md">
-                      <div className="flex-shrink-0 h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-medium">
-                        {index + 1}
-                      </div>
-                      <div className="flex-1 grid gap-4 grid-cols-1 md:grid-cols-2">
-                        <div className="space-y-2">
-                          <Label htmlFor={`name-${signer.id}`}>Full Name</Label>
-                          <Input 
-                            id={`name-${signer.id}`} 
-                            value={signer.name} 
-                            placeholder="John Doe"
-                            className="bg-background"
-                            onChange={(e) => handleSignerChange(signer.id, 'name', e.target.value)} 
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor={`email-${signer.id}`}>Email</Label>
-                          <Input 
-                            id={`email-${signer.id}`} 
-                            type="email" 
-                            value={signer.email} 
-                            placeholder="john@example.com"
-                            className="bg-background"
-                            onChange={(e) => handleSignerChange(signer.id, 'email', e.target.value)} 
-                          />
-                        </div>
-                      </div>
+                  
+                  {signatureFields.length > 0 && (
+                    <div className="mt-4 bg-muted/10 p-4 rounded-md border shadow-sm flex items-center">
+                      <FileCheck className="h-5 w-5 text-primary mr-2" />
+                      <span className="text-sm">
+                        {signatureFields.length} signature {signatureFields.length === 1 ? 'field' : 'fields'} placed 
+                        across {new Set(signatureFields.map(f => f.pageNumber)).size} {new Set(signatureFields.map(f => f.pageNumber)).size === 1 ? 'page' : 'pages'}
+                      </span>
                       <Button 
                         variant="ghost" 
-                        size="icon"
-                        className="flex-shrink-0 text-muted-foreground hover:text-destructive"
-                        onClick={() => handleRemoveSigner(signer.id)}
+                        size="sm" 
+                        className="ml-auto text-xs"
+                        onClick={() => setShowSignerSheet(true)}
                       >
-                        <Trash2 size={18} />
+                        View Details
                       </Button>
                     </div>
-                  ))}
+                  )}
                 </div>
-                
-                <Button 
-                  variant="outline" 
-                  className="mt-6"
-                  onClick={handleAddSigner}
-                >
-                  <Plus size={16} className="mr-2" />
-                  Add Another Signer
-                </Button>
-                
-                {signers.length > 1 && (
-                  <div className="mt-6 pt-4 border-t">
-                    <div className="flex items-center text-sm bg-primary/5 p-3 rounded-md">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                        className="h-5 w-5 text-primary mr-2 flex-shrink-0"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                      <span>
-                        Signers will be asked to sign in the order listed above.
-                      </span>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-          
-          {currentStep === 2 && (
-            <div className="flex-1 overflow-hidden flex flex-col p-6 pt-0">
-              <div className="grid grid-cols-3 gap-4 mb-4">
-                <div className="col-span-2">
-                  <div className="flex items-center space-x-4">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      className={cn(isPlacingSignature && "bg-primary/20 border-primary")}
-                      onClick={handleAddSignatureField}
-                    >
-                      <Plus size={16} className="mr-2" />
-                      Add Signature Field
-                    </Button>
-                    {isPlacingSignature && (
-                      <span className="text-xs text-primary animate-pulse font-medium">
-                        Click on the document where signature should appear
-                      </span>
-                    )}
-                  </div>
-                </div>
-                <div>
-                  <div className="flex items-center justify-end space-x-2">
-                    <span className="text-sm text-muted-foreground">Current signer:</span>
-                    <select 
-                      className="h-9 rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background"
-                      value={currentSignerId || ''}
-                      onChange={(e) => setCurrentSignerId(e.target.value)}
-                    >
-                      {signers.map((signer) => (
-                        <option key={signer.id} value={signer.id}>
-                          {signer.name || `Signer ${signers.findIndex(s => s.id === signer.id) + 1}`}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="flex-1 overflow-auto relative border rounded-md bg-muted/30">
-                {pdfDataUrl ? (
-                  <div className="relative w-full h-full flex flex-col">
-                    <div
-                      className="flex-1 relative"
-                      onClick={(e) => handlePDFClick(e, currentPage)}
-                    >
-                      <PDFViewer pdfUrl={pdfDataUrl} className="w-full h-full" />
-                      
-                      {getPageSignatureFields().map((field) => (
-                        <div 
-                          key={field.id}
-                          className="absolute border-2 border-primary bg-primary/10 rounded-md flex items-center justify-center cursor-pointer hover:bg-primary/20 transition-colors"
-                          style={{
-                            left: `${field.x}%`,
-                            top: `${field.y}%`,
-                            width: `${field.width}%`,
-                            height: `${field.height}%`,
-                          }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleRemoveSignatureField(field.id);
-                          }}
-                        >
-                          <span className="text-xs truncate px-1 text-primary font-medium">
-                            {signers.find(s => s.id === field.signerId)?.name || "Signature"}
-                          </span>
-                        </div>
-                      ))}
+              )}
+
+              {/* Step 4: Send Document */}
+              {currentStep === 3 && (
+                <div className="flex-1 overflow-auto p-6 pt-4">
+                  <div className="space-y-6">
+                    <div className="bg-muted/5 rounded-md p-5 border shadow-sm">
+                      <h3 className="text-lg font-medium flex items-center">
+                        <FileCheck size={20} className="mr-2 text-primary" /> 
+                        Document Summary
+                      </h3>
+                      <div className="mt-2 space-y-1 text-sm">
+                        <p><span className="font-medium">Title:</span> {documentTitle}</p>
+                        <p><span className="font-medium">Pages:</span> {totalPages}</p>
+                        <p>
+                          <span className="font-medium">Signature Fields:</span> {signatureFields.length} fields across {new Set(signatureFields.map(f => f.pageNumber)).size} pages
+                        </p>
+                      </div>
                     </div>
                     
-                    {totalPages > 1 && (
-                      <div className="py-2 bg-background border-t">
-                        <Pagination>
-                          <PaginationContent>
-                            <PaginationItem>
-                              <PaginationPrevious 
-                                onClick={handlePrevPage}
-                                className={cn(currentPage === 1 && "pointer-events-none opacity-50")}
-                              />
-                            </PaginationItem>
-                            
-                            {Array.from({length: totalPages}).map((_, i) => (
-                              <PaginationItem key={i}>
-                                <PaginationLink 
-                                  onClick={() => setCurrentPage(i + 1)}
-                                  isActive={currentPage === i + 1}
-                                >
-                                  {i + 1}
-                                </PaginationLink>
-                              </PaginationItem>
-                            ))}
-                            
-                            <PaginationItem>
-                              <PaginationNext 
-                                onClick={handleNextPage}
-                                className={cn(currentPage === totalPages && "pointer-events-none opacity-50")}
-                              />
-                            </PaginationItem>
-                          </PaginationContent>
-                        </Pagination>
+                    <div className="bg-muted/5 rounded-md p-5 border shadow-sm">
+                      <h3 className="text-lg font-medium flex items-center">
+                        <Users size={20} className="mr-2 text-primary" /> 
+                        Signers ({signers.length})
+                      </h3>
+                      <div className="mt-3 space-y-3">
+                        {signers.map((signer, index) => (
+                          <div key={signer.id} className="flex items-center bg-background p-4 rounded-md shadow-sm border">
+                            <span className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-xs text-primary font-medium mr-3">
+                              {index + 1}
+                            </span>
+                            <div>
+                              <p className="font-medium">{signer.name}</p>
+                              <p className="text-sm text-muted-foreground">{signer.email}</p>
+                            </div>
+                            <div className="ml-auto text-sm bg-muted/20 py-1 px-2 rounded-md">
+                              {signatureFields.filter(f => f.signerId === signer.id).length} signature fields
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                    )}
-                  </div>
-                ) : (
-                  <div className="flex items-center justify-center h-full">
-                    <div className="flex flex-col items-center">
-                      <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                      <p className="mt-2">Loading document...</p>
+                    </div>
+                    
+                    <div className="bg-primary/5 p-5 rounded-md border border-primary/20 shadow-sm">
+                      <h3 className="text-lg font-medium flex items-center">
+                        <Mail size={20} className="mr-2 text-primary" /> Email Notification
+                      </h3>
+                      <p className="mt-2 text-sm">
+                        Each signer will receive an email with instructions to view and sign this document online.
+                        {signers.length > 1 && " Signers will be notified in the order listed above."}
+                      </p>
+                      <div className="mt-4 bg-background p-4 rounded-md text-sm border shadow-sm">
+                        <p className="font-medium">Email Preview</p>
+                        <div className="mt-2 text-muted-foreground">
+                          <p>Subject: Please sign: {documentTitle}</p>
+                          <p className="mt-1">Hi [Signer Name],</p>
+                          <p className="mt-1">You have been requested to sign a document: {documentTitle}.</p>
+                          <p className="mt-1">Click the button below to review and sign the document.</p>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                )}
-              </div>
-              
-              {signatureFields.length > 0 && (
-                <div className="mt-4 bg-muted/30 p-3 rounded-md flex items-center">
-                  <FileCheck className="h-5 w-5 text-primary mr-2" />
-                  <span className="text-sm">
-                    {signatureFields.length} signature {signatureFields.length === 1 ? 'field' : 'fields'} placed 
-                    across {new Set(signatureFields.map(f => f.pageNumber)).size} {new Set(signatureFields.map(f => f.pageNumber)).size === 1 ? 'page' : 'pages'}
-                  </span>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="ml-auto text-xs"
-                    onClick={() => setShowSignerSheet(true)}
-                  >
-                    View Details
-                  </Button>
                 </div>
               )}
             </div>
-          )}
-          
-          {currentStep === 3 && (
-            <div className="flex-1 overflow-auto p-6 pt-0">
-              <div className="space-y-6">
-                <div className="bg-muted/20 rounded-md p-5 border">
-                  <h3 className="text-lg font-medium flex items-center">
-                    <FileCheck size={20} className="mr-2 text-primary" /> 
-                    Document Summary
-                  </h3>
-                  <div className="mt-2 space-y-1 text-sm">
-                    <p><span className="font-medium">Title:</span> {documentTitle}</p>
-                    <p><span className="font-medium">Pages:</span> {totalPages}</p>
-                    <p>
-                      <span className="font-medium">Signature Fields:</span> {signatureFields.length} fields across {new Set(signatureFields.map(f => f.pageNumber)).size} pages
-                    </p>
-                  </div>
-                </div>
-                
-                <div className="bg-muted/20 rounded-md p-5 border">
-                  <h3 className="text-lg font-medium flex items-center">
-                    <Users size={20} className="mr-2 text-primary" /> 
-                    Signers ({signers.length})
-                  </h3>
-                  <div className="mt-3 space-y-3">
-                    {signers.map((signer, index) => (
-                      <div key={signer.id} className="flex items-center bg-background p-3 rounded-md">
-                        <span className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-xs text-primary font-medium mr-3">
-                          {index + 1}
-                        </span>
-                        <div>
-                          <p className="font-medium">{signer.name}</p>
-                          <p className="text-sm text-muted-foreground">{signer.email}</p>
-                        </div>
-                        <div className="ml-auto text-sm text-muted-foreground">
-                          {signatureFields.filter(f => f.signerId === signer.id).length} signature fields
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                
-                <div className="bg-primary/5 p-5 rounded-md border border-primary/20">
-                  <h3 className="text-lg font-medium flex items-center">
-                    <Mail size={20} className="mr-2 text-primary" /> Email Notification
-                  </h3>
-                  <p className="mt-2 text-sm">
-                    Each signer will receive an email with instructions to view and sign this document online.
-                    {signers.length > 1 && " Signers will be notified in the order listed above."}
-                  </p>
-                  <div className="mt-4 bg-background p-3 rounded-md text-sm border">
-                    <p className="font-medium">Email Preview</p>
-                    <div className="mt-2 text-muted-foreground">
-                      <p>Subject: Please sign: {documentTitle}</p>
-                      <p className="mt-1">Hi [Signer Name],</p>
-                      <p className="mt-1">You have been requested to sign a document: {documentTitle}.</p>
-                      <p className="mt-1">Click the button below to review and sign the document.</p>
-                    </div>
-                  </div>
-                </div>
+            
+            {/* Footer navigation */}
+            <DialogFooter className="flex items-center justify-between p-6 border-t mt-auto bg-muted/5">
+              <div>
+                {currentStep > 0 && (
+                  <Button variant="outline" onClick={prevStep} className="shadow-sm">
+                    <ChevronLeft className="mr-1 h-4 w-4" /> Back
+                  </Button>
+                )}
               </div>
-            </div>
-          )}
-        </div>
-        
-        <DialogFooter className="flex items-center justify-between p-6 border-t mt-auto">
-          <div>
-            {currentStep > 0 && (
-              <Button variant="outline" onClick={prevStep}>
-                <ChevronLeft className="mr-1 h-4 w-4" /> Back
-              </Button>
-            )}
+              <div>
+                {currentStep < steps.length - 1 ? (
+                  <Button 
+                    onClick={nextStep} 
+                    variant="default"
+                    disabled={currentStep === 0 && (!pdfDataUrl || !documentLoaded)}
+                    className="shadow-sm"
+                  >
+                    Continue <ChevronRight className="ml-1 h-4 w-4" />
+                  </Button>
+                ) : (
+                  <Button 
+                    onClick={handleSendForSignature} 
+                    disabled={isProcessing}
+                    className="bg-primary shadow-sm"
+                  >
+                    {isProcessing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    <Send size={16} className="mr-2" />
+                    Send for Signature
+                  </Button>
+                )}
+              </div>
+            </DialogFooter>
           </div>
-          <div>
-            {currentStep < steps.length - 1 ? (
-              <Button onClick={nextStep} variant="default">
-                Continue <ChevronRight className="ml-1 h-4 w-4" />
-              </Button>
-            ) : (
-              <Button 
-                onClick={handleSendForSignature} 
-                disabled={isProcessing}
-                className="bg-primary"
-              >
-                {isProcessing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                <Send size={16} className="mr-2" />
-                Send for Signature
-              </Button>
-            )}
-          </div>
-        </DialogFooter>
-      </DialogContent>
+        </DialogContent>
+      </Dialog>
 
       {/* Side sheet for signature field details */}
       <Sheet open={showSignerSheet} onOpenChange={setShowSignerSheet}>
@@ -806,9 +923,9 @@ export const SignatureRequestModal: React.FC<SignatureRequestModalProps> = ({
                     
                     <div className="pl-8 space-y-3">
                       {signerFields.map((field) => (
-                        <div key={field.id} className="bg-muted/30 p-3 rounded-md flex items-center">
+                        <div key={field.id} className="bg-muted/10 p-4 rounded-md border shadow-sm flex items-center">
                           <div className="flex-1">
-                            <p className="text-sm">Signature Field</p>
+                            <p className="text-sm font-medium">Signature Field</p>
                             <p className="text-xs text-muted-foreground">Page {field.pageNumber}</p>
                           </div>
                           <Button 
@@ -836,7 +953,7 @@ export const SignatureRequestModal: React.FC<SignatureRequestModalProps> = ({
             <div className="p-6 border-t">
               <Button 
                 variant="outline" 
-                className="w-full" 
+                className="w-full shadow-sm" 
                 onClick={() => setShowSignerSheet(false)}
               >
                 Close
@@ -845,6 +962,24 @@ export const SignatureRequestModal: React.FC<SignatureRequestModalProps> = ({
           </div>
         </SheetContent>
       </Sheet>
-    </Dialog>
+
+      {/* Cancel confirmation dialog */}
+      <AlertDialog open={confirmCancel} onOpenChange={setConfirmCancel}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Cancel signature request?</AlertDialogTitle>
+            <AlertDialogDescription>
+              You have unsaved changes. Are you sure you want to exit? All signature fields and signer information will be lost.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Continue Editing</AlertDialogCancel>
+            <AlertDialogAction onClick={onClose} className="bg-destructive">
+              Discard Changes
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 };
