@@ -15,6 +15,10 @@ import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { nanoid } from "@/lib/utils";
+import { Database } from "@/integrations/supabase/types";
+
+type SignatureRequestStatus = Database["public"]["Enums"]["signature_request_status"];
+type SignerStatus = Database["public"]["Enums"]["signer_status"];
 
 interface Signer {
   id: string;
@@ -199,7 +203,7 @@ export const SignatureRequestModal: React.FC<SignatureRequestModalProps> = ({
           document_id: nanoid(),
           requestor_id: user.id,
           title: documentTitle,
-          status: 'draft',
+          status: "draft" as SignatureRequestStatus,
           signing_type: signers.length > 1 ? 'sequential' : 'simple',
           metadata: { original_content: documentContent }
         })
@@ -215,7 +219,7 @@ export const SignatureRequestModal: React.FC<SignatureRequestModalProps> = ({
         signer_name: signer.name,
         signer_email: signer.email,
         signing_order: index + 1,
-        status: 'pending'
+        status: "pending" as SignerStatus
       }));
       
       const { data: signersData, error: signersError } = await supabase
@@ -253,6 +257,15 @@ export const SignatureRequestModal: React.FC<SignatureRequestModalProps> = ({
         
       if (fieldsError) {
         throw new Error(`Failed to add signature fields: ${fieldsError.message}`);
+      }
+      
+      const { error: updateError } = await supabase
+        .from('signature_requests')
+        .update({ status: "pending" as SignatureRequestStatus })
+        .eq('id', requestData.id);
+        
+      if (updateError) {
+        throw new Error(`Failed to update request status: ${updateError.message}`);
       }
       
       const { data: emailData, error: emailError } = await supabase.functions.invoke('send-signature-request', {

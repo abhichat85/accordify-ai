@@ -63,10 +63,10 @@ const handler = async (req: Request): Promise<Response> => {
     // In a production environment, we would send emails to all signers here
     // For now, we'll just simulate this process and update the database
 
-    // Update the request status to 'sent'
+    // Update the request status to 'pending' from draft
     const { error: updateError } = await supabaseClient
       .from('signature_requests')
-      .update({ status: 'sent' })
+      .update({ status: 'pending' }) // Using the correct enum value
       .eq('id', signatureRequestId);
 
     if (updateError) {

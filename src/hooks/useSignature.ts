@@ -2,6 +2,11 @@
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { Database } from "@/integrations/supabase/types";
+
+// Define the allowed status values based on the database schema
+type SignatureRequestStatus = Database["public"]["Enums"]["signature_request_status"];
+type SignerStatus = Database["public"]["Enums"]["signer_status"];
 
 export interface SignatureRequestData {
   documentId: string;
@@ -38,7 +43,7 @@ export const useSignature = () => {
           document_id: data.documentId,
           requestor_id: (await supabase.auth.getUser()).data.user?.id,
           title: data.title,
-          status: 'sent',
+          status: "pending" as SignatureRequestStatus, // Use the correct enum value
           signing_type: data.signers.length > 1 ? 'sequential' : 'simple',
           metadata: { original_content: data.content }
         })
@@ -55,7 +60,7 @@ export const useSignature = () => {
         signer_name: signer.name,
         signer_email: signer.email,
         signing_order: index + 1,
-        status: 'pending'
+        status: "pending" as SignerStatus // Use the correct enum value
       }));
       
       const { data: signersData, error: signersError } = await supabase
