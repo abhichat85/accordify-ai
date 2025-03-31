@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+
+import React, { useState, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { 
   FileText, 
@@ -14,7 +15,10 @@ import {
   CreditCard,
   Sparkles,
   MessageSquare,
-  FileSignature
+  FileSignature,
+  Home,
+  BarChart3,
+  Shield
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -30,6 +34,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useNavigate } from "react-router-dom";
 import { NotificationPanel } from "./NotificationPanel";
 import { ThemeSwitcher } from "@/components/ui/theme-switcher";
+import { Badge } from "@/components/ui/badge";
 
 interface TriPanelLayoutProps {
   leftPanel: React.ReactNode;
@@ -47,6 +52,7 @@ export const TriPanelLayout: React.FC<TriPanelLayoutProps> = ({
   const [leftCollapsed, setLeftCollapsed] = useState(false);
   const [rightCollapsed, setRightCollapsed] = useState(false);
   const [notificationPanelOpen, setNotificationPanelOpen] = useState(false);
+  const notificationRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
   const handleNavigate = (path: string) => {
@@ -66,8 +72,8 @@ export const TriPanelLayout: React.FC<TriPanelLayoutProps> = ({
               <MessageSquare size={18} className="text-primary-foreground" />
             </div>
             {!leftCollapsed && (
-              <h1 className="ml-3 text-xl font-bold bg-gradient-to-r from-primary/90 to-primary bg-clip-text text-transparent">
-                Accord AI Agent
+              <h1 className="ml-3 text-xl font-semibold bg-gradient-to-r from-primary/90 to-primary bg-clip-text text-transparent">
+                Accord AI
               </h1>
             )}
           </div>
@@ -77,27 +83,40 @@ export const TriPanelLayout: React.FC<TriPanelLayoutProps> = ({
           </Button>
         </div>
         
-        <ScrollArea className="flex-grow">
+        <ScrollArea className="flex-grow styled-scrollbar">
           <div className={cn("py-4 px-3", leftCollapsed ? "items-center" : "")}>
             <div className="mb-6">
               <h3 className={cn(
-                "text-xs font-medium text-muted-foreground mb-2",
+                "text-xs uppercase tracking-wider font-semibold text-muted-foreground mb-3",
                 leftCollapsed ? "text-center" : "px-2"
               )}>
                 {!leftCollapsed && "MAIN"}
               </h3>
               
-              <nav className="space-y-1">
+              <nav className="space-y-1.5">
                 <Button 
                   variant="ghost" 
                   size="sm" 
                   className={cn(
-                    "w-full justify-start rounded-lg gap-2 font-normal",
+                    "w-full justify-start rounded-lg gap-3 font-medium hover:bg-primary/10",
+                    leftCollapsed ? "justify-center px-2" : ""
+                  )}
+                  onClick={() => handleNavigate("/app")}
+                >
+                  <Home size={leftCollapsed ? 18 : 16} className="text-primary/80" />
+                  {!leftCollapsed && <span>Dashboard</span>}
+                </Button>
+                
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className={cn(
+                    "w-full justify-start rounded-lg gap-3 font-medium hover:bg-primary/10",
                     leftCollapsed ? "justify-center px-2" : ""
                   )}
                   onClick={() => handleNavigate("/contracts")}
                 >
-                  <FileText size={leftCollapsed ? 20 : 16} />
+                  <FileText size={leftCollapsed ? 18 : 16} className="text-primary/80" />
                   {!leftCollapsed && <span>Contracts</span>}
                 </Button>
                 
@@ -105,12 +124,12 @@ export const TriPanelLayout: React.FC<TriPanelLayoutProps> = ({
                   variant="ghost" 
                   size="sm" 
                   className={cn(
-                    "w-full justify-start rounded-lg gap-2 font-normal",
+                    "w-full justify-start rounded-lg gap-3 font-medium hover:bg-primary/10",
                     leftCollapsed ? "justify-center px-2" : ""
                   )}
                   onClick={() => handleNavigate("/templates")}
                 >
-                  <LayoutTemplate size={leftCollapsed ? 20 : 16} />
+                  <LayoutTemplate size={leftCollapsed ? 18 : 16} className="text-primary/80" />
                   {!leftCollapsed && <span>Templates</span>}
                 </Button>
                 
@@ -118,12 +137,12 @@ export const TriPanelLayout: React.FC<TriPanelLayoutProps> = ({
                   variant="ghost" 
                   size="sm" 
                   className={cn(
-                    "w-full justify-start rounded-lg gap-2 font-normal",
+                    "w-full justify-start rounded-lg gap-3 font-medium hover:bg-primary/10",
                     leftCollapsed ? "justify-center px-2" : ""
                   )}
                   onClick={() => handleNavigate("/history")}
                 >
-                  <History size={leftCollapsed ? 20 : 16} />
+                  <History size={leftCollapsed ? 18 : 16} className="text-primary/80" />
                   {!leftCollapsed && <span>History</span>}
                 </Button>
                 
@@ -131,12 +150,12 @@ export const TriPanelLayout: React.FC<TriPanelLayoutProps> = ({
                   variant="ghost" 
                   size="sm" 
                   className={cn(
-                    "w-full justify-start rounded-lg gap-2 font-normal",
+                    "w-full justify-start rounded-lg gap-3 font-medium hover:bg-primary/10",
                     leftCollapsed ? "justify-center px-2" : ""
                   )}
                   onClick={() => handleNavigate("/signatures")}
                 >
-                  <FileSignature size={leftCollapsed ? 20 : 16} />
+                  <FileSignature size={leftCollapsed ? 18 : 16} className="text-primary/80" />
                   {!leftCollapsed && <span>E-Signatures</span>}
                 </Button>
               </nav>
@@ -144,23 +163,23 @@ export const TriPanelLayout: React.FC<TriPanelLayoutProps> = ({
             
             <div className="mb-6">
               <h3 className={cn(
-                "text-xs font-medium text-muted-foreground mb-2",
+                "text-xs uppercase tracking-wider font-semibold text-muted-foreground mb-3",
                 leftCollapsed ? "text-center" : "px-2"
               )}>
                 {!leftCollapsed && "WORKSPACE"}
               </h3>
               
-              <nav className="space-y-1">
+              <nav className="space-y-1.5">
                 <Button 
                   variant="ghost" 
                   size="sm" 
                   className={cn(
-                    "w-full justify-start rounded-lg gap-2 font-normal",
+                    "w-full justify-start rounded-lg gap-3 font-medium hover:bg-primary/10",
                     leftCollapsed ? "justify-center px-2" : ""
                   )}
                   onClick={() => handleNavigate("/workspaces")}
                 >
-                  <Briefcase size={leftCollapsed ? 20 : 16} />
+                  <Briefcase size={leftCollapsed ? 18 : 16} className="text-primary/80" />
                   {!leftCollapsed && <span>Workspaces</span>}
                 </Button>
 
@@ -168,46 +187,44 @@ export const TriPanelLayout: React.FC<TriPanelLayoutProps> = ({
                   variant="ghost" 
                   size="sm" 
                   className={cn(
-                    "w-full justify-start rounded-lg gap-2 font-normal",
+                    "w-full justify-start rounded-lg gap-3 font-medium hover:bg-primary/10",
                     leftCollapsed ? "justify-center px-2" : ""
                   )}
                   onClick={() => handleNavigate("/team")}
                 >
-                  <Users size={leftCollapsed ? 20 : 16} />
+                  <Users size={leftCollapsed ? 18 : 16} className="text-primary/80" />
                   {!leftCollapsed && <span>Team</span>}
                 </Button>
               </nav>
             </div>
             
-            <div className="mb-6">
-              <h3 className={cn(
-                "text-xs font-medium text-muted-foreground mb-2",
-                leftCollapsed ? "text-center" : "px-2"
-              )}>
-                {!leftCollapsed && "RECENT"}
-              </h3>
-              
-              <div className="space-y-1">
-                {!leftCollapsed && Array.from({ length: 3 }).map((_, i) => (
-                  <Button 
-                    key={i}
-                    variant="ghost" 
-                    size="sm" 
-                    className="w-full justify-start rounded-lg text-xs overflow-hidden text-ellipsis whitespace-nowrap"
-                    onClick={() => handleNavigate(`/contracts/nda-${i+1}`)}
-                  >
-                    <FileText size={14} className="mr-2 shrink-0" />
-                    <span>NDA - XYZ Company {i + 1}</span>
-                  </Button>
-                ))}
+            {!leftCollapsed && (
+              <div className="mb-6">
+                <h3 className="text-xs uppercase tracking-wider font-semibold text-muted-foreground mb-3 px-2">
+                  RECENT
+                </h3>
                 
-                {leftCollapsed && (
-                  <div className="flex justify-center">
-                    <FileText size={20} className="text-muted-foreground" />
-                  </div>
-                )}
+                <div className="space-y-1.5">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <Button 
+                      key={i}
+                      variant="ghost" 
+                      size="sm" 
+                      className="w-full justify-start rounded-lg text-xs overflow-hidden text-ellipsis whitespace-nowrap font-medium hover:bg-primary/10"
+                      onClick={() => handleNavigate(`/contracts/nda-${i+1}`)}
+                    >
+                      <FileText size={14} className="mr-3 shrink-0 text-primary/80" />
+                      <span>NDA - XYZ Company {i + 1}</span>
+                    </Button>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
+            {leftCollapsed && (
+              <div className="flex justify-center mt-6">
+                <FileText size={18} className="text-muted-foreground" />
+              </div>
+            )}
           </div>
         </ScrollArea>
         
@@ -217,7 +234,7 @@ export const TriPanelLayout: React.FC<TriPanelLayoutProps> = ({
             size={leftCollapsed ? "icon" : "lg"}
             className={cn(
               "w-full rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 font-semibold",
-              leftCollapsed ? "aspect-square p-0 h-10 w-10" : "h-12"
+              leftCollapsed ? "aspect-square p-0 h-10 w-10" : "h-11"
             )}
             onClick={() => handleNavigate("/pricing")}
           >
@@ -236,15 +253,23 @@ export const TriPanelLayout: React.FC<TriPanelLayoutProps> = ({
           <div className="flex items-center justify-between">
             <ThemeSwitcher />
             
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="rounded-full relative"
-              onClick={() => setNotificationPanelOpen(!notificationPanelOpen)}
-            >
-              <Bell size={18} />
-              <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full"></span>
-            </Button>
+            <div ref={notificationRef} className="relative">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="rounded-full relative"
+                onClick={() => setNotificationPanelOpen(!notificationPanelOpen)}
+              >
+                <Bell size={18} />
+                <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full"></span>
+              </Button>
+              
+              {notificationPanelOpen && (
+                <div className="absolute bottom-full mb-2 right-0 w-96 shadow-lg z-50">
+                  <NotificationPanel />
+                </div>
+              )}
+            </div>
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -289,12 +314,6 @@ export const TriPanelLayout: React.FC<TriPanelLayoutProps> = ({
         rightCollapsed ? "pr-0" : "pr-0"
       )}>
         {centerPanel}
-        
-        {notificationPanelOpen && (
-          <div className="absolute top-16 right-4 w-96 h-[80vh] z-50 shadow-lg">
-            <NotificationPanel />
-          </div>
-        )}
       </div>
       
       <div className={cn(

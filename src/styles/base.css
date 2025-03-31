@@ -9,7 +9,7 @@
   }
   
   html, body {
-    @apply w-full h-full m-0 p-0;
+    @apply w-full h-full m-0 p-0 font-poppins;
   }
   
   body {
@@ -87,7 +87,7 @@
 /* Printed document styling */
 @media print {
   body {
-    font-family: 'Arial', sans-serif;
+    font-family: 'Poppins', 'Arial', sans-serif;
     margin: 1.5cm;
     font-size: 12pt;
     line-height: 1.5;

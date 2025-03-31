@@ -25,6 +25,9 @@ const Signatures = () => {
         <title>E-Signatures | Accord AI</title>
         <meta name="description" content="Manage your e-signatures and document signing workflows with Accord AI." />
         <style>{fullscreenDialogStyles}</style>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
       </Helmet>
       <MainLayout>
         <div className="container mx-auto p-6">
