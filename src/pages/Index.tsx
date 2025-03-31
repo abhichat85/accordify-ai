@@ -10,7 +10,7 @@ const Index = () => {
         <title>Accord AI | Contract Assistant</title>
         <meta name="description" content="AI-powered contract assistant that helps you draft, review, and negotiate contracts with ease." />
       </Helmet>
-      <div className="w-full h-full overflow-hidden">
+      <div className="w-full h-full">
         <MainLayout />
       </div>
     </>

@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { cn } from "@/lib/utils";
 import { 
@@ -55,7 +54,7 @@ export const TriPanelLayout: React.FC<TriPanelLayoutProps> = ({
   };
 
   return (
-    <div className={cn("flex h-screen w-screen overflow-hidden", className)}>
+    <div className={cn("flex h-screen w-screen", className)}>
       {/* Left Panel */}
       <div className={cn(
         "flex flex-col bg-background border-r border-border/40 h-full transition-all duration-300",
@@ -235,7 +234,6 @@ export const TriPanelLayout: React.FC<TriPanelLayoutProps> = ({
         
         <div className="p-3 border-t border-border/40">
           <div className="flex items-center justify-between">
-            {/* Replace the Moon/Sun toggle with our new ThemeSwitcher */}
             <ThemeSwitcher />
             
             <Button 

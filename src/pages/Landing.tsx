@@ -38,7 +38,7 @@ const Landing = () => {
   };
 
   return (
-    <div className="bg-background text-foreground flex flex-col w-full min-h-screen overflow-x-hidden">
+    <div className="bg-background text-foreground flex flex-col w-full min-h-screen overflow-y-auto">
       <Helmet>
         <title>Accord AI | Intelligent Contract Assistant</title>
         <meta name="description" content="AI-powered contract assistant that helps you draft, review, and negotiate contracts with ease. Built with custom SLMs, LoRA fine-tuning, and RAG for superior performance." />
