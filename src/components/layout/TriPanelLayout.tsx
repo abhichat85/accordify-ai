@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { 
@@ -16,7 +15,6 @@ import {
   Sparkles,
   MessageSquare,
   FileSignature,
-  Home,
   BarChart3,
   Shield
 } from "lucide-react";
@@ -102,19 +100,6 @@ export const TriPanelLayout: React.FC<TriPanelLayoutProps> = ({
                     leftCollapsed ? "justify-center px-2" : ""
                   )}
                   onClick={() => handleNavigate("/app")}
-                >
-                  <Home size={leftCollapsed ? 18 : 16} className="text-primary/80" />
-                  {!leftCollapsed && <span>Dashboard</span>}
-                </Button>
-                
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className={cn(
-                    "w-full justify-start rounded-lg gap-3 font-medium hover:bg-primary/10",
-                    leftCollapsed ? "justify-center px-2" : ""
-                  )}
-                  onClick={() => handleNavigate("/contracts")}
                 >
                   <FileText size={leftCollapsed ? 18 : 16} className="text-primary/80" />
                   {!leftCollapsed && <span>Contracts</span>}
