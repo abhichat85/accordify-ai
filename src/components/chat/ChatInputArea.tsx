@@ -3,9 +3,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { 
   ArrowUp, 
   Paperclip, 
-  Image,
-  Sparkles,
-  ChevronDown
+  Image
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -46,6 +44,7 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+  const [textareaHeight, setTextareaHeight] = useState(40); // Initial height
 
   const availableModels = [
     "GPT-4o",
@@ -58,16 +57,21 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
   useEffect(() => {
     if (inputRef.current) {
       inputRef.current.focus();
-      
-      // Auto-resize the textarea based on content
       adjustTextareaHeight();
     }
   }, [inputValue]);
 
   const adjustTextareaHeight = () => {
     if (inputRef.current) {
-      inputRef.current.style.height = "auto";
-      inputRef.current.style.height = `${Math.min(inputRef.current.scrollHeight, 200)}px`;
+      // Reset height to auto to get the correct scrollHeight
+      inputRef.current.style.height = 'auto';
+      
+      // Calculate the new height (constrained between 40px and 150px)
+      const newHeight = Math.max(40, Math.min(inputRef.current.scrollHeight, 150));
+      
+      // Set the new height
+      inputRef.current.style.height = `${newHeight}px`;
+      setTextareaHeight(newHeight);
     }
   };
 
@@ -185,15 +189,16 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
             placeholder="Message Accord AI..."
-            className="min-h-[60px] max-h-[200px] py-4 px-4 flex-1 bg-transparent border-0 focus-visible:ring-0 resize-none overflow-hidden"
+            className="min-h-[40px] max-h-[150px] py-3 px-4 flex-1 bg-transparent border-0 focus-visible:ring-0 resize-none overflow-y-auto styled-scrollbar"
             data-chat-input="true"
             aria-label="chat-input"
+            style={{ height: `${textareaHeight}px` }}
           />
         </div>
 
         {/* Action buttons */}
         <div className="flex items-center justify-between p-2 border-t border-border/40">
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-2">
             {/* File upload button */}
             <input
               type="file"
@@ -206,11 +211,11 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
               type="button"
               variant="ghost"
               size="sm"
-              className="h-8 gap-1.5 text-xs"
+              className="h-8 w-8 p-0 rounded-full"
               onClick={handleFileUpload}
+              aria-label="Attach file"
             >
-              <Paperclip size={16} />
-              <span className="hidden sm:inline">Attach</span>
+              <Paperclip size={18} />
             </Button>
             
             {/* Image upload button */}
@@ -218,24 +223,13 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
               type="button"
               variant="ghost"
               size="sm"
-              className="h-8 gap-1.5 text-xs"
+              className="h-8 w-8 p-0 rounded-full"
+              aria-label="Attach image"
             >
-              <Image size={16} />
-              <span className="hidden sm:inline">Image</span>
+              <Image size={18} />
             </Button>
             
-            {/* Suggestions button */}
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              className="h-8 gap-1.5 text-xs"
-            >
-              <Sparkles size={16} />
-              <span className="hidden sm:inline">Suggest</span>
-            </Button>
-            
-            {/* Model selection dropdown */}
+            {/* Model selection dropdown - moved to the corner */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -244,7 +238,6 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
                   className="h-8 text-xs gap-1 text-muted-foreground hover:text-foreground ml-2"
                 >
                   {selectedModel}
-                  <ChevronDown size={14} />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="w-48 bg-popover">
@@ -269,14 +262,13 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
             type="button"
             size="sm"
             className={cn(
-              "h-8 gap-1.5",
+              "h-8 w-8 p-0 rounded-full",
               !inputValue.trim() && files.length === 0 ? "opacity-50 cursor-not-allowed" : "opacity-100"
             )}
             disabled={!inputValue.trim() && files.length === 0 || isProcessing}
             onClick={handleSubmit}
           >
-            <ArrowUp size={16} />
-            <span className="hidden sm:inline">Send</span>
+            <ArrowUp size={18} />
           </Button>
         </div>
       </div>

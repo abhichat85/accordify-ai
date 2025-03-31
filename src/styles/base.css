@@ -25,12 +25,12 @@
 @layer utilities {
   .styled-scrollbar {
     scrollbar-width: thin;
-    scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+    scrollbar-color: rgba(var(--muted-rgb), 0.4) transparent;
   }
   
   .styled-scrollbar::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
   }
   
   .styled-scrollbar::-webkit-scrollbar-track {
@@ -38,8 +38,8 @@
   }
   
   .styled-scrollbar::-webkit-scrollbar-thumb {
-    background-color: rgba(0, 0, 0, 0.2);
-    border-radius: 4px;
+    background-color: rgba(var(--muted-rgb), 0.4);
+    border-radius: 8px;
   }
 }
 

@@ -26,6 +26,9 @@
   --background-rgb: 255, 255, 255; /* White in RGB */
   --card-rgb: 249, 250, 251;    /* Gray-50 in RGB */
   --border-rgb: 229, 231, 235;  /* Gray-200 in RGB */
+  
+  /* Set Poppins as the primary font family */
+  font-family: 'Poppins', sans-serif;
 }
 
 .dark {
@@ -35,4 +38,9 @@
   --background-rgb: 15, 23, 42;    /* Slate-900 in RGB */
   --card-rgb: 30, 41, 59;         /* Slate-800 in RGB */
   --border-rgb: 51, 65, 85;       /* Slate-700 in RGB */
+}
+
+/* Ensure Poppins is applied to all elements */
+html, body, button, input, textarea, select {
+  font-family: 'Poppins', sans-serif;
 }
