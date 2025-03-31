@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { cn } from "@/lib/utils";
 import { 
@@ -54,7 +55,7 @@ export const TriPanelLayout: React.FC<TriPanelLayoutProps> = ({
   };
 
   return (
-    <div className={cn("flex h-screen overflow-hidden", className)}>
+    <div className={cn("flex h-screen w-screen overflow-hidden", className)}>
       {/* Left Panel */}
       <div className={cn(
         "flex flex-col bg-background border-r border-border/40 h-full transition-all duration-300",

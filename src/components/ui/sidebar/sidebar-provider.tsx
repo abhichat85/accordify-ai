@@ -1,3 +1,4 @@
+
 import * as React from "react";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -73,9 +74,9 @@ export const SidebarProvider = React.forwardRef<
     // This makes it easier to style the sidebar with Tailwind classes.
     const state = open ? "expanded" : "collapsed";
 
-    // Fixed: Using `typeof SidebarContext` to get the correct type
+    // Fixed: Using the correct type for state to avoid the TypeScript error
     const contextValue = React.useMemo(() => ({
-      state,
+      state: state as "expanded" | "collapsed",
       open,
       setOpen,
       isMobile,
@@ -96,7 +97,7 @@ export const SidebarProvider = React.forwardRef<
               } as React.CSSProperties
             }
             className={cn(
-              "group/sidebar-wrapper flex min-h-svh w-full has-[[data-variant=inset]]:bg-sidebar",
+              "group/sidebar-wrapper flex min-h-screen w-full has-[[data-variant=inset]]:bg-sidebar",
               className
             )}
             ref={ref}
