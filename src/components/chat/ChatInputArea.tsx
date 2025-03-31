@@ -1,20 +1,11 @@
 
-import React, { useState, useRef, useEffect } from "react";
-import { 
-  ArrowUp, 
-  Paperclip, 
-  Image
-} from "lucide-react";
+import React, { useRef } from "react";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { FileChips } from "./components/FileChips";
+import { ChatTextArea } from "./components/ChatTextArea";
+import { ActionButtons } from "./components/ActionButtons";
+import { DragOverlay } from "./components/DragOverlay";
 
 interface ChatInputAreaProps {
   inputValue: string;
@@ -41,39 +32,8 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
   selectedModel = "GPT-4o",
   onModelSelect
 }) => {
-  const inputRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
-  const [textareaHeight, setTextareaHeight] = useState(40); // Initial height
-
-  const availableModels = [
-    "GPT-4o",
-    "Claude 3 Opus",
-    "Claude 3 Sonnet",
-    "GPT-4",
-    "GPT-3.5 Turbo"
-  ];
-
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-      adjustTextareaHeight();
-    }
-  }, [inputValue]);
-
-  const adjustTextareaHeight = () => {
-    if (inputRef.current) {
-      // Reset height to auto to get the correct scrollHeight
-      inputRef.current.style.height = 'auto';
-      
-      // Calculate the new height (constrained between 40px and 150px)
-      const newHeight = Math.max(40, Math.min(inputRef.current.scrollHeight, 150));
-      
-      // Set the new height
-      inputRef.current.style.height = `${newHeight}px`;
-      setTextareaHeight(newHeight);
-    }
-  };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -126,12 +86,10 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
     }
   };
 
-  const handleModelSelect = (model: string) => {
-    if (onModelSelect) {
-      onModelSelect(model);
-    }
+  const handleRemoveFile = (index: number) => {
+    setFiles(files.filter((_, i) => i !== index));
   };
-  
+
   return (
     <div className="p-3">
       <div
@@ -143,135 +101,40 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
       >
-        {/* File chips display if files are selected */}
-        {files.length > 0 && (
-          <div className="flex flex-wrap gap-2 p-3 border-b border-border/40">
-            {files.map((file, index) => (
-              <div
-                key={index}
-                className="flex items-center gap-2 px-3 py-1 rounded-full bg-muted/30 text-xs"
-              >
-                {file.type.startsWith("image/") ? (
-                  <Image size={12} />
-                ) : (
-                  <Paperclip size={12} />
-                )}
-                <span className="truncate max-w-[120px]">{file.name}</span>
-                <button
-                  type="button"
-                  className="text-muted-foreground hover:text-foreground"
-                  onClick={() => {
-                    setFiles(files.filter((_, i) => i !== index));
-                  }}
-                >
-                  ×
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
+        {/* File chips display */}
+        <FileChips files={files} onRemoveFile={handleRemoveFile} />
         
         {/* Drag overlay */}
-        {isDragging && (
-          <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-background/80 border-2 border-dashed border-primary z-10">
-            <div className="text-center">
-              <Paperclip className="mx-auto h-8 w-8 text-primary" />
-              <p className="mt-2 text-sm font-medium text-primary">Drop files to upload</p>
-            </div>
-          </div>
-        )}
+        <DragOverlay isDragging={isDragging} />
 
         {/* Text input area */}
         <div className="flex items-end">
-          <Textarea
-            ref={inputRef}
+          <ChatTextArea 
             value={inputValue}
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
-            placeholder="Message Accord AI..."
-            className="min-h-[40px] max-h-[150px] py-3 px-4 flex-1 bg-transparent border-0 focus-visible:ring-0 resize-none overflow-y-auto styled-scrollbar"
-            data-chat-input="true"
-            aria-label="chat-input"
-            style={{ height: `${textareaHeight}px` }}
           />
         </div>
 
         {/* Action buttons */}
-        <div className="flex items-center justify-between p-2 border-t border-border/40">
-          <div className="flex items-center gap-2">
-            {/* File upload button */}
-            <input
-              type="file"
-              ref={fileInputRef}
-              className="hidden"
-              multiple
-              onChange={handleFileInputChange}
-            />
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              className="h-8 w-8 p-0 rounded-full"
-              onClick={handleFileUpload}
-              aria-label="Attach file"
-            >
-              <Paperclip size={18} />
-            </Button>
-            
-            {/* Image upload button */}
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              className="h-8 w-8 p-0 rounded-full"
-              aria-label="Attach image"
-            >
-              <Image size={18} />
-            </Button>
-            
-            {/* Model selection dropdown - moved to the corner */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-8 text-xs gap-1 text-muted-foreground hover:text-foreground ml-2"
-                >
-                  {selectedModel}
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-48 bg-popover">
-                {availableModels.map((model) => (
-                  <DropdownMenuItem 
-                    key={model} 
-                    onClick={() => handleModelSelect(model)}
-                    className={cn(
-                      "cursor-pointer",
-                      model === selectedModel && "font-medium bg-muted"
-                    )}
-                  >
-                    {model}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-          
-          {/* Send button */}
-          <Button
-            type="button"
-            size="sm"
-            className={cn(
-              "h-8 w-8 p-0 rounded-full",
-              !inputValue.trim() && files.length === 0 ? "opacity-50 cursor-not-allowed" : "opacity-100"
-            )}
-            disabled={!inputValue.trim() && files.length === 0 || isProcessing}
-            onClick={handleSubmit}
-          >
-            <ArrowUp size={18} />
-          </Button>
-        </div>
+        <ActionButtons 
+          onFileUpload={handleFileUpload}
+          onSubmit={handleSubmit}
+          isDisabled={!inputValue.trim() && files.length === 0}
+          isProcessing={isProcessing}
+          selectedModel={selectedModel}
+          onModelSelect={onModelSelect}
+        />
       </div>
+      
+      {/* Hidden file input */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        className="hidden"
+        multiple
+        onChange={handleFileInputChange}
+      />
     </div>
   );
 };
