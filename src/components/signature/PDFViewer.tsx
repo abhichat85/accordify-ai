@@ -51,6 +51,11 @@ export const PDFViewer: React.FC<PDFViewerProps> = ({
   const handleMaximize = useCallback(() => {
     if (onMaximize) onMaximize();
   }, [onMaximize]);
+
+  const handleIframeLoad = useCallback(() => {
+    setIsLoading(false);
+    if (onLoad) onLoad();
+  }, [onLoad]);
   
   if (!isPdfUrl) {
     return (
@@ -151,17 +156,15 @@ export const PDFViewer: React.FC<PDFViewerProps> = ({
           >
             <iframe
               ref={iframeRef}
-              src={`${pdfUrl}#toolbar=0&navpanes=0&view=FitH`}
+              src={pdfUrl}
               title="PDF Document Viewer"
               className="w-full h-full bg-white rounded-md border shadow-md"
               style={{ 
                 minHeight: '100%',
                 display: 'block'
               }}
-              onLoad={() => {
-                setIsLoading(false);
-                if (onLoad) onLoad();
-              }}
+              onLoad={handleIframeLoad}
+              sandbox="allow-forms allow-scripts allow-same-origin allow-popups"
             />
           </div>
         </div>
