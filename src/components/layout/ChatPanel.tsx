@@ -56,9 +56,9 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
   }, []);
   
   return (
-    <div className="flex flex-col h-full overflow-hidden border border-border/40 shadow-sm bg-[#282828]">
-      {/* Header styled like Cascade */}
-      <div className="flex items-center justify-between px-4 py-2 border-b border-border/40 bg-[#1F1F1F]">
+    <div className="flex flex-col h-full overflow-hidden border border-border/40 shadow-sm bg-background">
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-2 border-b border-border/40 bg-background/90">
         <div className="flex items-center">
           <h2 className="text-base font-medium text-foreground">Accord AI | {activeMode === "write" ? "Write mode" : "Chat mode"} (⌘.)</h2>
         </div>
@@ -72,7 +72,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
         </div>
       </div>
       
-      {/* Main content area with Cascade-like styling */}
+      {/* Main content area */}
       <div className="flex-grow flex flex-col h-full relative">
         <div className="flex-grow overflow-hidden">
           <Tabs value={activeTab} className="h-full">
@@ -80,10 +80,10 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
               <div className="h-full m-0 p-0 flex flex-col">
                 {messages.length === 0 && (
                   <>
-                    {/* Cascade-like logo section */}
+                    {/* Logo section */}
                     <div className="flex flex-col items-center justify-center py-8">
-                      <div className="h-16 w-16 rounded-full bg-[#282828] border-4 border-[#3A3A3A] flex items-center justify-center mb-4">
-                        <div className="h-10 w-10 rounded-full border-t-4 border-r-4 border-[#7c3aed] border-b-4 border-l-4 border-[#3A3A3A] animate-spin-slow"></div>
+                      <div className="h-16 w-16 rounded-full bg-secondary border-4 border-muted flex items-center justify-center mb-4">
+                        <div className="h-10 w-10 rounded-full border-t-4 border-r-4 border-primary border-b-4 border-l-4 border-muted animate-spin-slow"></div>
                       </div>
                       <h2 className="text-xl font-semibold text-foreground mb-1 text-center">Write with Accord AI</h2>
                       <p className="text-sm text-muted-foreground text-center px-6">
@@ -116,7 +116,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
       </div>
       
       {/* Disclaimer */}
-      <div className="px-4 py-2 border-t border-border/40 bg-[#1F1F1F] text-xs text-muted-foreground">
+      <div className="px-4 py-2 border-t border-border/40 bg-background/90 text-xs text-muted-foreground">
         <p>AI may make mistakes. Double-check all generated code.</p>
       </div>
     </div>

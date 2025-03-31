@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { 
@@ -86,7 +87,7 @@ export const TriPanelLayout: React.FC<TriPanelLayoutProps> = ({
             <div className="mb-6">
               <h3 className={cn(
                 "text-xs uppercase tracking-wider font-semibold text-muted-foreground mb-3",
-                leftCollapsed ? "text-center" : "px-2"
+                leftCollapsed ? "px-2" : "px-2"
               )}>
                 {!leftCollapsed && "MAIN"}
               </h3>
@@ -149,7 +150,7 @@ export const TriPanelLayout: React.FC<TriPanelLayoutProps> = ({
             <div className="mb-6">
               <h3 className={cn(
                 "text-xs uppercase tracking-wider font-semibold text-muted-foreground mb-3",
-                leftCollapsed ? "text-center" : "px-2"
+                leftCollapsed ? "px-2" : "px-2"
               )}>
                 {!leftCollapsed && "WORKSPACE"}
               </h3>
