@@ -39,6 +39,13 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
   const [activeTab, setActiveTab] = useState<string>("chat");
   const [selectedModel, setSelectedModel] = useState<string>("GPT-4o");
   const [defaultInputValue, setDefaultInputValue] = useState<string>("");
+  const [thoughtsExpanded, setThoughtsExpanded] = useState(true);
+  const [actionsExpanded, setActionsExpanded] = useState(true);
+
+  // Filter messages to get thoughts and actions
+  const thoughtMessages = messages.filter(msg => msg.type === "ai" && msg.messageType === "reasoning");
+  const actionMessages = messages.filter(msg => msg.type === "ai" && msg.messageType === "actions");
+  const regularMessages = messages.filter(msg => msg.messageType !== "reasoning" && msg.messageType !== "actions");
 
   // Listen for custom events from setChatInputValue
   useEffect(() => {
@@ -95,7 +102,88 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
                   </>
                 )}
                 
-                {/* Chat interface */}
+                {messages.length > 0 && (
+                  <div className="flex-grow overflow-y-auto px-4 py-3 h-full styled-scrollbar">
+                    {/* Thought section */}
+                    {thoughtMessages.length > 0 && (
+                      <div className="mb-4">
+                        <div 
+                          className="flex items-center justify-between cursor-pointer p-2 bg-muted/30 rounded-t-lg border-x border-t border-border/30"
+                          onClick={() => setThoughtsExpanded(!thoughtsExpanded)}
+                        >
+                          <div className="flex items-center">
+                            <Brain size={16} className="text-primary mr-2" />
+                            <h3 className="text-sm font-medium">Thinking process</h3>
+                          </div>
+                          <ChevronDown size={16} className={`transition-transform ${thoughtsExpanded ? 'rotate-180' : ''}`} />
+                        </div>
+                        
+                        {thoughtsExpanded && (
+                          <div className="p-3 bg-muted/10 border-x border-b border-border/30 rounded-b-lg mb-2">
+                            <div className="text-sm text-muted-foreground space-y-2">
+                              {thoughtMessages.map((thought, index) => (
+                                <div key={index} className="p-2 bg-muted/5 rounded">
+                                  <p className="whitespace-pre-wrap">{thought.content}</p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    
+                    {/* Actions section */}
+                    {actionMessages.length > 0 && (
+                      <div className="mb-4">
+                        <div 
+                          className="flex items-center justify-between cursor-pointer p-2 bg-muted/30 rounded-t-lg border-x border-t border-border/30"
+                          onClick={() => setActionsExpanded(!actionsExpanded)}
+                        >
+                          <div className="flex items-center">
+                            <FileText size={16} className="text-primary mr-2" />
+                            <h3 className="text-sm font-medium">Actions</h3>
+                          </div>
+                          <ChevronDown size={16} className={`transition-transform ${actionsExpanded ? 'rotate-180' : ''}`} />
+                        </div>
+                        
+                        {actionsExpanded && (
+                          <div className="p-3 bg-muted/10 border-x border-b border-border/30 rounded-b-lg">
+                            <div className="text-sm space-y-2">
+                              {actionMessages.map((action, index) => (
+                                <div key={index} className="p-2 bg-primary/5 rounded border border-primary/10">
+                                  <p className="whitespace-pre-wrap">{action.content}</p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    
+                    {/* Regular conversation */}
+                    {regularMessages.map((msg, index) => (
+                      <div key={msg.id} className={`mb-4 ${msg.type === 'user' ? 'bg-muted/5 p-3 rounded-lg border border-border/30' : 'bg-background'}`}>
+                        <div className="flex items-start">
+                          <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-3 shrink-0 ${msg.type === 'user' ? 'bg-primary/20' : 'bg-primary text-primary-foreground'}`}>
+                            {msg.type === 'user' ? 'U' : 'AI'}
+                          </div>
+                          <div className="flex-grow">
+                            <p className="text-sm font-medium mb-1">{msg.type === 'user' ? 'You' : 'Assistant'}</p>
+                            <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    
+                    {isProcessing && (
+                      <div className="flex items-center justify-center py-4">
+                        <div className="w-6 h-6 rounded-full border-2 border-t-primary animate-spin"></div>
+                      </div>
+                    )}
+                  </div>
+                )}
+                
+                {/* Chat interface with input */}
                 <ChatInterface
                   onSendMessage={onSendMessage}
                   messages={messages}
