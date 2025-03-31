@@ -28,7 +28,12 @@ export interface SignatureRequestData {
 
 export const useSignature = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isMaximized, setIsMaximized] = useState<boolean>(false);
   const { toast } = useToast();
+
+  const toggleMaximized = () => {
+    setIsMaximized(prev => !prev);
+  };
 
   /**
    * Create a signature request and notify signers
@@ -97,6 +102,8 @@ export const useSignature = () => {
 
   return {
     isLoading,
+    isMaximized,
+    toggleMaximized,
     createSignatureRequest
   };
 };

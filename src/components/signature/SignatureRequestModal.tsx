@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { 
   Dialog, DialogContent, DialogHeader, 
@@ -12,7 +11,7 @@ import {
   Plus, Trash2, Users, Mail, Send, 
   FileCheck, AlertCircle, Loader2, 
   ChevronLeft, ChevronRight, FileSignature,
-  UserCheck, Info, Book
+  UserCheck, Info, Book, Maximize2, Minimize2
 } from "lucide-react";
 import { PDFViewer } from "./PDFViewer";
 import { useToast } from "@/hooks/use-toast";
@@ -40,6 +39,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useSignature } from "@/hooks/useSignature";
 
 type SignatureRequestStatus = Database["public"]["Enums"]["signature_request_status"];
 type SignerStatus = Database["public"]["Enums"]["signer_status"];
@@ -74,6 +74,7 @@ export const SignatureRequestModal: React.FC<SignatureRequestModalProps> = ({
   documentContent
 }) => {
   const { toast } = useToast();
+  const { isMaximized, toggleMaximized } = useSignature();
   const [currentStep, setCurrentStep] = useState<number>(0);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [pdfDataUrl, setPdfDataUrl] = useState<string | null>(null);
@@ -88,6 +89,8 @@ export const SignatureRequestModal: React.FC<SignatureRequestModalProps> = ({
   const [showSignerSheet, setShowSignerSheet] = useState<boolean>(false);
   const [confirmCancel, setConfirmCancel] = useState<boolean>(false);
   const [documentLoaded, setDocumentLoaded] = useState<boolean>(false);
+  const [pdfViewerHeight, setPdfViewerHeight] = useState<string>("calc(100vh - 280px)");
+  const pdfContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (signers.length > 0 && !currentSignerId) {
@@ -103,8 +106,6 @@ export const SignatureRequestModal: React.FC<SignatureRequestModalProps> = ({
         .then(url => {
           setPdfDataUrl(url);
           setIsProcessing(false);
-          // In a real implementation, we would determine the number of pages
-          // For this prototype, we'll simulate a multi-page document
           setTotalPages(3);
         })
         .catch(error => {
@@ -121,7 +122,6 @@ export const SignatureRequestModal: React.FC<SignatureRequestModalProps> = ({
 
   const convertToPDF = async (content: string, title: string): Promise<string> => {
     return new Promise((resolve) => {
-      // Simulating PDF conversion delay for the prototype
       setTimeout(() => {
         resolve("data:application/pdf;base64,JVBERi0xLjcKJeLjz9MKMSAwIG9iago8PCAvVHlwZSAvQ2F0YWxvZwovUGFnZXMgMiAwIFIKPj4KZW5kb2JqCjIgMCBvYmoKPDwgL1R5cGUgL1BhZ2VzCi9LaWRzIFszIDAgUl0KL0NvdW50IDEKPj4KZW5kb2JqCjMgMCBvYmoKPDwgL1R5cGUgL1BhZ2UKL01lZGlhQm94IFswIDAgNjEyIDc5Ml0KL1Jlc291cmNlcyA8PCAvRm9udCA8PCAvRjEgNCAwIFIgPj4gPj4KL0NvbnRlbnRzIDUgMCBSCi9QYXJlbnQgMiAwIFIKPj4KZW5kb2JqCjQgMCBvYmoKPDwgL1R5cGUgL0ZvbnQKL1N1YnR5cGUgL1R5cGUxCi9CYXNlRm9udCAvSGVsdmV0aWNhCj4+CmVuZG9iago1IDAgb2JqCjw8IC9MZW5ndGggNzQgPj4Kc3RyZWFtCkJUCi9GMSAxOCBUZgoxMDAgNzAwIFRkCihTYW1wbGUgUERGIERvY3VtZW50IC0gKSBUagoxMDAgNjgwIFRkCihDb250cmFjdDogKSBUagpFVAplbmRzdHJlYW0KZW5kb2JqCnhyZWYKMCA2CjAwMDAwMDAwMDAgNjU1MzUgZgowMDAwMDAwMDA5IDAwMDAwIG4KMDAwMDAwMDA2NiAwMDAwMCBuCjAwMDAwMDAxMjUgMDAwMDAgbgowMDAwMDAwMjQ4IDAwMDAwIG4KMDAwMDAwMDMxNSAwMDAwMCBuCnRyYWlsZXIKPDwKL1NpemUgNgovUm9vdCAxIDAgUgo+PgpzdGFydHhyZWYKNDM5CiUlRU9GCg==");
       }, 1000);
@@ -370,12 +370,10 @@ export const SignatureRequestModal: React.FC<SignatureRequestModalProps> = ({
   };
 
   const renderPaginationControls = () => {
-    // Show up to 5 page numbers, with ellipsis for larger ranges
     const pageButtons = [];
     const maxVisiblePages = 5;
     
     if (totalPages <= maxVisiblePages) {
-      // Show all pages if there are fewer than maxVisiblePages
       for (let i = 1; i <= totalPages; i++) {
         pageButtons.push(
           <PaginationItem key={i}>
@@ -389,7 +387,6 @@ export const SignatureRequestModal: React.FC<SignatureRequestModalProps> = ({
         );
       }
     } else {
-      // Always show first page
       pageButtons.push(
         <PaginationItem key={1}>
           <PaginationLink 
@@ -401,16 +398,13 @@ export const SignatureRequestModal: React.FC<SignatureRequestModalProps> = ({
         </PaginationItem>
       );
       
-      // Calculate start and end of the middle section
       let startPage = Math.max(2, currentPage - 1);
       let endPage = Math.min(totalPages - 1, startPage + 2);
       
-      // Adjust if we're near the end
       if (endPage === totalPages - 1) {
         startPage = Math.max(2, endPage - 2);
       }
       
-      // Show ellipsis if needed at the beginning
       if (startPage > 2) {
         pageButtons.push(
           <PaginationItem key="ellipsis-start">
@@ -419,7 +413,6 @@ export const SignatureRequestModal: React.FC<SignatureRequestModalProps> = ({
         );
       }
       
-      // Show middle pages
       for (let i = startPage; i <= endPage; i++) {
         pageButtons.push(
           <PaginationItem key={i}>
@@ -433,7 +426,6 @@ export const SignatureRequestModal: React.FC<SignatureRequestModalProps> = ({
         );
       }
       
-      // Show ellipsis if needed at the end
       if (endPage < totalPages - 1) {
         pageButtons.push(
           <PaginationItem key="ellipsis-end">
@@ -442,7 +434,6 @@ export const SignatureRequestModal: React.FC<SignatureRequestModalProps> = ({
         );
       }
       
-      // Always show last page
       pageButtons.push(
         <PaginationItem key={totalPages}>
           <PaginationLink 
@@ -478,7 +469,6 @@ export const SignatureRequestModal: React.FC<SignatureRequestModalProps> = ({
     );
   };
 
-  // The enhanced progress indicator 
   const renderStepProgress = () => (
     <div className="relative mt-6 mb-8">
       <div className="absolute inset-0 flex items-center">
@@ -535,31 +525,49 @@ export const SignatureRequestModal: React.FC<SignatureRequestModalProps> = ({
     }
   }, [onClose, signatureFields, signers]);
 
+  const handleMaximizePDF = () => {
+    toggleMaximized();
+    if (!isMaximized) {
+      setPdfViewerHeight("calc(100vh - 150px)");
+    } else {
+      setPdfViewerHeight("calc(100vh - 280px)");
+    }
+  };
+
   return (
     <>
-      <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
-        <DialogContent className="max-w-[95vw] max-h-[90vh] w-[1200px] p-0 overflow-hidden">
+      <Dialog 
+        open={isOpen} 
+        onOpenChange={(open) => !open && handleClose()} 
+        className={cn(isMaximized && "fullscreen-dialog")}
+      >
+        <DialogContent className={cn(
+          "max-w-[95vw] w-full max-h-[95vh] p-0 overflow-hidden",
+          isMaximized ? "h-[95vh]" : "w-[1200px]"
+        )}>
           <div className="flex flex-col h-full">
-            {/* Header with step progress */}
-            <div className="p-6 border-b">
-              <DialogHeader>
-                <div className="flex items-center">
-                  <FileSignature className="h-6 w-6 text-primary mr-2" />
-                  <DialogTitle className="text-xl">Send "{documentTitle}" for Signature</DialogTitle>
-                </div>
-                <DialogDescription className="mt-1">
-                  {steps[currentStep].description}
-                </DialogDescription>
-              </DialogHeader>
+            {!isMaximized && (
+              <div className="p-6 border-b">
+                <DialogHeader>
+                  <div className="flex items-center">
+                    <FileSignature className="h-6 w-6 text-primary mr-2" />
+                    <DialogTitle className="text-xl">Send "{documentTitle}" for Signature</DialogTitle>
+                  </div>
+                  <DialogDescription className="mt-1">
+                    {steps[currentStep].description}
+                  </DialogDescription>
+                </DialogHeader>
 
-              {renderStepProgress()}
-            </div>
+                {renderStepProgress()}
+              </div>
+            )}
 
-            {/* Main content area */}
             <div className="flex-1 overflow-hidden flex flex-col">
-              {/* Step 1: Document Review */}
               {currentStep === 0 && (
-                <div className="flex-1 overflow-hidden p-6 pt-4">
+                <div className={cn(
+                  "flex-1 overflow-hidden p-6",
+                  isMaximized ? "pt-0 pb-0 px-0" : "pt-4"
+                )}>
                   {isProcessing ? (
                     <div className="flex-1 flex items-center justify-center h-full">
                       <div className="flex flex-col items-center">
@@ -570,28 +578,40 @@ export const SignatureRequestModal: React.FC<SignatureRequestModalProps> = ({
                     </div>
                   ) : (
                     <div className="flex-1 overflow-hidden flex flex-col h-full bg-muted/5 rounded-lg shadow-inner">
-                      <div className="flex items-center justify-between bg-muted/10 p-3 border-b">
-                        <div className="flex items-center">
-                          <Info className="h-4 w-4 text-muted-foreground mr-2" />
-                          <span className="text-sm text-muted-foreground">
-                            Review the document before proceeding to the next step
-                          </span>
+                      {!isMaximized && (
+                        <div className="flex items-center justify-between bg-muted/10 p-3 border-b">
+                          <div className="flex items-center">
+                            <Info className="h-4 w-4 text-muted-foreground mr-2" />
+                            <span className="text-sm text-muted-foreground">
+                              Review the document before proceeding to the next step
+                            </span>
+                          </div>
+                          <div className="text-sm font-medium">
+                            Page {currentPage} of {totalPages}
+                          </div>
                         </div>
-                        <div className="text-sm font-medium">
-                          Page {currentPage} of {totalPages}
-                        </div>
-                      </div>
+                      )}
                       
-                      <div className="flex-1 flex items-center justify-center bg-muted/10 p-6 overflow-auto">
+                      <div 
+                        ref={pdfContainerRef}
+                        className={cn(
+                          "flex-1 flex items-stretch justify-center",
+                          isMaximized ? "p-0" : "p-6", 
+                          "overflow-auto"
+                        )}
+                        style={{ 
+                          height: pdfViewerHeight,
+                          transition: 'height 0.3s ease'
+                        }}
+                      >
                         {pdfDataUrl ? (
-                          <div 
-                            className="w-full h-full shadow-lg" 
-                            style={{ maxWidth: '900px', margin: '0 auto' }}
-                          >
+                          <div className="w-full h-full">
                             <PDFViewer 
                               pdfUrl={pdfDataUrl} 
-                              className="h-full rounded-lg border shadow-sm bg-white" 
+                              className="h-full w-full rounded-lg border shadow-sm bg-white" 
                               onLoad={() => setDocumentLoaded(true)}
+                              onMaximize={handleMaximizePDF}
+                              isMaximized={isMaximized}
                             />
                           </div>
                         ) : (
@@ -605,7 +625,7 @@ export const SignatureRequestModal: React.FC<SignatureRequestModalProps> = ({
                         )}
                       </div>
                       
-                      {totalPages > 1 && (
+                      {totalPages > 1 && !isMaximized && (
                         <div className="py-3 px-4 bg-muted/10 border-t">
                           {renderPaginationControls()}
                         </div>
@@ -615,8 +635,7 @@ export const SignatureRequestModal: React.FC<SignatureRequestModalProps> = ({
                 </div>
               )}
 
-              {/* Step 2: Add Signers */}
-              {currentStep === 1 && (
+              {currentStep === 1 && !isMaximized && (
                 <div className="flex-1 overflow-auto p-6 pt-4">
                   <div className="bg-background rounded-md border shadow-sm p-6">
                     <h3 className="text-lg font-medium mb-4 flex items-center">
@@ -688,8 +707,7 @@ export const SignatureRequestModal: React.FC<SignatureRequestModalProps> = ({
                 </div>
               )}
 
-              {/* Step 3: Place Signatures */}
-              {currentStep === 2 && (
+              {currentStep === 2 && !isMaximized && (
                 <div className="flex-1 overflow-hidden p-6 pt-4 flex flex-col">
                   <div className="grid grid-cols-12 gap-4 mb-4">
                     <div className="col-span-8 flex items-center space-x-4">
@@ -796,8 +814,7 @@ export const SignatureRequestModal: React.FC<SignatureRequestModalProps> = ({
                 </div>
               )}
 
-              {/* Step 4: Send Document */}
-              {currentStep === 3 && (
+              {currentStep === 3 && !isMaximized && (
                 <div className="flex-1 overflow-auto p-6 pt-4">
                   <div className="space-y-6">
                     <div className="bg-muted/5 rounded-md p-5 border shadow-sm">
@@ -860,43 +877,43 @@ export const SignatureRequestModal: React.FC<SignatureRequestModalProps> = ({
               )}
             </div>
             
-            {/* Footer navigation */}
-            <DialogFooter className="flex items-center justify-between p-6 border-t mt-auto bg-muted/5">
-              <div>
-                {currentStep > 0 && (
-                  <Button variant="outline" onClick={prevStep} className="shadow-sm">
-                    <ChevronLeft className="mr-1 h-4 w-4" /> Back
-                  </Button>
-                )}
-              </div>
-              <div>
-                {currentStep < steps.length - 1 ? (
-                  <Button 
-                    onClick={nextStep} 
-                    variant="default"
-                    disabled={currentStep === 0 && (!pdfDataUrl || !documentLoaded)}
-                    className="shadow-sm"
-                  >
-                    Continue <ChevronRight className="ml-1 h-4 w-4" />
-                  </Button>
-                ) : (
-                  <Button 
-                    onClick={handleSendForSignature} 
-                    disabled={isProcessing}
-                    className="bg-primary shadow-sm"
-                  >
-                    {isProcessing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    <Send size={16} className="mr-2" />
-                    Send for Signature
-                  </Button>
-                )}
-              </div>
-            </DialogFooter>
+            {!isMaximized && (
+              <DialogFooter className="flex items-center justify-between p-6 border-t mt-auto bg-muted/5">
+                <div>
+                  {currentStep > 0 && (
+                    <Button variant="outline" onClick={prevStep} className="shadow-sm">
+                      <ChevronLeft className="mr-1 h-4 w-4" /> Back
+                    </Button>
+                  )}
+                </div>
+                <div>
+                  {currentStep < steps.length - 1 ? (
+                    <Button 
+                      onClick={nextStep} 
+                      variant="default"
+                      disabled={currentStep === 0 && (!pdfDataUrl || !documentLoaded)}
+                      className="shadow-sm"
+                    >
+                      Continue <ChevronRight className="ml-1 h-4 w-4" />
+                    </Button>
+                  ) : (
+                    <Button 
+                      onClick={handleSendForSignature} 
+                      disabled={isProcessing}
+                      className="bg-primary shadow-sm"
+                    >
+                      {isProcessing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      <Send size={16} className="mr-2" />
+                      Send for Signature
+                    </Button>
+                  )}
+                </div>
+              </DialogFooter>
+            )}
           </div>
         </DialogContent>
       </Dialog>
 
-      {/* Side sheet for signature field details */}
       <Sheet open={showSignerSheet} onOpenChange={setShowSignerSheet}>
         <SheetContent side="right" className="w-[400px] sm:w-[540px] p-0">
           <div className="flex flex-col h-full">
@@ -963,7 +980,6 @@ export const SignatureRequestModal: React.FC<SignatureRequestModalProps> = ({
         </SheetContent>
       </Sheet>
 
-      {/* Cancel confirmation dialog */}
       <AlertDialog open={confirmCancel} onOpenChange={setConfirmCancel}>
         <AlertDialogContent>
           <AlertDialogHeader>
