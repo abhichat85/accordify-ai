@@ -1,5 +1,4 @@
-
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { 
   SaveIcon, 
   Printer,
@@ -42,6 +41,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
 import { setChatInputValue } from "@/utils/chatInputUtils";
+import { SignatureRequestModal } from "@/components/signature/SignatureRequestModal";
 
 interface EditorToolbarProps {
   title: string;
@@ -69,8 +69,8 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
 }) => {
   const { toast } = useToast();
   const linkRef = useRef<HTMLAnchorElement>(null);
+  const [isSignatureModalOpen, setIsSignatureModalOpen] = useState(false);
 
-  // Print functionality
   const handlePrint = () => {
     toast({
       title: "Preparing document for printing",
@@ -128,7 +128,6 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
     }, 300);
   };
 
-  // Format content for print by replacing markdown with HTML
   const formatContentForPrint = (text: string) => {
     let formattedText = text;
     
@@ -156,7 +155,6 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
     return formattedText;
   };
 
-  // Export functionality
   const handleExport = (format: string) => {
     let exportContent = content;
     let mimeType = 'text/plain';
@@ -227,7 +225,6 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
     }
   };
 
-  // Handle sharing functionality
   const handleIntegration = (service: string) => {
     switch (service) {
       case 'Email':
@@ -266,14 +263,9 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
     }
   };
 
-  // Find the chat input field
   const findChatInput = (): HTMLTextAreaElement | null => {
-    // Look for the input element in multiple ways to improve reliability
-    
-    // Try specific selectors first
     let chatInput = document.querySelector('textarea[placeholder*="Ask about contracts"]') as HTMLTextAreaElement;
     
-    // If not found, try more generic selectors
     if (!chatInput) {
       chatInput = document.querySelector('textarea[placeholder*="contract"]') as HTMLTextAreaElement;
     }
@@ -282,10 +274,8 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
       chatInput = document.querySelector('textarea[placeholder*="Ask"]') as HTMLTextAreaElement;
     }
     
-    // If still not found, try all textareas
     if (!chatInput) {
       const allTextareas = document.querySelectorAll('textarea');
-      // Try to find any textarea in the chat section
       for (const textarea of allTextareas) {
         const parent = textarea.closest('[class*="chat"]') || 
                       textarea.closest('[id*="chat"]') || 
@@ -297,7 +287,6 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
       }
     }
     
-    // Last resort - just grab the last textarea on the page
     if (!chatInput) {
       const allTextareas = document.querySelectorAll('textarea');
       if (allTextareas.length > 0) {
@@ -308,9 +297,7 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
     return chatInput;
   };
 
-  // Set the AI chat prompt and focus the input
   const setChatPromptInner = (prompt: string) => {
-    // Get the chat input
     const chatInput = findChatInput();
     
     if (!chatInput) {
@@ -324,17 +311,11 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
     
     console.log("Found chat input:", chatInput);
     
-    // Set the prompt in the chat input
     chatInput.value = prompt;
     
-    // Using multiple approaches to ensure the value gets set
-    // 1. Direct value assignment
     chatInput.value = prompt;
-    
-    // 2. Use Input event
     chatInput.dispatchEvent(new Event('input', { bubbles: true }));
     
-    // 3. If using React controlled components, try to update the internal ReactDOM value
     const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
       window.HTMLTextAreaElement.prototype, "value"
     )?.set;
@@ -343,11 +324,9 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
       nativeInputValueSetter.call(chatInput, prompt);
     }
     
-    // 4. Force React to acknowledge the change
     const inputEvent = new Event('input', { bubbles: true });
     chatInput.dispatchEvent(inputEvent);
     
-    // Focus the input
     chatInput.focus();
     
     toast({
@@ -355,7 +334,6 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
       description: "Press Enter to send the prompt to the AI assistant.",
     });
     
-    // Log for debugging
     console.log("Prompt set in chat input:", prompt);
     
     return true;
@@ -365,7 +343,6 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
     if (onStatusChange) {
       onStatusChange('submitted');
       
-      // Set prompt for submitted contract
       const prompt = `I've just submitted my contract "${currentTitle}" for internal review. Could you please help me check for any potential issues or suggest improvements before it goes to the next stage? Focus on legal clarity, completeness, and any potential risks.`;
       
       const success = setChatInputValue(prompt);
@@ -385,10 +362,15 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
   };
   
   const handleSendForSigning = () => {
+    setIsSignatureModalOpen(true);
+  };
+  
+  const handleSignatureComplete = () => {
+    setIsSignatureModalOpen(false);
+    
     if (onStatusChange) {
       onStatusChange('sent_for_signing');
       
-      // Set prompt for sending for signing
       const prompt = `I'm about to send my contract "${currentTitle}" for electronic signatures. Before I do, could you please verify that all signature blocks, dates, and party information are correctly formatted? Also, is there anything I should communicate to the signatories?`;
       
       const success = setChatInputValue(prompt);
@@ -406,9 +388,8 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
       }
     }
   };
-
+  
   const handleAIAnalysis = (analysisType: string) => {
-    // Create appropriate prompt based on analysis type
     let prompt = "";
     switch (analysisType) {
       case "risk":
@@ -430,7 +411,6 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
         prompt = `Please analyze my contract "${currentTitle}" and provide general feedback on its quality and effectiveness.`;
     }
     
-    // Set the prompt in the chat input
     const success = setChatInputValue(prompt);
     
     console.log(`Setting AI Analysis prompt for ${analysisType}:`, prompt);
@@ -445,6 +425,12 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
   return (
     <div className="px-6 py-3 border-b border-border/40 bg-background/80 backdrop-blur-sm space-y-0">
       <a ref={linkRef} style={{ display: 'none' }} />
+      <SignatureRequestModal
+        isOpen={isSignatureModalOpen}
+        onClose={handleSignatureComplete}
+        documentTitle={currentTitle}
+        documentContent={content}
+      />
       <div className="flex items-center justify-between">
         <div className="flex items-center">
           <input
