@@ -11,7 +11,7 @@ import {
   Plus, Trash2, Users, Mail, Send, 
   FileCheck, AlertCircle, Loader2, 
   ChevronLeft, ChevronRight, FileSignature,
-  UserCheck, Info, Book, Maximize2, Minimize2
+  UserCheck, Info, Book, Maximize2
 } from "lucide-react";
 import { PDFViewer } from "./PDFViewer";
 import { useToast } from "@/hooks/use-toast";
@@ -538,12 +538,12 @@ export const SignatureRequestModal: React.FC<SignatureRequestModalProps> = ({
     <>
       <Dialog 
         open={isOpen} 
-        onOpenChange={(open) => !open && handleClose()} 
-        className={cn(isMaximized && "fullscreen-dialog")}
+        onOpenChange={(open) => !open && handleClose()}
       >
         <DialogContent className={cn(
           "max-w-[95vw] w-full max-h-[95vh] p-0 overflow-hidden",
-          isMaximized ? "h-[95vh]" : "w-[1200px]"
+          isMaximized ? "h-[95vh]" : "w-[1200px]",
+          isMaximized && "fullscreen-dialog"
         )}>
           <div className="flex flex-col h-full">
             {!isMaximized && (

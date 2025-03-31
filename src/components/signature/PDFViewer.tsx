@@ -110,7 +110,7 @@ export const PDFViewer: React.FC<PDFViewerProps> = ({
               disabled={isLoading}
               className="h-8 w-8 p-0"
             >
-              {isMaximized ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+              {isMaximized ? <Maximize2 className="h-4 w-4 transform rotate-180" /> : <Maximize2 className="h-4 w-4" />}
               <span className="sr-only">{isMaximized ? "Exit Fullscreen" : "Fullscreen"}</span>
             </Button>
           )}
