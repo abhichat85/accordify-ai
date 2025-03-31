@@ -10,12 +10,19 @@ import {
   Send,
   RotateCcw,
   X,
-  FileSearch
+  FileSearch,
+  ChevronDown
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DocumentAnalysis } from "../contract/DocumentAnalysis";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface ChatPanelProps {
   messages: Message[];
@@ -30,6 +37,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
 }) => {
   const [activeMode, setActiveMode] = useState<"write" | "chat">("write");
   const [activeTab, setActiveTab] = useState<string>("chat");
+  const [selectedModel, setSelectedModel] = useState<string>("GPT-4o");
   
   return (
     <div className="flex flex-col h-full overflow-hidden border border-border/40 shadow-sm bg-[#282828]">
@@ -48,7 +56,8 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
         </div>
       </div>
       
-      {/* Chat/Document tabs */}
+      {/* Chat/Document tabs - Commented out as requested */}
+      {/* 
       <div className="bg-[#1F1F1F] border-b border-border/40 px-4">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="bg-transparent p-0 h-10 w-full flex justify-start gap-4 border-b-0">
@@ -69,6 +78,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
           </TabsList>
         </Tabs>
       </div>
+      */}
       
       {/* Main content area with Cascade-like styling */}
       <div className="flex-grow flex flex-col h-full relative">
@@ -89,10 +99,6 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
                           ? "Draft, review, or analyze contracts with AI assistance" 
                           : "Ask questions about contracts or get legal guidance"}
                       </p>
-                      
-                      {/* <p className="text-sm text-muted-foreground mt-6 text-center">
-                        Start a new conversation to see your messages here.
-                      </p> */}
                     </div>
                   </>
                 )}
@@ -104,6 +110,8 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
                   isProcessing={isProcessing}
                   className="h-full rounded-none border-none shadow-none"
                   defaultInputValue={activeMode === "write" ? "" : ""}
+                  selectedModel={selectedModel}
+                  onModelSelect={setSelectedModel}
                 />
               </div>
             </TabsContent>
@@ -112,16 +120,6 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
               <DocumentAnalysis className="h-full" />
             </TabsContent>
           </Tabs>
-        </div>
-      </div>
-      
-      {/* Simple GPT-4o dropdown footer */}
-      <div className="px-4 py-3 border-t border-border/40 bg-[#1F1F1F] text-sm text-foreground flex items-center justify-between">
-        <div className="flex items-center gap-1">
-          <span>GPT-4o</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-down">
-            <path d="m6 9 6 6 6-6"/>
-          </svg>
         </div>
       </div>
       

@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import { MessageBubble, Message } from "./MessageBubble";
 import { cn } from "@/lib/utils";
@@ -28,6 +29,8 @@ interface ChatInterfaceProps {
   isProcessing?: boolean;
   className?: string;
   defaultInputValue?: string;
+  selectedModel?: string;
+  onModelSelect?: (model: string) => void;
 }
 
 export const ChatInterface: React.FC<ChatInterfaceProps> = ({
@@ -35,7 +38,9 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   messages,
   isProcessing = false,
   className,
-  defaultInputValue = ""
+  defaultInputValue = "",
+  selectedModel = "GPT-4o",
+  onModelSelect
 }) => {
   const [inputValue, setInputValue] = useState(defaultInputValue);
   const [files, setFiles] = useState<File[]>([]);
@@ -179,6 +184,8 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
           setFiles={setFiles}
           isDragging={isDragging}
           setIsDragging={setIsDragging}
+          selectedModel={selectedModel}
+          onModelSelect={onModelSelect}
         />
       </div>
     </div>
