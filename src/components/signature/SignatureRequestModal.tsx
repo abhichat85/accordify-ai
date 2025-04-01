@@ -534,7 +534,6 @@ export const SignatureRequestModal: React.FC<SignatureRequestModalProps> = ({
           isMaximized && "h-[95vh] fullscreen-dialog"
         )}>
           <div className="flex h-full">
-            {/* Vertical Timeline Navigation on the left */}
             <div className={cn(
               "w-64 border-r p-4 flex flex-col",
               isMaximized && "hidden"
@@ -584,13 +583,10 @@ export const SignatureRequestModal: React.FC<SignatureRequestModalProps> = ({
               </div>
             </div>
             
-            {/* Main Content Area (PDF Viewer and Step Content) */}
             <div className="flex-1 flex flex-col h-full overflow-hidden">
-              {/* Step content area */}
               <div className="flex-1 overflow-hidden">
                 {currentStep === 0 && (
                   <div className="h-full flex flex-col">
-                    {/* PDF Viewer header with controls - only show when not maximized */}
                     {!isMaximized && (
                       <div className="flex items-center justify-between p-3 border-b">
                         <div className="flex items-center">
@@ -605,7 +601,6 @@ export const SignatureRequestModal: React.FC<SignatureRequestModalProps> = ({
                       </div>
                     )}
                     
-                    {/* PDF Viewer */}
                     <div className="flex-1 overflow-hidden" ref={pdfContainerRef}>
                       {isProcessing ? (
                         <div className="flex-1 flex items-center justify-center h-full">
@@ -626,7 +621,6 @@ export const SignatureRequestModal: React.FC<SignatureRequestModalProps> = ({
                       )}
                     </div>
                     
-                    {/* Pagination controls */}
                     {totalPages > 1 && !isMaximized && (
                       <div className="py-3 px-4 bg-muted/10 border-t">
                         {renderPaginationControls()}
@@ -837,4 +831,88 @@ export const SignatureRequestModal: React.FC<SignatureRequestModalProps> = ({
                           Signers ({signers.length})
                         </h3>
                         <div className="mt-3 space-y-3">
-                          {signers
+                          {signers.map((signer, index) => (
+                            <div key={signer.id} className="flex items-center p-3 bg-background rounded-md border">
+                              <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-medium mr-3">
+                                {index + 1}
+                              </div>
+                              <div>
+                                <p className="font-medium">{signer.name}</p>
+                                <p className="text-sm text-muted-foreground">{signer.email}</p>
+                              </div>
+                              <div className="ml-auto flex items-center">
+                                <span className="text-xs bg-muted px-2 py-1 rounded-full">
+                                  {signatureFields.filter(f => f.signerId === signer.id).length} fields
+                                </span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </ScrollArea>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <Sheet open={showSignerSheet} onOpenChange={setShowSignerSheet}>
+            <SheetContent className="w-[400px]">
+              <h3 className="text-lg font-medium mb-4 flex items-center">
+                <FileSignature className="mr-2 h-5 w-5 text-primary" />
+                Signature Fields
+              </h3>
+              
+              <div className="space-y-4">
+                {signers.map((signer) => {
+                  const signerFields = signatureFields.filter(f => f.signerId === signer.id);
+                  if (signerFields.length === 0) return null;
+                  
+                  return (
+                    <div key={signer.id} className="border rounded-md p-4">
+                      <h4 className="font-medium mb-2">{signer.name}</h4>
+                      <p className="text-sm text-muted-foreground mb-3">{signer.email}</p>
+                      
+                      <div className="space-y-2">
+                        {signerFields.map((field) => (
+                          <div key={field.id} className="text-sm flex justify-between bg-muted/10 p-2 rounded-md">
+                            <span>Page {field.pageNumber}</span>
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="h-6 px-2 text-destructive hover:text-destructive/80"
+                              onClick={() => handleRemoveSignatureField(field.id)}
+                            >
+                              Remove
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </SheetContent>
+          </Sheet>
+
+          <AlertDialog open={confirmCancel} onOpenChange={setConfirmCancel}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Cancel signature request?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  You have unsaved changes. If you close this dialog, all your progress will be lost. Are you sure you want to continue?
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Continue editing</AlertDialogCancel>
+                <AlertDialogAction onClick={onClose} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                  Discard changes
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+};
