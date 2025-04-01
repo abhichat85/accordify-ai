@@ -9,6 +9,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface ActionButtonsProps {
   onFileUpload: () => void;
@@ -46,29 +52,47 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
   return (
     <div className="flex items-center justify-between p-2 border-t border-border/40">
       <div className="flex items-center gap-2">
-        {/* File upload button */}
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          className="h-8 w-8 p-0 rounded-full"
-          onClick={onFileUpload}
-          aria-label="Attach file"
-        >
-          <Paperclip size={18} />
-        </Button>
+        {/* File upload button with tooltip */}
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0 rounded-full"
+                onClick={onFileUpload}
+                aria-label="Attach file"
+              >
+                <Paperclip size={18} />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="top">
+              <p>Upload document</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
         
-        {/* Image upload button */}
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          className="h-8 w-8 p-0 rounded-full"
-          aria-label="Attach image"
-          onClick={onImageUpload}
-        >
-          <Image size={18} />
-        </Button>
+        {/* Image upload button with tooltip */}
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0 rounded-full"
+                aria-label="Attach image"
+                onClick={onImageUpload}
+              >
+                <Image size={18} />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="top">
+              <p>Upload image</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
         
         {/* Model selection dropdown */}
         <DropdownMenu>
@@ -99,18 +123,27 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
       </div>
       
       {/* Send button */}
-      <Button
-        type="button"
-        size="sm"
-        className={cn(
-          "h-8 w-8 p-0 rounded-full",
-          isDisabled ? "opacity-50 cursor-not-allowed" : "opacity-100"
-        )}
-        disabled={isDisabled || isProcessing}
-        onClick={onSubmit}
-      >
-        <ArrowUp size={18} />
-      </Button>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              type="button"
+              size="sm"
+              className={cn(
+                "h-8 w-8 p-0 rounded-full",
+                isDisabled ? "opacity-50 cursor-not-allowed" : "opacity-100"
+              )}
+              disabled={isDisabled || isProcessing}
+              onClick={onSubmit}
+            >
+              <ArrowUp size={18} />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="top">
+            <p>Send message</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
     </div>
   );
 };
