@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { 
@@ -129,7 +128,7 @@ export const TriPanelLayout: React.FC<TriPanelLayoutProps> = ({
                   onClick={() => handleNavigate("/history")}
                 >
                   <History size={leftCollapsed ? 18 : 16} className="text-primary/80" />
-                  {!leftCollapsed && <span>History</span>}
+                  {!leftCollapsed && <span>All Contracts</span>}
                 </Button>
                 
                 <Button 
