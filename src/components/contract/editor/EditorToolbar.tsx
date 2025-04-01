@@ -422,6 +422,17 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
     });
   };
 
+  const handleAddYourOwnClause = () => {
+    const prompt = `I would like to add my own custom clause to the contract "${currentTitle}". Could you help me draft a clause for:`;
+    
+    const success = setChatInputValue(prompt);
+    
+    toast({
+      title: "Add your own clause",
+      description: "Enter your clause requirements in the chat to get assistance.",
+    });
+  };
+
   return (
     <div className="px-6 py-3 border-b border-border/40 bg-background/80 backdrop-blur-sm space-y-0">
       <a ref={linkRef} style={{ display: 'none' }} />
@@ -456,20 +467,6 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
         
         <div className="flex items-center space-x-2">
           <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button 
-                  variant="outline" 
-                  size="icon" 
-                  className="h-8 w-8 rounded-full shadow-sm"
-                  onClick={() => handlePrint()}
-                >
-                  <Printer size={16} />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Print</TooltipContent>
-            </Tooltip>
-            
             <DropdownMenu>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -551,8 +548,6 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm" className="h-8 px-2 rounded-lg shadow-sm">
-                <span className="sr-only">More</span>
-                <AlertCircle size={16} className="mr-2" />
                 <span>AI Check</span>
                 <ChevronDown size={16} className="ml-1" />
               </Button>
@@ -573,8 +568,10 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
                 <GanttChart size={16} /> Term Extraction
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="flex items-center gap-2" onClick={() => handleAIAnalysis("full")}>
-                <Brain size={16} /> Full AI Contract Review
+              <DropdownMenuItem className="flex items-center justify-center" onClick={handleAddYourOwnClause}>
+                <Button variant="default" className="w-full">
+                  Add your own clause
+                </Button>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
