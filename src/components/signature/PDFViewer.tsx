@@ -1,7 +1,7 @@
 
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { cn } from "@/lib/utils";
-import { Loader2, ZoomIn, ZoomOut, RotateCw, Download, Fullscreen, Maximize2 } from "lucide-react";
+import { Loader2, ZoomIn, ZoomOut, RotateCw, Download, Maximize2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface PDFViewerProps {
@@ -83,6 +83,7 @@ export const PDFViewer: React.FC<PDFViewerProps> = ({
             onClick={handleZoomOut}
             disabled={isLoading}
             className="h-8 w-8 p-0"
+            title="Zoom out"
           >
             <ZoomOut className="h-4 w-4" />
             <span className="sr-only">Zoom out</span>
@@ -93,6 +94,7 @@ export const PDFViewer: React.FC<PDFViewerProps> = ({
             onClick={handleZoomIn}
             disabled={isLoading}
             className="h-8 w-8 p-0"
+            title="Zoom in"
           >
             <ZoomIn className="h-4 w-4" />
             <span className="sr-only">Zoom in</span>
@@ -103,6 +105,7 @@ export const PDFViewer: React.FC<PDFViewerProps> = ({
             onClick={handleRotate}
             disabled={isLoading}
             className="h-8 w-8 p-0"
+            title="Rotate"
           >
             <RotateCw className="h-4 w-4" />
             <span className="sr-only">Rotate</span>
@@ -114,8 +117,9 @@ export const PDFViewer: React.FC<PDFViewerProps> = ({
               onClick={handleMaximize}
               disabled={isLoading}
               className="h-8 w-8 p-0"
+              title={isMaximized ? "Exit fullscreen" : "Fullscreen"}
             >
-              {isMaximized ? <Maximize2 className="h-4 w-4 transform rotate-180" /> : <Maximize2 className="h-4 w-4" />}
+              <Maximize2 className="h-4 w-4" />
               <span className="sr-only">{isMaximized ? "Exit Fullscreen" : "Fullscreen"}</span>
             </Button>
           )}
@@ -154,18 +158,20 @@ export const PDFViewer: React.FC<PDFViewerProps> = ({
               transition: 'width 0.3s ease, height 0.3s ease',
             }}
           >
-            <iframe
-              ref={iframeRef}
-              src={pdfUrl}
-              title="PDF Document Viewer"
-              className="w-full h-full bg-white rounded-md border shadow-md"
-              style={{ 
-                minHeight: '100%',
-                display: 'block'
-              }}
-              onLoad={handleIframeLoad}
-              sandbox="allow-forms allow-scripts allow-same-origin allow-popups"
-            />
+            {isPdfUrl && (
+              <iframe
+                ref={iframeRef}
+                src={pdfUrl}
+                title="PDF Document Viewer"
+                className="w-full h-full bg-white rounded-md border shadow-md"
+                style={{ 
+                  minHeight: '100%',
+                  display: 'block'
+                }}
+                onLoad={handleIframeLoad}
+                sandbox="allow-forms allow-scripts allow-same-origin allow-popups"
+              />
+            )}
           </div>
         </div>
       </div>
