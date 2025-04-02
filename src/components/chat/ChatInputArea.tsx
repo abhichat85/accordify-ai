@@ -1,7 +1,6 @@
 
-import React, { useRef } from "react";
+import React from "react";
 import { cn } from "@/lib/utils";
-import { useToast } from "@/hooks/use-toast";
 import { FileChips } from "./components/FileChips";
 import { ChatTextArea } from "./components/ChatTextArea";
 import { ActionButtons } from "./components/ActionButtons";
@@ -18,6 +17,14 @@ interface ChatInputAreaProps {
   setIsDragging: (isDragging: boolean) => void;
   selectedModel?: string;
   onModelSelect?: (model: string) => void;
+  onKeyDown: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
+  fileInputRef: React.RefObject<HTMLInputElement>;
+  handleFileDrop: (e: React.DragEvent<HTMLDivElement>) => void;
+  handleDragOver: (e: React.DragEvent<HTMLDivElement>) => void;
+  handleDragLeave: () => void;
+  handleFileUpload: () => void;
+  handleFileInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleRemoveFile: (index: number) => void;
 }
 
 export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
@@ -30,64 +37,18 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
   isDragging,
   setIsDragging,
   selectedModel = "GPT-4o",
-  onModelSelect
+  onModelSelect,
+  onKeyDown,
+  fileInputRef,
+  handleFileDrop,
+  handleDragOver,
+  handleDragLeave,
+  handleFileUpload,
+  handleFileInputChange,
+  handleRemoveFile
 }) => {
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const { toast } = useToast();
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSubmit();
-    }
-  };
-
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInputValue(e.target.value);
-  };
-
-  const handleFileDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragging(false);
-    
-    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      const newFiles = Array.from(e.dataTransfer.files);
-      setFiles([...files, ...newFiles]);
-      toast({
-        title: "Files added",
-        description: `${newFiles.length} file(s) added successfully.`,
-      });
-    }
-  };
-  
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-  
-  const handleDragLeave = () => {
-    setIsDragging(false);
-  };
-  
-  const handleFileUpload = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    }
-  };
-  
-  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const newFiles = Array.from(e.target.files);
-      setFiles([...files, ...newFiles]);
-      toast({
-        title: "Files added",
-        description: `${newFiles.length} file(s) added successfully.`,
-      });
-    }
-  };
-
-  const handleRemoveFile = (index: number) => {
-    setFiles(files.filter((_, i) => i !== index));
   };
 
   return (
@@ -112,7 +73,7 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
           <ChatTextArea 
             value={inputValue}
             onChange={handleInputChange}
-            onKeyDown={handleKeyDown}
+            onKeyDown={onKeyDown}
           />
         </div>
 

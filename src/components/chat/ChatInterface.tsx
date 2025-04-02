@@ -1,27 +1,16 @@
 
-import React, { useState, useRef, useEffect } from "react";
-import { MessageBubble, Message } from "./MessageBubble";
+import React from "react";
+import { Message } from "./MessageBubble";
 import { cn } from "@/lib/utils";
-import { 
-  FileText,
-  Image,
-  Sparkles,
-  Lightbulb,
-  Bot,
-  BrainCircuit,
-  Workflow,
-  History,
-  FileCheck,
-  Hourglass,
-  AlarmClock,
-  Brain
-} from "lucide-react";
-import { nanoid } from "@/lib/utils";
-import { useToast } from "@/hooks/use-toast";
-import { AiModes, AiMode } from "./AiModes";
+import { AiMode } from "./AiModes";
 import { ChatMessageArea } from "./ChatMessageArea";
 import { ChatInputArea } from "./ChatInputArea";
-import { AgentCapability } from "./types";
+import { useInputHandling } from "./hooks/useInputHandling";
+import { useFileHandling } from "./hooks/useFileHandling";
+import { useProactiveSuggestions } from "./hooks/useProactiveSuggestions";
+import { useContextAwareness } from "./hooks/useContextAwareness";
+import { useAgentCapabilities } from "./hooks/useAgentCapabilities";
+import { Brain } from "lucide-react";
 
 interface ChatInterfaceProps {
   onSendMessage: (message: string, files?: File[]) => void;
@@ -42,77 +31,36 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   selectedModel = "GPT-4o",
   onModelSelect
 }) => {
-  const [inputValue, setInputValue] = useState(defaultInputValue);
-  const [files, setFiles] = useState<File[]>([]);
-  const [isDragging, setIsDragging] = useState(false);
+  const { 
+    inputValue, 
+    setInputValue, 
+    handleInputChange, 
+    handleSuggestionClick 
+  } = useInputHandling(defaultInputValue);
+  
+  const {
+    files,
+    setFiles,
+    isDragging,
+    setIsDragging,
+    fileInputRef,
+    handleFileDrop,
+    handleDragOver,
+    handleDragLeave,
+    handleFileUpload,
+    handleFileInputChange,
+    handleRemoveFile
+  } = useFileHandling();
+  
+  const { 
+    showProactiveSuggestions, 
+    setShowProactiveSuggestions, 
+    proactiveSuggestions 
+  } = useProactiveSuggestions();
+  
+  const contextAwareness = useContextAwareness(messages);
+  const agentCapabilities = useAgentCapabilities();
   const [aiMode, setAiMode] = useState<AiMode>("normal");
-  const [showProactiveSuggestions, setShowProactiveSuggestions] = useState(true);
-  const [contextAwareness, setContextAwareness] = useState<string[]>([]);
-  const inputRef = useRef<HTMLTextAreaElement>(null);
-  const { toast } = useToast();
-
-  const agentCapabilities: AgentCapability[] = [
-    { 
-      id: "draft", 
-      name: "Draft", 
-      icon: FileText,
-      description: "Generate new contracts and agreements",
-      examples: ["Create an NDA for my startup", "Draft a consulting agreement"]
-    },
-    { 
-      id: "review", 
-      name: "Review", 
-      icon: FileCheck,
-      description: "Analyze and improve existing contracts",
-      examples: ["Review this employment contract", "Check this NDA for issues"]
-    },
-    { 
-      id: "negotiate", 
-      name: "Negotiate", 
-      icon: BrainCircuit,
-      description: "Get negotiation guidance and suggestions",
-      examples: ["Suggest negotiation points for this contract", "How should I counter these terms?"]
-    },
-    { 
-      id: "compare", 
-      name: "Compare", 
-      icon: Workflow,
-      description: "Compare different contract versions",
-      examples: ["Compare these two contract versions", "What changed in this revision?"]
-    },
-    { 
-      id: "remind", 
-      name: "Calendar", 
-      icon: AlarmClock,
-      description: "Manage contract deadlines and renewals",
-      examples: ["Track renewal dates for this contract", "Remind me of upcoming deadlines"]
-    }
-  ];
-
-  const proactiveSuggestions = [
-    "I noticed this contract is missing a confidentiality clause. Would you like me to suggest one?",
-    "This agreement has payment terms of NET-60. Industry standard is NET-30. Consider negotiating this.",
-    "The liability cap is unusually low for this type of agreement. Here's what I recommend...",
-    "I noticed similar contracts in your history have included IP protection clauses. Add one?"
-  ];
-
-  useEffect(() => {
-    if (messages.length > 3) {
-      setContextAwareness([
-        "Current document: Non-Disclosure Agreement (Draft)",
-        "Related documents: 2 previous NDAs in your history",
-        "Missing elements: Jurisdiction clause, Term definition",
-        "Risk level: Medium (3 potential issues identified)"
-      ]);
-    }
-  }, [messages]);
-
-  // Effect to synchronize with defaultInputValue when it changes
-  useEffect(() => {
-    if (defaultInputValue && defaultInputValue !== inputValue) {
-      setInputValue(defaultInputValue);
-    }
-  }, [defaultInputValue]);
 
   const handleSubmit = () => {
     if (inputValue.trim() || files.length > 0) {
@@ -126,29 +74,12 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
     }
   };
 
-  const handleSuggestionClick = (suggestion: string) => {
-    setInputValue(suggestion);
-    setTimeout(() => {
-      if (inputRef.current) {
-        inputRef.current.focus();
-      }
-    }, 100);
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit();
+    }
   };
-
-  // Listen for custom events from setChatInputValue
-  useEffect(() => {
-    const handleCustomEvent = (event: CustomEvent) => {
-      if (event.detail && event.detail.prompt) {
-        setInputValue(event.detail.prompt);
-      }
-    };
-
-    document.addEventListener('chat-prompt-update', handleCustomEvent as EventListener);
-
-    return () => {
-      document.removeEventListener('chat-prompt-update', handleCustomEvent as EventListener);
-    };
-  }, []);
 
   return (
     <div className={cn(
@@ -201,6 +132,14 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
           setIsDragging={setIsDragging}
           selectedModel={selectedModel}
           onModelSelect={onModelSelect}
+          onKeyDown={handleKeyDown}
+          fileInputRef={fileInputRef}
+          handleFileDrop={handleFileDrop}
+          handleDragOver={handleDragOver}
+          handleDragLeave={handleDragLeave}
+          handleFileUpload={handleFileUpload}
+          handleFileInputChange={handleFileInputChange}
+          handleRemoveFile={handleRemoveFile}
         />
       </div>
     </div>
