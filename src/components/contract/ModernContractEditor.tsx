@@ -3,6 +3,7 @@ import React from "react";
 import { useContractEditor } from "@/hooks/useContractEditor";
 import { useFormatting } from "@/hooks/useFormatting";
 import { EditorContainer } from "./editor/EditorContainer";
+import { cn } from "@/lib/utils";
 
 interface ModernContractEditorProps {
   title: string;
@@ -65,7 +66,7 @@ export const ModernContractEditor: React.FC<ModernContractEditorProps> = ({
       handleFormatting={handleFormatting}
       textSelection={textSelection}
       onTextSelection={handleTextSelection}
-      className={className}
+      className={cn(className, "font-jost")}
     />
   );
 };
