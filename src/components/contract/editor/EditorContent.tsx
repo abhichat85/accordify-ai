@@ -49,22 +49,33 @@ export const EditorContent: React.FC<EditorContentProps> = ({
     };
   }, []);
 
+  // Add variable highlighting in the editor
+  const highlightVariables = (text: string) => {
+    // Look for patterns like {{variable_name}} in the text
+    return text.replace(
+      /\{\{([^{}]+)\}\}/g, 
+      '<span class="variable-highlight">{{$1}}</span>'
+    );
+  };
+
   return (
     <div className="flex-grow h-full overflow-y-auto">
       {viewMode === 'edit' ? (
-        <textarea
-          ref={textareaRef}
-          className="w-full h-full min-h-[calc(100vh-220px)] p-6 border-none text-sm leading-relaxed focus:outline-none focus:ring-0 bg-card font-mono resize-none styled-scrollbar"
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          onMouseUp={handleTextSelection}
-          onKeyUp={handleTextSelection}
-          placeholder="Enter contract text here..."
-        />
+        <div className="px-[60px] w-full h-full">
+          <textarea
+            ref={textareaRef}
+            className="w-full h-full min-h-[calc(100vh-220px)] p-6 border-none text-sm leading-relaxed focus:outline-none focus:ring-0 bg-card font-jost resize-none styled-scrollbar"
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            onMouseUp={handleTextSelection}
+            onKeyUp={handleTextSelection}
+            placeholder="Enter contract text here..."
+          />
+        </div>
       ) : (
-        <div className="w-full h-full p-6 overflow-auto styled-scrollbar">
+        <div className="w-full h-full px-[60px] overflow-auto styled-scrollbar">
           <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-sm p-8 border border-border/20">
-            <div className="prose prose-sm max-w-none contract-preview">
+            <div className="prose prose-sm max-w-none contract-preview font-jost">
               {content.split('\n\n').map((paragraph, index) => {
                 // Parse markdown-like formatting in preview mode
                 let formattedParagraph = paragraph;
@@ -85,6 +96,12 @@ export const EditorContent: React.FC<EditorContentProps> = ({
                 formattedParagraph = formattedParagraph.replace(
                   /\+\+(.*?)\+\+/g, 
                   '<u>$1</u>'
+                );
+                
+                // Variables: {{variable}}
+                formattedParagraph = formattedParagraph.replace(
+                  /\{\{([^{}]+)\}\}/g, 
+                  '<span class="variable-highlight">{{$1}}</span>'
                 );
                 
                 // Headings: # Heading 1, ## Heading 2

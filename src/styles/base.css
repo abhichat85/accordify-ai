@@ -84,10 +84,24 @@
   @apply text-right;
 }
 
+/* Variable highlighting */
+.variable-highlight {
+  @apply bg-purple-100 text-purple-800 px-1 rounded transition-colors cursor-pointer;
+}
+
+.variable-highlight:hover {
+  @apply bg-purple-200 text-purple-900;
+}
+
+/* Font for editor */
+.font-jost {
+  font-family: 'Jost', sans-serif;
+}
+
 /* Printed document styling */
 @media print {
   body {
-    font-family: 'Poppins', 'Arial', sans-serif;
+    font-family: 'Jost', 'Arial', sans-serif;
     margin: 1.5cm;
     font-size: 12pt;
     line-height: 1.5;

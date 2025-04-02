@@ -1,6 +1,6 @@
 
-/* Import Google Fonts - Poppins */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+/* Import Google Fonts - Poppins and Jost */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Jost:wght@300;400;500;600;700&display=swap');
 
 /* Import base styles */
 @import './base.css';
@@ -42,5 +42,5 @@
 
 /* Ensure Poppins is applied to all elements */
 html, body, button, input, textarea, select {
-  font-family: 'Poppins', sans-serif;
+  @apply font-poppins;
 }

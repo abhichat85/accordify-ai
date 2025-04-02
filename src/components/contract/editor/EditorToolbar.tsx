@@ -22,8 +22,7 @@ import {
   FileCheck,
   Send,
   Folder,
-  FileIcon,
-  Template
+  FileIcon
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
