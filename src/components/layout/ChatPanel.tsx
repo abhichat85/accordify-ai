@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { ChatInterface } from "../chat/ChatInterface";
 import { Message } from "../chat/MessageBubble";
@@ -23,6 +22,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { AIModeOrb } from "../chat/AIModeOrb";
+import { AiMode } from "../chat/AiModes";
 
 interface ChatPanelProps {
   messages: Message[];
@@ -41,13 +42,12 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
   const [defaultInputValue, setDefaultInputValue] = useState<string>("");
   const [thoughtsExpanded, setThoughtsExpanded] = useState(true);
   const [actionsExpanded, setActionsExpanded] = useState(true);
+  const [currentAiMode, setCurrentAiMode] = useState<AiMode>("normal");
 
-  // Filter messages to get thoughts and actions
   const thoughtMessages = messages.filter(msg => msg.type === "ai" && msg.messageType === "reasoning");
   const actionMessages = messages.filter(msg => msg.type === "ai" && msg.messageType === "actions");
   const regularMessages = messages.filter(msg => msg.messageType !== "reasoning" && msg.messageType !== "actions");
 
-  // Listen for custom events from setChatInputValue
   useEffect(() => {
     const handleCustomEvent = (event: CustomEvent) => {
       if (event.detail && event.detail.prompt) {
@@ -61,10 +61,23 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
       document.removeEventListener('chat-prompt-update', handleCustomEvent as EventListener);
     };
   }, []);
-  
+
+  useEffect(() => {
+    const handleModeChange = (event: CustomEvent) => {
+      if (event.detail && event.detail.mode) {
+        setCurrentAiMode(event.detail.mode);
+      }
+    };
+    
+    document.addEventListener('ai-mode-change', handleModeChange as EventListener);
+    
+    return () => {
+      document.removeEventListener('ai-mode-change', handleModeChange as EventListener);
+    };
+  }, []);
+
   return (
     <div className="flex flex-col h-full overflow-hidden border border-border/40 shadow-sm bg-background">
-      {/* Header */}
       <div className="flex items-center justify-between px-4 py-2 border-b border-border/40 bg-background/90">
         <div className="flex items-center">
           <h2 className="text-base font-medium text-foreground">Accord AI | {activeMode === "write" ? "Write mode" : "Chat mode"} (⌘.)</h2>
@@ -79,7 +92,6 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
         </div>
       </div>
       
-      {/* Main content area */}
       <div className="flex-grow flex flex-col h-full relative">
         <div className="flex-grow overflow-hidden">
           <Tabs value={activeTab} className="h-full">
@@ -87,10 +99,9 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
               <div className="h-full m-0 p-0 flex flex-col">
                 {messages.length === 0 && (
                   <>
-                    {/* Logo section */}
                     <div className="flex flex-col items-center justify-center py-8">
-                      <div className="h-16 w-16 rounded-full bg-secondary border-4 border-muted flex items-center justify-center mb-4">
-                        <div className="h-10 w-10 rounded-full border-t-4 border-r-4 border-primary border-b-4 border-l-4 border-muted animate-spin-slow"></div>
+                      <div className="flex items-center justify-center mb-4">
+                        <AIModeOrb active={true} activeMode={currentAiMode} />
                       </div>
                       <h2 className="text-xl font-semibold text-foreground mb-1 text-center">Write with Accord AI</h2>
                       <p className="text-sm text-muted-foreground text-center px-6">
@@ -104,7 +115,6 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
                 
                 {messages.length > 0 && (
                   <div className="flex-grow overflow-y-auto px-4 py-3 h-full styled-scrollbar">
-                    {/* Thought section */}
                     {thoughtMessages.length > 0 && (
                       <div className="mb-4">
                         <div 
@@ -132,7 +142,6 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
                       </div>
                     )}
                     
-                    {/* Actions section */}
                     {actionMessages.length > 0 && (
                       <div className="mb-4">
                         <div 
@@ -160,7 +169,6 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
                       </div>
                     )}
                     
-                    {/* Regular conversation */}
                     {regularMessages.map((msg, index) => (
                       <div key={msg.id} className={`mb-4 ${msg.type === 'user' ? 'bg-muted/5 p-3 rounded-lg border border-border/30' : 'bg-background'}`}>
                         <div className="flex items-start">
@@ -183,7 +191,6 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
                   </div>
                 )}
                 
-                {/* Chat interface with input */}
                 <ChatInterface
                   onSendMessage={onSendMessage}
                   messages={messages}
@@ -203,7 +210,6 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
         </div>
       </div>
       
-      {/* Disclaimer */}
       <div className="px-4 py-2 border-t border-border/40 bg-background/90 text-xs text-muted-foreground">
         <p>AI may make mistakes. Double-check all generated code.</p>
       </div>

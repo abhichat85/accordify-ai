@@ -75,6 +75,16 @@ export const AiModes: React.FC<AiModesProps> = ({ activeMode, onChange, classNam
     }
   ];
 
+  const handleModeChange = (mode: AiMode) => {
+    onChange(mode);
+    
+    // Dispatch custom event for the orb to listen to
+    const event = new CustomEvent('ai-mode-change', { 
+      detail: { mode } 
+    });
+    document.dispatchEvent(event);
+  };
+
   return (
     <ScrollArea className={cn("py-3 px-1", className)}>
       <div className="flex gap-2 styled-scrollbar">
@@ -89,7 +99,7 @@ export const AiModes: React.FC<AiModesProps> = ({ activeMode, onChange, classNam
                       ? "bg-primary/10 text-primary ring-1 ring-primary/20" 
                       : "bg-secondary hover:bg-secondary/80 text-secondary-foreground hover:shadow-md"
                   )}
-                  onClick={() => onChange(mode.id)}
+                  onClick={() => handleModeChange(mode.id)}
                 >
                   <mode.icon size={14} />
                   {mode.label}
