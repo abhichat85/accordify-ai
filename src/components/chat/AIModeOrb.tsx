@@ -4,6 +4,7 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { MeshDistortMaterial } from '@react-three/drei';
 import { useTheme } from '@/contexts/ThemeContext';
 import { AiMode } from './AiModes';
+import * as THREE from 'three';
 
 interface AIModeOrbProps {
   active: boolean;
