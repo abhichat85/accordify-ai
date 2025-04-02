@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Message } from "./MessageBubble";
 import { cn } from "@/lib/utils";
 import { AiMode } from "./AiModes";
@@ -10,7 +10,6 @@ import { useFileHandling } from "./hooks/useFileHandling";
 import { useProactiveSuggestions } from "./hooks/useProactiveSuggestions";
 import { useContextAwareness } from "./hooks/useContextAwareness";
 import { useAgentCapabilities } from "./hooks/useAgentCapabilities";
-import { Brain } from "lucide-react";
 
 interface ChatInterfaceProps {
   onSendMessage: (message: string, files?: File[]) => void;
@@ -94,27 +93,8 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
             proactiveSuggestions={proactiveSuggestions}
             showProactiveSuggestions={showProactiveSuggestions}
             handleSuggestionClick={handleSuggestionClick}
+            contextAwareness={contextAwareness}
           />
-          
-          {/* Contextual information panel (collapsed by default) */}
-          {messages.length > 0 && contextAwareness.length > 0 && (
-            <div className="px-3 py-2 border-t border-border/20 bg-muted/5 text-xs text-muted-foreground">
-              <div className="flex items-center justify-between mb-1">
-                <div className="flex items-center">
-                  <Brain size={12} className="mr-1 text-primary" />
-                  <span className="font-medium">Context</span>
-                </div>
-              </div>
-              <div className="space-y-1">
-                {contextAwareness.map((item, index) => (
-                  <div key={index} className="flex items-start">
-                    <span className="w-1 h-1 rounded-full bg-primary/70 mt-1.5 mr-1.5"></span>
-                    <p>{item}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
       
         <div className="shrink-0 px-3 pb-1 pt-0.5">
