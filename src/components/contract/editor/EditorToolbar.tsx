@@ -8,7 +8,6 @@ import {
   ChevronDown,
   FileText,
   FileDigit,
-  FileCode,
   Mail,
   NotebookPen,
   MessageSquare,
@@ -21,7 +20,9 @@ import {
   GanttChart,
   Brain,
   FileCheck,
-  Send
+  Send,
+  Folder,
+  Template
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -170,58 +171,22 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
         return;
       
       case 'DOCX':
-        toast({
-          title: "Export Not Available",
-          description: "Direct DOCX export is not available in the browser. Use TXT or PDF format instead.",
-        });
+        const blob = new Blob([exportContent], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+        const url = URL.createObjectURL(blob);
+        
+        if (linkRef.current) {
+          linkRef.current.href = url;
+          linkRef.current.download = `${currentTitle.replace(/\s+/g, '_')}.docx`;
+          linkRef.current.click();
+          
+          setTimeout(() => URL.revokeObjectURL(url), 100);
+          
+          toast({
+            title: "Word Document Export",
+            description: "Your document has been exported as a Word document.",
+          });
+        }
         return;
-        
-      case 'TXT':
-        mimeType = 'text/plain';
-        extension = 'txt';
-        break;
-        
-      case 'MD':
-        mimeType = 'text/markdown';
-        extension = 'md';
-        break;
-        
-      case 'HTML':
-        exportContent = `<!DOCTYPE html>
-<html>
-<head>
-  <title>${currentTitle}</title>
-  <meta charset="utf-8" />
-  <style>
-    body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
-    h1 { font-size: 24px; }
-    h2 { font-size: 20px; }
-  </style>
-</head>
-<body>
-  <h1>${currentTitle}</h1>
-  ${formatContentForPrint(content)}
-</body>
-</html>`;
-        mimeType = 'text/html';
-        extension = 'html';
-        break;
-    }
-    
-    const blob = new Blob([exportContent], { type: mimeType });
-    const url = URL.createObjectURL(blob);
-    
-    if (linkRef.current) {
-      linkRef.current.href = url;
-      linkRef.current.download = `${currentTitle.replace(/\s+/g, '_')}.${extension}`;
-      linkRef.current.click();
-      
-      setTimeout(() => URL.revokeObjectURL(url), 100);
-      
-      toast({
-        title: `${format} Export`,
-        description: `Your document has been exported as ${format}.`,
-      });
     }
   };
 
@@ -364,7 +329,18 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
   const handleSendForSigning = () => {
     setIsSignatureModalOpen(true);
   };
-  
+
+  const handleSaveAsTemplate = () => {
+    if (onStatusChange) {
+      onStatusChange('draft');
+    }
+    
+    toast({
+      title: "Saved as Template",
+      description: "Your document has been saved as a template for future use.",
+    });
+  };
+
   const handleSignatureComplete = () => {
     setIsSignatureModalOpen(false);
     
@@ -388,7 +364,7 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
       }
     }
   };
-  
+
   const handleAIAnalysis = (analysisType: string) => {
     let prompt = "";
     switch (analysisType) {
@@ -487,15 +463,6 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
                 <DropdownMenuItem onClick={() => handleExport('DOCX')} className="flex items-center gap-2">
                   <FileDigit size={16} /> Word Document (.docx)
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleExport('TXT')} className="flex items-center gap-2">
-                  <FileText size={16} /> Plain Text (.txt)
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleExport('MD')} className="flex items-center gap-2">
-                  <FileCode size={16} /> Markdown (.md)
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleExport('HTML')} className="flex items-center gap-2">
-                  <FileCode size={16} /> HTML Document
-                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
             
@@ -524,7 +491,12 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
-                  <DropdownMenuLabel className="text-xs text-muted-foreground">Integrate with</DropdownMenuLabel>
+                  <DropdownMenuLabel className="text-xs text-muted-foreground flex items-center justify-between">
+                    Integrate with
+                    <span className="text-xs font-normal bg-primary/10 text-primary px-2 py-0.5 rounded-full">
+                      Coming Soon
+                    </span>
+                  </DropdownMenuLabel>
                   <DropdownMenuItem onClick={() => handleIntegration('Google Docs')} className="flex items-center gap-2">
                     <FileText size={16} /> Google Docs
                   </DropdownMenuItem>
@@ -586,35 +558,37 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
           )}
           
           <div className="flex items-center gap-2">
-            <Button
-              onClick={handleSave}
-              disabled={isSaving}
-              size="sm"
-              variant={status === 'draft' ? "default" : "outline"}
-              className="h-8 rounded-lg shadow-sm"
-            >
-              {isSaving ? (
-                <>
-                  <div className="animate-spin mr-1 h-3 w-3 border-2 border-current border-t-transparent rounded-full"></div>
-                  <span>Saving...</span>
-                </>
-              ) : (
-                <>
-                  <SaveIcon size={16} className="mr-1" />
-                  <span>Save Draft</span>
-                </>
-              )}
-            </Button>
-            
-            <Button
-              onClick={handleSubmitContract}
-              size="sm"
-              variant="outline"
-              className="h-8 rounded-lg shadow-sm"
-            >
-              <FileCheck size={16} className="mr-1" />
-              <span>Submit</span>
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  size="sm"
+                  variant={status === 'draft' ? "default" : "outline"}
+                  className="h-8 rounded-lg shadow-sm"
+                  disabled={isSaving}
+                >
+                  {isSaving ? (
+                    <>
+                      <div className="animate-spin mr-1 h-3 w-3 border-2 border-current border-t-transparent rounded-full"></div>
+                      <span>Saving...</span>
+                    </>
+                  ) : (
+                    <>
+                      <SaveIcon size={16} className="mr-1" />
+                      <span>Save</span>
+                      <ChevronDown size={14} className="ml-1" />
+                    </>
+                  )}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem onClick={handleSave} className="flex items-center gap-2">
+                  <Folder size={16} /> Save as Draft
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleSaveAsTemplate} className="flex items-center gap-2">
+                  <Template size={16} /> Save as Template
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             
             <Button
               onClick={handleSendForSigning}
