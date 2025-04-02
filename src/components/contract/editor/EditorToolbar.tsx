@@ -22,6 +22,7 @@ import {
   FileCheck,
   Send,
   Folder,
+  FileIcon,
   Template
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -585,7 +586,7 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
                   <Folder size={16} /> Save as Draft
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleSaveAsTemplate} className="flex items-center gap-2">
-                  <Template size={16} /> Save as Template
+                  <FileIcon size={16} /> Save as Template
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
