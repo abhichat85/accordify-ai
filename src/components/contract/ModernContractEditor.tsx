@@ -51,14 +51,14 @@ export const ModernContractEditor: React.FC<ModernContractEditorProps> = ({
       content={content}
       viewMode={viewMode}
       editorMode={editorMode}
-      showFormatting={true} // Always show formatting now
+      showFormatting={true}
       status={status}
       isSaving={isSaving}
       lastSaved={lastSaved}
       setContent={setContent}
       setViewMode={setViewMode}
       setEditorMode={setEditorMode}
-      setShowFormatting={() => {}} // Empty function as we're removing the toggle
+      setShowFormatting={() => {}} // Empty function as formatting is always shown
       setStatus={setStatus}
       handleSave={handleSave}
       setChatPrompt={setChatPrompt}

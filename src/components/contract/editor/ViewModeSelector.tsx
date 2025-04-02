@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Edit3, FileText, LayoutGrid, FileCode, RotateCcw, History } from "lucide-react";
+import { Edit3, FileText, RotateCcw, History } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
   Dialog,
@@ -72,33 +72,6 @@ export const ViewModeSelector: React.FC<ViewModeSelectorProps> = ({
           </Button>
         </div>
         
-        <div className="flex items-center space-x-1">
-          <Button 
-            variant={editorMode === 'rich' ? "secondary" : "ghost"} 
-            size="sm" 
-            className="h-7 text-xs rounded-lg"
-            onClick={() => {
-              setEditorMode('rich');
-              setShowFormatting(true);
-            }}
-          >
-            <LayoutGrid size={14} className="mr-1" />
-            Rich Text
-          </Button>
-          <Button 
-            variant={editorMode === 'code' ? "secondary" : "ghost"} 
-            size="sm" 
-            className="h-7 text-xs rounded-lg"
-            onClick={() => {
-              setEditorMode('code');
-              setShowFormatting(false);
-            }}
-          >
-            <FileCode size={14} className="mr-1" />
-            Markdown
-          </Button>
-        </div>
-        
         <div className="ml-auto flex items-center">
           <Button 
             variant="ghost" 
@@ -108,14 +81,6 @@ export const ViewModeSelector: React.FC<ViewModeSelectorProps> = ({
           >
             <History size={14} className="mr-1" />
             History
-          </Button>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="h-7 text-xs rounded-lg"
-            onClick={() => setShowFormatting(!showFormatting)}
-          >
-            {showFormatting ? "Hide Formatting" : "Show Formatting"}
           </Button>
         </div>
       </div>

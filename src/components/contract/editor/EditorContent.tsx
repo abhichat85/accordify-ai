@@ -49,15 +49,6 @@ export const EditorContent: React.FC<EditorContentProps> = ({
     };
   }, []);
 
-  // Add variable highlighting in the editor
-  const highlightVariables = (text: string) => {
-    // Look for patterns like {{variable_name}} in the text
-    return text.replace(
-      /\{\{([^{}]+)\}\}/g, 
-      '<span class="variable-highlight">{{$1}}</span>'
-    );
-  };
-
   return (
     <div className="flex-grow h-full overflow-y-auto">
       {viewMode === 'edit' ? (
@@ -98,7 +89,13 @@ export const EditorContent: React.FC<EditorContentProps> = ({
                   '<u>$1</u>'
                 );
                 
-                // Variables: {{variable}}
+                // Variables: [VARIABLE_NAME] - enhanced with theme-specific purple highlight
+                formattedParagraph = formattedParagraph.replace(
+                  /\[(.*?)\]/g, 
+                  '<span class="variable-highlight">[$1]</span>'
+                );
+                
+                // Variables: {{variable}} - enhanced with theme-specific purple highlight
                 formattedParagraph = formattedParagraph.replace(
                   /\{\{([^{}]+)\}\}/g, 
                   '<span class="variable-highlight">{{$1}}</span>'
