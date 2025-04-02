@@ -1,22 +1,46 @@
 
-@import 'base.css';
-@import 'animations.css';
-@import 'backgrounds.css';
-@import './themes/blue.css';
-@import './themes/green.css';
-@import './themes/orange.css';
+/* Import Google Fonts - Poppins and Jost */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Jost:wght@300;400;500;600;700&display=swap');
+
+/* Import base styles */
+@import './base.css';
+
+/* Import theme files */
 @import './themes/purple.css';
+@import './themes/orange.css';
+@import './themes/zinc.css';
+@import './themes/blue.css';
 @import './themes/red.css';
 @import './themes/rose.css';
+@import './themes/green.css';
 @import './themes/yellow.css';
-@import './themes/zinc.css';
 
-@layer base {
-  :root {
-    --muted-rgb: 10, 10, 10;
-  }
+/* Import animations */
+@import './animations.css';
+
+/* CSS Variables for RGB values */
+:root {
+  --primary-rgb: 99, 102, 241;  /* Indigo-500 in RGB */
+  --muted-rgb: 229, 231, 235;   /* Gray-200 in RGB */
+  --foreground-rgb: 15, 23, 42; /* Slate-900 in RGB */
+  --background-rgb: 255, 255, 255; /* White in RGB */
+  --card-rgb: 249, 250, 251;    /* Gray-50 in RGB */
+  --border-rgb: 229, 231, 235;  /* Gray-200 in RGB */
   
-  .dark {
-    --muted-rgb: 230, 230, 230;
-  }
+  /* Set Poppins as the primary font family */
+  font-family: 'Poppins', sans-serif;
+}
+
+.dark {
+  --primary-rgb: 165, 180, 252;  /* Indigo-300 in RGB */
+  --muted-rgb: 55, 65, 81;       /* Gray-700 in RGB */
+  --foreground-rgb: 241, 245, 249; /* Slate-100 in RGB */
+  --background-rgb: 15, 23, 42;    /* Slate-900 in RGB */
+  --card-rgb: 30, 41, 59;         /* Slate-800 in RGB */
+  --border-rgb: 51, 65, 85;       /* Slate-700 in RGB */
+}
+
+/* Ensure Poppins is applied to all elements */
+html, body, button, input, textarea, select {
+  @apply font-poppins;
 }

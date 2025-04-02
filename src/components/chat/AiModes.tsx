@@ -2,16 +2,17 @@
 import React from "react";
 import { cn } from "@/lib/utils";
 import { 
+  Brain, 
   Scale, 
   BarChart3, 
   Sparkles, 
   Lightbulb, 
   Search,
   BookText,
+  CircleCheckBig
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { AIModeOrb } from "./AIModeOrb";
 
 export type AiMode = "normal" | "lawyer" | "reasoning" | "creative" | "analyst" | "research" | "educator";
 
@@ -45,7 +46,7 @@ export const AiModes: React.FC<AiModesProps> = ({ activeMode, onChange, classNam
     {
       id: "reasoning",
       label: "Reasoning",
-      icon: Lightbulb,
+      icon: Brain,
       description: "Detailed reasoning and step-by-step analysis"
     },
     {
@@ -90,15 +91,11 @@ export const AiModes: React.FC<AiModesProps> = ({ activeMode, onChange, classNam
                   )}
                   onClick={() => onChange(mode.id)}
                 >
-                  {/* Replace icon with animated orb */}
-                  <div className="flex items-center justify-center">
-                    <AIModeOrb 
-                      active={activeMode === mode.id} 
-                      mode={mode.id}
-                      size={0.8}
-                    />
-                  </div>
-                  <span className="ml-1">{mode.label}</span>
+                  <mode.icon size={14} />
+                  {mode.label}
+                  {activeMode === mode.id && (
+                    <CircleCheckBig size={14} className="ml-1 text-primary" />
+                  )}
                 </button>
               </TooltipTrigger>
               <TooltipContent side="bottom" className="text-xs">
