@@ -86,7 +86,7 @@ export const TriPanelLayout: React.FC<TriPanelLayoutProps> = ({
             <div className="mb-6">
               <h3 className={cn(
                 "text-xs uppercase tracking-wider font-semibold text-muted-foreground mb-3",
-                leftCollapsed ? "px-2" : "px-2"
+                leftCollapsed ? "px-2 text-center" : "px-2 text-left"
               )}>
                 {!leftCollapsed && "MAIN"}
               </h3>
@@ -149,7 +149,7 @@ export const TriPanelLayout: React.FC<TriPanelLayoutProps> = ({
             <div className="mb-6">
               <h3 className={cn(
                 "text-xs uppercase tracking-wider font-semibold text-muted-foreground mb-3",
-                leftCollapsed ? "px-2" : "px-2"
+                leftCollapsed ? "px-2 text-center" : "px-2 text-left"
               )}>
                 {!leftCollapsed && "WORKSPACE"}
               </h3>
@@ -185,7 +185,7 @@ export const TriPanelLayout: React.FC<TriPanelLayoutProps> = ({
             
             {!leftCollapsed && (
               <div className="mb-6">
-                <h3 className="text-xs uppercase tracking-wider font-semibold text-muted-foreground mb-3 px-2">
+                <h3 className="text-xs uppercase tracking-wider font-semibold text-muted-foreground mb-3 px-2 text-left">
                   RECENT
                 </h3>
                 

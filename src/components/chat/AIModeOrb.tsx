@@ -73,7 +73,7 @@ const OrbMesh: React.FC<{ active: boolean; activeMode: AiMode; size: number }> =
   
   return (
     <mesh ref={mesh}>
-      <sphereGeometry args={[size, 32, 32]} />
+      <sphereGeometry args={[size, 64, 64]} />
       <MeshDistortMaterial
         color={getOrbColor()}
         attach="material"
@@ -89,10 +89,10 @@ const OrbMesh: React.FC<{ active: boolean; activeMode: AiMode; size: number }> =
 export const AIModeOrb: React.FC<AIModeOrbProps> = ({ 
   active, 
   activeMode,
-  size = 0.8
+  size = 1.2  // Increased the default size from 0.8 to 1.2
 }) => {
   return (
-    <div className="w-16 h-16">
+    <div className="w-24 h-24"> {/* Increased from w-16 h-16 to w-24 h-24 */}
       <Canvas camera={{ position: [0, 0, 5], fov: 25 }}>
         <ambientLight intensity={0.5} />
         <pointLight position={[10, 10, 10]} intensity={0.8} />

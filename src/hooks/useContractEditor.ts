@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { DEFAULT_NDA_TEMPLATE } from "@/constants/contractTemplates";
 import { setChatInputValue } from "@/utils/chatInputUtils";
+import { supabase } from "@/integrations/supabase/client";
 
 export interface ContractEditorState {
   content: string;
@@ -106,23 +107,110 @@ export const useContractEditor = (title: string, initialContent: string) => {
     }
   };
 
-  const handleSave = () => {
-    setState(prev => ({ ...prev, isSaving: true }));
-    // Simulating saving process
-    setTimeout(() => {
-      setState(prev => ({ 
-        ...prev, 
-        isSaving: false, 
-        lastSaved: new Date(),
-        // Always set status to draft when manually saving
-        status: 'draft'
-      }));
+  const saveToSupabase = async (content: string, title: string, status: 'draft' | 'submitted' | 'sent_for_signing') => {
+    try {
+      // Get the current user
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) {
+        console.error("No authenticated user found");
+        return false;
+      }
       
+      const userId = session.user.id;
+      
+      // Check if a document with this title exists for the current user
+      const { data: existingDocs, error: fetchError } = await supabase
+        .from('documents')
+        .select('id')
+        .eq('user_id', userId)
+        .eq('title', title)
+        .limit(1);
+        
+      if (fetchError) {
+        console.error("Error fetching documents:", fetchError);
+        return false;
+      }
+      
+      let result;
+      
+      // Update or insert the document
+      if (existingDocs && existingDocs.length > 0) {
+        // Update existing document
+        result = await supabase
+          .from('documents')
+          .update({
+            content,
+            status,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', existingDocs[0].id);
+      } else {
+        // Insert new document
+        result = await supabase
+          .from('documents')
+          .insert({
+            title,
+            content,
+            user_id: userId,
+            status,
+            document_type: 'contract',
+            file_path: `contracts/${title.toLowerCase().replace(/\s+/g, '-')}`
+          });
+      }
+      
+      if (result.error) {
+        console.error("Error saving document:", result.error);
+        return false;
+      }
+      
+      return true;
+    } catch (error) {
+      console.error("Error in saveToSupabase:", error);
+      return false;
+    }
+  };
+
+  const handleSave = async () => {
+    setState(prev => ({ ...prev, isSaving: true }));
+    
+    try {
+      // Save to Supabase
+      const success = await saveToSupabase(
+        state.content,
+        state.currentTitle,
+        'draft' // Always save as draft when manually saving
+      );
+      
+      if (success) {
+        setState(prev => ({ 
+          ...prev, 
+          isSaving: false, 
+          lastSaved: new Date(),
+          status: 'draft'
+        }));
+        
+        toast({
+          title: "Contract saved",
+          description: "Your changes have been saved successfully to the database.",
+        });
+      } else {
+        // Handle error
+        setState(prev => ({ ...prev, isSaving: false }));
+        toast({
+          title: "Save failed",
+          description: "There was an error saving your contract. Please try again.",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error("Error saving contract:", error);
+      setState(prev => ({ ...prev, isSaving: false }));
       toast({
-        title: "Contract saved",
-        description: "Your changes have been saved successfully.",
+        title: "Save failed",
+        description: "There was an error saving your contract. Please try again.",
+        variant: "destructive"
       });
-    }, 800);
+    }
   };
 
   return {
