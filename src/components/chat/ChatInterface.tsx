@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Message } from "./MessageBubble";
 import { cn } from "@/lib/utils";
-import { AiMode } from "./AiModes";
+import { AiModes, AiMode } from "./AiModes";
 import { ChatMessageArea } from "./ChatMessageArea";
 import { ChatInputArea } from "./ChatInputArea";
 import { useInputHandling } from "./hooks/useInputHandling";
