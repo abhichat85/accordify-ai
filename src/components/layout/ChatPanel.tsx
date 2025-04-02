@@ -1,29 +1,16 @@
+
 import React, { useState, useEffect } from "react";
 import { ChatInterface } from "../chat/ChatInterface";
 import { Message } from "../chat/MessageBubble";
 import { 
-  MessageSquare, 
-  FileText,
-  Brain,
-  Sparkles,
-  Send,
   RotateCcw,
   X,
-  FileSearch,
-  ChevronDown
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { DocumentAnalysis } from "../contract/DocumentAnalysis";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { AIModeOrb } from "../chat/AIModeOrb";
 import { AiMode } from "../chat/AiModes";
+import { ChatContent } from "../chat/panels/ChatContent";
 
 interface ChatPanelProps {
   messages: Message[];
@@ -43,10 +30,6 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
   const [thoughtsExpanded, setThoughtsExpanded] = useState(true);
   const [actionsExpanded, setActionsExpanded] = useState(true);
   const [currentAiMode, setCurrentAiMode] = useState<AiMode>("normal");
-
-  const thoughtMessages = messages.filter(msg => msg.type === "ai" && msg.messageType === "reasoning");
-  const actionMessages = messages.filter(msg => msg.type === "ai" && msg.messageType === "actions");
-  const regularMessages = messages.filter(msg => msg.messageType !== "reasoning" && msg.messageType !== "actions");
 
   useEffect(() => {
     const handleCustomEvent = (event: CustomEvent) => {
@@ -97,99 +80,16 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
           <Tabs value={activeTab} className="h-full">
             <TabsContent value="chat" className="h-full m-0 p-0 data-[state=active]:flex flex-col">
               <div className="h-full m-0 p-0 flex flex-col">
-                {messages.length === 0 && (
-                  <>
-                    <div className="flex flex-col items-center justify-center py-8">
-                      <div className="flex items-center justify-center mb-4">
-                        <AIModeOrb active={true} activeMode={currentAiMode} />
-                      </div>
-                      <h2 className="text-xl font-semibold text-foreground mb-1 text-center">Write with Accord AI</h2>
-                      <p className="text-sm text-muted-foreground text-center px-6">
-                        {activeMode === "write" 
-                          ? "Draft, review, or analyze contracts with AI assistance" 
-                          : "Ask questions about contracts or get legal guidance"}
-                      </p>
-                    </div>
-                  </>
-                )}
-                
-                {messages.length > 0 && (
-                  <div className="flex-grow overflow-y-auto px-4 py-3 h-full styled-scrollbar">
-                    {thoughtMessages.length > 0 && (
-                      <div className="mb-4">
-                        <div 
-                          className="flex items-center justify-between cursor-pointer p-2 bg-muted/30 rounded-t-lg border-x border-t border-border/30"
-                          onClick={() => setThoughtsExpanded(!thoughtsExpanded)}
-                        >
-                          <div className="flex items-center">
-                            <Brain size={16} className="text-primary mr-2" />
-                            <h3 className="text-sm font-medium">Thinking process</h3>
-                          </div>
-                          <ChevronDown size={16} className={`transition-transform ${thoughtsExpanded ? 'rotate-180' : ''}`} />
-                        </div>
-                        
-                        {thoughtsExpanded && (
-                          <div className="p-3 bg-muted/10 border-x border-b border-border/30 rounded-b-lg mb-2">
-                            <div className="text-sm text-muted-foreground space-y-2">
-                              {thoughtMessages.map((thought, index) => (
-                                <div key={index} className="p-2 bg-muted/5 rounded">
-                                  <p className="whitespace-pre-wrap">{thought.content}</p>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                    
-                    {actionMessages.length > 0 && (
-                      <div className="mb-4">
-                        <div 
-                          className="flex items-center justify-between cursor-pointer p-2 bg-muted/30 rounded-t-lg border-x border-t border-border/30"
-                          onClick={() => setActionsExpanded(!actionsExpanded)}
-                        >
-                          <div className="flex items-center">
-                            <FileText size={16} className="text-primary mr-2" />
-                            <h3 className="text-sm font-medium">Actions</h3>
-                          </div>
-                          <ChevronDown size={16} className={`transition-transform ${actionsExpanded ? 'rotate-180' : ''}`} />
-                        </div>
-                        
-                        {actionsExpanded && (
-                          <div className="p-3 bg-muted/10 border-x border-b border-border/30 rounded-b-lg">
-                            <div className="text-sm space-y-2">
-                              {actionMessages.map((action, index) => (
-                                <div key={index} className="p-2 bg-primary/5 rounded border border-primary/10">
-                                  <p className="whitespace-pre-wrap">{action.content}</p>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                    
-                    {regularMessages.map((msg, index) => (
-                      <div key={msg.id} className={`mb-4 ${msg.type === 'user' ? 'bg-muted/5 p-3 rounded-lg border border-border/30' : 'bg-background'}`}>
-                        <div className="flex items-start">
-                          <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-3 shrink-0 ${msg.type === 'user' ? 'bg-primary/20' : 'bg-primary text-primary-foreground'}`}>
-                            {msg.type === 'user' ? 'U' : 'AI'}
-                          </div>
-                          <div className="flex-grow">
-                            <p className="text-sm font-medium mb-1">{msg.type === 'user' ? 'You' : 'Assistant'}</p>
-                            <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                    
-                    {isProcessing && (
-                      <div className="flex items-center justify-center py-4">
-                        <div className="w-6 h-6 rounded-full border-2 border-t-primary animate-spin"></div>
-                      </div>
-                    )}
-                  </div>
-                )}
+                <ChatContent
+                  messages={messages}
+                  isProcessing={isProcessing}
+                  thoughtsExpanded={thoughtsExpanded}
+                  setThoughtsExpanded={setThoughtsExpanded}
+                  actionsExpanded={actionsExpanded}
+                  setActionsExpanded={setActionsExpanded}
+                  activeMode={activeMode}
+                  currentAiMode={currentAiMode}
+                />
                 
                 <ChatInterface
                   onSendMessage={onSendMessage}
