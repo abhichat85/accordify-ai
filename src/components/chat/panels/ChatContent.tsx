@@ -3,7 +3,7 @@ import React from "react";
 import { Message } from "../MessageBubble";
 import { ThoughtPanel } from "./ThoughtPanel";
 import { ActionPanel } from "./ActionPanel";
-import { MessagesList } from "./MessagesList";
+import { MessagesList } from "../components/MessagesList";
 import { EmptyChatState } from "./EmptyChatState";
 import { AiMode } from "../AiModes";
 
@@ -51,10 +51,7 @@ export const ChatContent: React.FC<ChatContentProps> = ({
         setActionsExpanded={setActionsExpanded} 
       />
       
-      <MessagesList 
-        regularMessages={regularMessages} 
-        isProcessing={isProcessing} 
-      />
+      <MessagesList messages={regularMessages} />
     </div>
   );
 };
