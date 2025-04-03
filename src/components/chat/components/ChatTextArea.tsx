@@ -1,6 +1,6 @@
-
 import React, { useRef, useEffect } from "react";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 
 interface ChatTextAreaProps {
   value: string;
@@ -24,6 +24,12 @@ export const ChatTextArea: React.FC<ChatTextAreaProps> = ({
     }
   }, [value]);
 
+  useEffect(() => {
+    // Add event listener for window resize to ensure textarea height is adjusted
+    window.addEventListener('resize', adjustTextareaHeight);
+    return () => window.removeEventListener('resize', adjustTextareaHeight);
+  }, []);
+
   const adjustTextareaHeight = () => {
     if (textareaRef.current) {
       // Reset height to auto to get the correct scrollHeight
@@ -44,9 +50,16 @@ export const ChatTextArea: React.FC<ChatTextAreaProps> = ({
       onChange={onChange}
       onKeyDown={onKeyDown}
       placeholder={placeholder}
-      className="min-h-[40px] max-h-[150px] py-3 px-4 flex-1 bg-transparent border-0 focus-visible:ring-0 resize-none overflow-y-auto styled-scrollbar"
+      className={cn(
+        "min-h-[40px] max-h-[150px] py-3 px-4 flex-1 bg-transparent",
+        "border-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none",
+        "resize-none overflow-y-auto styled-scrollbar",
+        "text-foreground placeholder:text-muted-foreground/60",
+        "transition-all duration-200"
+      )}
       data-chat-input="true"
-      aria-label="chat-input"
+      aria-label="Chat input field"
+      spellCheck="true"
     />
   );
 };

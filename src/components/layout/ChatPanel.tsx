@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { ChatInterface } from "../chat/ChatInterface";
 import { Message } from "../chat/MessageBubble";
@@ -10,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { DocumentAnalysis } from "../contract/DocumentAnalysis";
 import { AiMode } from "../chat/AiModes";
-import { ChatContent } from "../chat/panels/ChatContent";
+import { EmptyChatState } from "../chat/panels/EmptyChatState";
 
 interface ChatPanelProps {
   messages: Message[];
@@ -80,16 +79,11 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
           <Tabs value={activeTab} className="h-full">
             <TabsContent value="chat" className="h-full m-0 p-0 data-[state=active]:flex flex-col">
               <div className="h-full m-0 p-0 flex flex-col">
-                <ChatContent
-                  messages={messages}
-                  isProcessing={isProcessing}
-                  thoughtsExpanded={thoughtsExpanded}
-                  setThoughtsExpanded={setThoughtsExpanded}
-                  actionsExpanded={actionsExpanded}
-                  setActionsExpanded={setActionsExpanded}
-                  activeMode={activeMode}
-                  currentAiMode={currentAiMode}
-                />
+                {messages.length === 0 ? (
+                  <div className="flex-grow">
+                    <EmptyChatState activeMode={activeMode} currentAiMode={currentAiMode} />
+                  </div>
+                ) : null}
                 
                 <ChatInterface
                   onSendMessage={onSendMessage}

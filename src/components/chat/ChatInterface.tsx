@@ -1,5 +1,4 @@
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Message } from "./MessageBubble";
 import { cn } from "@/lib/utils";
 import { AiModes, AiMode } from "./AiModes";
@@ -61,6 +60,39 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   const agentCapabilities = useAgentCapabilities();
   const [aiMode, setAiMode] = useState<AiMode>("normal");
 
+  // Create a thinking message to display in the flow
+  const [messagesWithThinking, setMessagesWithThinking] = useState<Message[]>(messages);
+  
+  useEffect(() => {
+    if (isProcessing && messages.length > 0) {
+      // Add a thinking indicator as part of the message flow
+      const lastMessage = messages[messages.length - 1];
+      const thinkingMessage: Message = {
+        id: 'thinking-indicator',
+        type: 'ai',
+        content: '',
+        timestamp: new Date(),
+        messageType: 'thinking',
+        sections: [
+          {
+            type: 'thinking',
+            title: 'Thinking Process',
+            content: "I'm analyzing your request and generating a detailed response..."
+          }
+        ]
+      };
+      
+      // Only add the thinking message if the last message isn't already from the AI
+      if (lastMessage.type === 'user') {
+        setMessagesWithThinking([...messages, thinkingMessage]);
+      } else {
+        setMessagesWithThinking(messages);
+      }
+    } else {
+      setMessagesWithThinking(messages);
+    }
+  }, [messages, isProcessing]);
+
   const handleSubmit = () => {
     if (inputValue.trim() || files.length > 0) {
       const messageWithMode = aiMode !== "normal" 
@@ -87,9 +119,9 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
     )}>
       <div className="flex flex-col h-full overflow-hidden">
         <div className="flex-grow overflow-hidden flex flex-col">
-          {/* Main chat area */}
+          {/* Main chat area with thinking indicator integrated */}
           <ChatMessageArea 
-            messages={messages}
+            messages={messagesWithThinking}
             proactiveSuggestions={proactiveSuggestions}
             showProactiveSuggestions={showProactiveSuggestions}
             handleSuggestionClick={handleSuggestionClick}

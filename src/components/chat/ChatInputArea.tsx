@@ -1,10 +1,10 @@
-
 import React from "react";
 import { cn } from "@/lib/utils";
 import { FileChips } from "./components/FileChips";
 import { ChatTextArea } from "./components/ChatTextArea";
 import { ActionButtons } from "./components/ActionButtons";
 import { DragOverlay } from "./components/DragOverlay";
+import { Paperclip, Camera, ScreenShare } from "lucide-react";
 
 interface ChatInputAreaProps {
   inputValue: string;
@@ -33,7 +33,7 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
   handleSubmit,
   isProcessing,
   files,
-  setFiles,
+  setFiles, 
   isDragging,
   setIsDragging,
   selectedModel = "GPT-4o",
@@ -55,8 +55,10 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
     <div className="p-3">
       <div
         className={cn(
-          "relative rounded-xl border transition-colors focus-within:border-primary",
-          isDragging ? "border-primary bg-primary/10" : "border-border/40"
+          "relative rounded-xl border shadow-sm transition-all duration-200 focus-within:border-primary focus-within:shadow-md",
+          isDragging 
+            ? "border-primary/70 bg-primary/5 shadow-primary/10" 
+            : "border-border/40 hover:border-border/70"
         )}
         onDrop={handleFileDrop}
         onDragOver={handleDragOver}
@@ -74,6 +76,7 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
             value={inputValue}
             onChange={handleInputChange}
             onKeyDown={onKeyDown}
+            placeholder={`Message Accord AI${files.length > 0 ? ' with attachments' : ''}...`}
           />
         </div>
 
@@ -86,6 +89,23 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
           selectedModel={selectedModel}
           onModelSelect={onModelSelect}
         />
+      </div>
+      
+      {/* Status indicator */}
+      <div className="mt-2 flex justify-between items-center text-xs text-muted-foreground px-2">
+        <div className="flex items-center gap-1">
+          {isProcessing && (
+            <span className="flex items-center">
+              <span className="animate-pulse mr-1">•</span>
+              Accord AI is thinking...
+            </span>
+          )}
+        </div>
+        <div>
+          {selectedModel && (
+            <span className="opacity-60">Using {selectedModel}</span>
+          )}
+        </div>
       </div>
       
       {/* Hidden file input */}

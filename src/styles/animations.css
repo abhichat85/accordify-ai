@@ -219,3 +219,37 @@
     transform: rotate(360deg);
   }
 }
+
+/* New animations for chat UI */
+.animate-pulse-slow {
+  animation: pulse-slow 3s ease-in-out infinite;
+}
+
+.animate-bounce-slow {
+  animation: bounce-slow 2s ease-in-out infinite;
+}
+
+.animate-in {
+  animation-fill-mode: forwards;
+  animation-duration: 300ms;
+  animation-timing-function: ease-in-out;
+}
+
+.fade-in-50 {
+  animation-name: fade-in-50;
+}
+
+@keyframes pulse-slow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes bounce-slow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes fade-in-50 {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

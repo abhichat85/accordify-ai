@@ -1,4 +1,3 @@
-
 import React from "react";
 import { MessageBubble, Message } from "../MessageBubble";
 
@@ -13,7 +12,7 @@ export const MessagesList: React.FC<MessagesListProps> = ({
     <>
       {messages.map((msg, index) => (
         <MessageBubble
-          key={msg.id}
+          key={msg.id || `msg-${index}`}
           message={msg}
           isLatest={index === messages.length - 1}
         />
