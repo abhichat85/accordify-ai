@@ -1,7 +1,6 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Edit3, FileText, RotateCcw, History } from "lucide-react";
+import { RotateCcw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
   Dialog,
@@ -20,7 +19,7 @@ interface ViewModeSelectorProps {
   setShowFormatting: (show: boolean) => void;
 }
 
-export const ViewModeSelector: React.FC<ViewModeSelectorProps> = ({
+const ViewModeSelector: React.FC<ViewModeSelectorProps> = ({
   viewMode,
   setViewMode,
   editorMode,
@@ -50,41 +49,6 @@ export const ViewModeSelector: React.FC<ViewModeSelectorProps> = ({
 
   return (
     <>
-      <div className="flex items-center px-4 py-2 border-b border-border/40 bg-muted/30">
-        <div className="flex items-center space-x-1 mr-4">
-          <Button 
-            variant={viewMode === 'edit' ? "secondary" : "ghost"} 
-            size="sm" 
-            className="h-7 text-xs rounded-lg"
-            onClick={() => setViewMode('edit')}
-          >
-            <Edit3 size={14} className="mr-1" />
-            Edit
-          </Button>
-          <Button 
-            variant={viewMode === 'preview' ? "secondary" : "ghost"} 
-            size="sm" 
-            className="h-7 text-xs rounded-lg"
-            onClick={() => setViewMode('preview')}
-          >
-            <FileText size={14} className="mr-1" />
-            Preview
-          </Button>
-        </div>
-        
-        <div className="ml-auto flex items-center">
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="h-7 text-xs rounded-lg" 
-            onClick={handleVersionHistory}
-          >
-            <History size={14} className="mr-1" />
-            History
-          </Button>
-        </div>
-      </div>
-
       <Dialog open={historyDialogOpen} onOpenChange={setHistoryDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -120,3 +84,5 @@ export const ViewModeSelector: React.FC<ViewModeSelectorProps> = ({
     </>
   );
 };
+
+export default ViewModeSelector;

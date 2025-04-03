@@ -1,48 +1,52 @@
-import React, { useRef, useState } from "react";
+import React, { useState, useRef } from "react";
 import { 
   SaveIcon, 
-  Printer,
-  Download,
   Share2,
-  AlertCircle,
+  Download, 
+  Printer, 
+  MoreHorizontal,
   ChevronDown,
   FileText,
-  FileDigit,
+  FileImage,
+  FileJson,
+  Send,
+  Clock,
+  Check,
   Mail,
+  FileSymlink,
   NotebookPen,
   MessageSquare,
   CalendarDays,
-  FileSymlink,
-  Clock,
   FileSearch,
   CheckCircle,
   Scale,
   GanttChart,
   Brain,
-  FileCheck,
-  Send,
   Folder,
-  FileIcon
+  FileIcon,
+  History // Keep History for Versions button if needed later
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  DropdownMenuGroup,
+} from "@/components/ui/dropdown-menu";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
-  DropdownMenuGroup,
-  DropdownMenuLabel,
-} from "@/components/ui/dropdown-menu";
-import { useToast } from "@/hooks/use-toast";
-import { setChatInputValue } from "@/utils/chatInputUtils";
+import { useToast } from "@/components/ui/use-toast";
 import { SignatureRequestModal } from "@/components/signature/SignatureRequestModal";
+import { setChatInputValue } from "@/utils/chatInputUtils"; // Assuming this utility exists
 
 interface EditorToolbarProps {
   title: string;
@@ -51,59 +55,159 @@ interface EditorToolbarProps {
   handleSave: () => void;
   isSaving: boolean;
   lastSaved: Date | null;
-  content?: string;
-  status?: 'draft' | 'submitted' | 'sent_for_signing';
-  onStatusChange?: (status: 'draft' | 'submitted' | 'sent_for_signing') => void;
-  setChatPrompt?: (prompt: string) => boolean;
+  content: string;
+  status: 'draft' | 'submitted' | 'sent_for_signing';
+  onStatusChange: (status: 'draft' | 'submitted' | 'sent_for_signing') => void;
+  setChatPrompt?: (prompt: string) => boolean; // Keep this prop
+  onVersionsClick?: () => void; // Keep this prop for now, can remove if Versions button is unwanted
 }
 
 export const EditorToolbar: React.FC<EditorToolbarProps> = ({
+  title,
   currentTitle,
   setCurrentTitle,
   handleSave,
   isSaving,
   lastSaved,
-  content = "",
-  status = 'draft',
+  content,
+  status,
   onStatusChange,
-  setChatPrompt
+  setChatPrompt, // Destructure the prop
+  onVersionsClick // Destructure the prop
 }) => {
-  const { toast } = useToast();
-  const linkRef = useRef<HTMLAnchorElement>(null);
+  const [isEditing, setIsEditing] = useState(false);
   const [isSignatureModalOpen, setIsSignatureModalOpen] = useState(false);
+  const linkRef = useRef<HTMLAnchorElement>(null);
+  const { toast } = useToast();
+
+  const handleTitleClick = () => {
+    setIsEditing(true);
+  };
+
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCurrentTitle(e.target.value);
+  };
+
+  const handleTitleBlur = () => {
+    setIsEditing(false);
+    // Optionally save on blur, or rely on explicit save
+    // handleSave(); 
+  };
+
+  const handleTitleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      setIsEditing(false);
+      // Optionally save on enter
+      // handleSave();
+    }
+  };
+
+  const handleShareLink = () => {
+    const shareUrl = `https://example.com/shared-contract/${currentTitle.replace(/\s+/g, '-').toLowerCase()}`;
+    navigator.clipboard.writeText(shareUrl)
+      .then(() => {
+        toast({
+          title: "Link Copied",
+          description: "Shareable link has been copied to clipboard.",
+        });
+      })
+      .catch(err => {
+        toast({
+          title: "Copy Failed",
+          description: "Could not copy link to clipboard.",
+          variant: "destructive"
+        });
+      });
+  };
+  
+  const handleShareEmail = () => {
+     const subject = encodeURIComponent(currentTitle);
+     const body = encodeURIComponent(`${currentTitle}\n\n${content}`);
+     window.open(`mailto:?subject=${subject}&body=${body}`);
+     toast({
+       title: "Email Sharing",
+       description: "Opening your default email client...",
+     });
+  };
+
+  const handleExport = (format: 'docx' | 'json' | 'image' /* Removed pdf */) => {
+    let formattedContent: string | Blob = content;
+    let mimeType = 'text/plain';
+    let extension = 'txt';
+
+    switch (format) {
+      case 'docx':
+        // Basic DOCX creation - for real implementation, use a library like docx or mammoth
+        formattedContent = new Blob([
+          `<html><head><meta charset='utf-8'></head><body>${content.replace(/\n/g, '<br/>')}</body></html>`
+        ], { type: 'application/msword' });
+        mimeType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+        extension = 'docx';
+        break;
+      // PDF export removed by user - can be re-added if needed with a library like jsPDF
+      case 'json':
+        formattedContent = JSON.stringify({ title: currentTitle, content: content }, null, 2);
+        mimeType = 'application/json';
+        extension = 'json';
+        break;
+      case 'image':
+        // Requires a library like html2canvas to render content to an image
+        toast({ title: "Image Export", description: "Image export requires a rendering library (coming soon).", variant: "destructive" });
+        return; // Placeholder
+        // mimeType = 'image/png';
+        // extension = 'png';
+        // break;
+    }
+
+    const blob = formattedContent instanceof Blob ? formattedContent : new Blob([formattedContent], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const a = linkRef.current || document.createElement('a');
+    a.href = url;
+    a.download = `${currentTitle.replace(/\s+/g, '_')}.${extension}`;
+    if (!linkRef.current) document.body.appendChild(a);
+    a.click();
+    if (!linkRef.current) document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    toast({
+      title: "Export successful",
+      description: `Document has been prepared for download as ${format.toUpperCase()}.`,
+    });
+  };
+  
+  // Basic print formatting - might need improvement for complex content
+  const formatContentForPrint = (text: string): string => {
+    let formattedText = text;
+    formattedText = formattedText
+      .split('\n\n')
+      .map(paragraph => {
+        if (!paragraph.trim()) return '';
+        const paraHtml = paragraph
+          .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') // Basic HTML escaping
+          .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>') // Bold
+          .replace(/\*(.+?)\*/g, '<em>$1</em>') // Italic
+          .replace(/__(.+?)__/g, '<u>$1</u>') // Underline (using __ instead of ++, removed unnecessary escapes)
+          .replace(/\n/g, '<br>'); // Handle line breaks within paragraphs
+        return `<p>${paraHtml}</p>`;
+      })
+      .join('\n');
+    return formattedText;
+  };
 
   const handlePrint = () => {
-    toast({
-      title: "Preparing document for printing",
-      description: "Opening print dialog...",
-    });
-    
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) {
-      toast({
-        title: "Print failed",
-        description: "Unable to open print window. Check your popup blocker settings.",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    printWindow.document.write(`
+     const printWindow = window.open('', '_blank');
+     if (!printWindow) {
+       toast({ title: "Print Failed", description: "Cannot open print window. Check popup blocker.", variant: "destructive" });
+       return;
+     }
+     printWindow.document.write(`
       <!DOCTYPE html>
       <html>
         <head>
-          <title>${currentTitle}</title>
+          <title>Print - ${currentTitle}</title>
           <style>
-            body {
-              font-family: 'Arial', sans-serif;
-              max-width: 8.5in;
-              margin: 0.5in auto;
-              line-height: 1.5;
-              color: #333;
-            }
-            h1 { font-size: 24px; margin-top: 24px; margin-bottom: 16px; }
-            h2 { font-size: 20px; margin-top: 20px; margin-bottom: 12px; }
-            p { margin-bottom: 12px; }
+            body { font-family: sans-serif; margin: 1in; line-height: 1.5; }
+            p { margin-bottom: 1em; }
             strong { font-weight: bold; }
             em { font-style: italic; }
             u { text-decoration: underline; }
@@ -117,490 +221,326 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
           ${formatContentForPrint(content)}
         </body>
       </html>
-    `);
-    
-    printWindow.document.close();
-    printWindow.focus();
-    setTimeout(() => {
-      printWindow.print();
-      printWindow.onafterprint = () => {
-        printWindow.close();
-      };
-    }, 300);
+     `);
+     printWindow.document.close();
+     printWindow.focus(); 
+     // Delay print slightly to allow content rendering
+     setTimeout(() => {
+       printWindow.print();
+       // Close window after print dialog is handled (might not always work)
+       printWindow.onafterprint = () => printWindow.close();
+     }, 300); 
+     toast({ title: "Print Initialized", description: "Print dialog opened." });
   };
 
-  const formatContentForPrint = (text: string) => {
-    let formattedText = text;
-    
-    formattedText = formattedText
-      .split('\n\n')
-      .map(paragraph => {
-        if (!paragraph.trim()) return '';
-
-        if (paragraph.startsWith('# ')) {
-          return `<h1>${paragraph.substring(2)}</h1>`;
-        } else if (paragraph.startsWith('## ')) {
-          return `<h2>${paragraph.substring(3)}</h2>`;
-        }
-        
-        let formatted = paragraph
-          .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-          .replace(/\*(.+?)\*/g, '<em>$1</em>')
-          .replace(/\+\+(.+?)\+\+/g, '<u>$1</u>')
-          .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2">$1</a>');
-          
-        return `<p>${formatted}</p>`;
-      })
-      .join('\n');
-      
-    return formattedText;
-  };
-
-  const handleExport = (format: string) => {
-    let exportContent = content;
-    let mimeType = 'text/plain';
-    let extension = 'txt';
-    
-    switch (format) {
-      case 'PDF':
-        toast({
-          title: "PDF Export",
-          description: "PDF export requires browser print to PDF feature. Opening print dialog...",
-        });
-        handlePrint();
-        return;
-      
-      case 'DOCX':
-        const blob = new Blob([exportContent], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
-        const url = URL.createObjectURL(blob);
-        
-        if (linkRef.current) {
-          linkRef.current.href = url;
-          linkRef.current.download = `${currentTitle.replace(/\s+/g, '_')}.docx`;
-          linkRef.current.click();
-          
-          setTimeout(() => URL.revokeObjectURL(url), 100);
-          
-          toast({
-            title: "Word Document Export",
-            description: "Your document has been exported as a Word document.",
-          });
-        }
-        return;
-    }
-  };
-
-  const handleIntegration = (service: string) => {
-    switch (service) {
-      case 'Email':
-        const subject = encodeURIComponent(currentTitle);
-        const body = encodeURIComponent(`${currentTitle}\n\n${content}`);
-        window.open(`mailto:?subject=${subject}&body=${body}`);
-        
-        toast({
-          title: "Email Sharing",
-          description: "Opening your default email client...",
-        });
-        break;
-        
-      case 'Link':
-        navigator.clipboard.writeText(`https://example.com/shared-contract/${currentTitle.replace(/\s+/g, '-').toLowerCase()}`)
-          .then(() => {
-            toast({
-              title: "Link Copied",
-              description: "Shareable link has been copied to clipboard.",
-            });
-          })
-          .catch(err => {
-            toast({
-              title: "Copy Failed",
-              description: "Could not copy link to clipboard.",
-              variant: "destructive"
-            });
-          });
-        break;
-        
-      default:
-        toast({
-          title: `${service} Integration`,
-          description: `Preparing to connect with ${service}. This feature would require authentication and API integration.`,
-        });
-    }
-  };
-
-  const findChatInput = (): HTMLTextAreaElement | null => {
-    let chatInput = document.querySelector('textarea[placeholder*="Ask about contracts"]') as HTMLTextAreaElement;
-    
-    if (!chatInput) {
-      chatInput = document.querySelector('textarea[placeholder*="contract"]') as HTMLTextAreaElement;
-    }
-    
-    if (!chatInput) {
-      chatInput = document.querySelector('textarea[placeholder*="Ask"]') as HTMLTextAreaElement;
-    }
-    
-    if (!chatInput) {
-      const allTextareas = document.querySelectorAll('textarea');
-      for (const textarea of allTextareas) {
-        const parent = textarea.closest('[class*="chat"]') || 
-                      textarea.closest('[id*="chat"]') || 
-                      textarea.closest('[aria-label*="chat"]');
-        if (parent) {
-          chatInput = textarea;
-          break;
-        }
-      }
-    }
-    
-    if (!chatInput) {
-      const allTextareas = document.querySelectorAll('textarea');
-      if (allTextareas.length > 0) {
-        chatInput = allTextareas[allTextareas.length - 1] as HTMLTextAreaElement;
-      }
-    }
-    
-    return chatInput;
-  };
-
-  const setChatPromptInner = (prompt: string) => {
-    const chatInput = findChatInput();
-    
-    if (!chatInput) {
-      toast({
-        title: "Chat not available",
-        description: "Please make sure the chat panel is visible.",
-        variant: "destructive"
-      });
-      return false;
-    }
-    
-    console.log("Found chat input:", chatInput);
-    
-    chatInput.value = prompt;
-    
-    chatInput.value = prompt;
-    chatInput.dispatchEvent(new Event('input', { bubbles: true }));
-    
-    const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
-      window.HTMLTextAreaElement.prototype, "value"
-    )?.set;
-    
-    if (nativeInputValueSetter) {
-      nativeInputValueSetter.call(chatInput, prompt);
-    }
-    
-    const inputEvent = new Event('input', { bubbles: true });
-    chatInput.dispatchEvent(inputEvent);
-    
-    chatInput.focus();
-    
-    toast({
-      title: "Prompt ready",
-      description: "Press Enter to send the prompt to the AI assistant.",
-    });
-    
-    console.log("Prompt set in chat input:", prompt);
-    
-    return true;
-  };
-
-  const handleSubmitContract = () => {
-    if (onStatusChange) {
-      onStatusChange('submitted');
-      
-      const prompt = `I've just submitted my contract "${currentTitle}" for internal review. Could you please help me check for any potential issues or suggest improvements before it goes to the next stage? Focus on legal clarity, completeness, and any potential risks.`;
-      
-      const success = setChatInputValue(prompt);
-      
-      if (success) {
-        toast({
-          title: "Contract submitted",
-          description: "Your contract has been submitted for internal review. AI prompt is ready in the chat.",
-        });
-      } else {
-        toast({
-          title: "Contract submitted",
-          description: "Your contract has been submitted for internal review.",
-        });
-      }
-    }
-  };
-  
   const handleSendForSigning = () => {
     setIsSignatureModalOpen(true);
   };
 
-  const handleSaveAsTemplate = () => {
-    if (onStatusChange) {
-      onStatusChange('draft');
-    }
-    
-    toast({
-      title: "Saved as Template",
-      description: "Your document has been saved as a template for future use.",
-    });
-  };
-
-  const handleSignatureComplete = () => {
+  const handleSignatureComplete = (success: boolean) => {
     setIsSignatureModalOpen(false);
-    
-    if (onStatusChange) {
-      onStatusChange('sent_for_signing');
-      
-      const prompt = `I'm about to send my contract "${currentTitle}" for electronic signatures. Before I do, could you please verify that all signature blocks, dates, and party information are correctly formatted? Also, is there anything I should communicate to the signatories?`;
-      
-      const success = setChatInputValue(prompt);
-      
-      if (success) {
-        toast({
-          title: "Contract sent for signing",
-          description: "Your contract has been sent for signatures. AI prompt is ready in the chat.",
-        });
-      } else {
-        toast({
-          title: "Contract sent for signing",
-          description: "Your contract has been sent for electronic signatures.",
-        });
-      }
+    if (success) {
+      onStatusChange('sent_for_signing'); 
+      const prompt = `The contract "${currentTitle}" has been sent for signing. What are the next steps I should track?`;
+      if (setChatPrompt) setChatPrompt(prompt);
+      toast({ title: "Contract Sent", description: "Successfully sent for signing." });
+    } else {
+      toast({ title: "Sending Cancelled", description: "Signature request was cancelled.", variant: "default" });
     }
+  };
+  
+  const handleSaveAsTemplate = () => {
+    // Logic to save the current content as a template
+    handleSave(); // Save current state first
+    toast({ title: "Saved as Template", description: `"${currentTitle}" saved as a reusable template.` });
+    // API call to save as template would go here
   };
 
   const handleAIAnalysis = (analysisType: string) => {
+    if (!setChatPrompt) {
+       toast({ title: "AI Not Configured", description: "Chat prompt function is not available.", variant: "destructive" });
+       return;
+    }
     let prompt = "";
+    let title = "";
     switch (analysisType) {
       case "risk":
-        prompt = `Please perform a risk analysis on my contract "${currentTitle}". Identify any clauses with high, medium, or low risk levels, explain why they might be problematic, and provide specific recommendations for mitigating these risks.`;
+        title = "Risk Analysis";
+        prompt = `Perform a risk analysis on the contract "${currentTitle}". Identify high, medium, low risk clauses and suggest mitigation strategies. Contract content:\n\n${content}`; 
         break;
       case "grammar":
-        prompt = `Please review my contract "${currentTitle}" for grammar, clarity, and readability issues. Identify any confusing language, run-on sentences, or ambiguous terms that should be clarified to improve the overall quality of the document.`;
+        title = "Grammar & Clarity Check";
+        prompt = `Review the contract "${currentTitle}" for grammar, clarity, and readability. Highlight ambiguous terms or confusing sentences. Contract content:\n\n${content}`;
         break;
       case "compliance":
-        prompt = `Please analyze my contract "${currentTitle}" for legal compliance. Check if it adheres to standard legal requirements and identify any missing clauses or provisions that might be required by relevant laws and regulations.`;
+        title = "Legal Compliance Check";
+        prompt = `Analyze the contract "${currentTitle}" for legal compliance with standard requirements. Identify missing clauses or potential issues. Contract content:\n\n${content}`;
         break;
       case "terms":
-        prompt = `Please extract and summarize the key terms from my contract "${currentTitle}". Identify important dates, monetary values, obligations, termination conditions, and any other critical elements that define the agreement.`;
+        title = "Key Term Extraction";
+        prompt = `Extract and summarize key terms from the contract "${currentTitle}" (e.g., dates, values, obligations, termination). Contract content:\n\n${content}`;
         break;
       case "full":
-        prompt = `Please perform a comprehensive review of my contract "${currentTitle}". Analyze it for risks, clarity issues, legal compliance, extract key terms, and provide overall recommendations to improve the agreement.`;
+        title = "Full Contract Review";
+        prompt = `Perform a comprehensive review of the contract "${currentTitle}". Analyze risks, clarity, compliance, extract key terms, and provide overall recommendations. Contract content:\n\n${content}`;
         break;
       default:
-        prompt = `Please analyze my contract "${currentTitle}" and provide general feedback on its quality and effectiveness.`;
+        title = "General AI Analysis";
+        prompt = `Analyze the contract "${currentTitle}" and provide general feedback. Contract content:\n\n${content}`;
     }
-    
-    const success = setChatInputValue(prompt);
-    
-    console.log(`Setting AI Analysis prompt for ${analysisType}:`, prompt);
-    console.log("Setting chat prompt success:", success);
-    
-    toast({
-      title: `${analysisType === "full" ? "Full Contract Review" : analysisType.charAt(0).toUpperCase() + analysisType.slice(1) + " Analysis"} prompt ready`,
-      description: "Press Enter to send the prompt to the AI assistant.",
-    });
+    const success = setChatPrompt(prompt);
+    if (success) {
+      toast({ title: `${title} Prompt Ready`, description: "Check the chat panel and press Enter to send." });
+    } else {
+      toast({ title: "AI Prompt Failed", description: "Could not set the prompt in the chat input.", variant: "destructive" });
+    }
   };
 
-  const handleAddYourOwnClause = () => {
-    const prompt = `I would like to add my own custom clause to the contract "${currentTitle}". Could you help me draft a clause for:`;
+  const formatLastSaved = (date: Date) => {
+    const now = new Date();
+    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
     
-    const success = setChatInputValue(prompt);
-    
-    toast({
-      title: "Add your own clause",
-      description: "Enter your clause requirements in the chat to get assistance.",
-    });
+    if (diffInSeconds < 5) return 'Just now';
+    if (diffInSeconds < 60) return `${diffInSeconds}s ago`;
+    const diffInMinutes = Math.floor(diffInSeconds / 60);
+    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    if (diffInHours < 24) return `${diffInHours}h ago`;
+    return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) + ' ' + date.toLocaleDateString();
   };
 
   return (
-    <div className="px-6 py-3 border-b border-border/40 bg-background/80 backdrop-blur-sm space-y-0">
-      <a ref={linkRef} style={{ display: 'none' }} />
-      <SignatureRequestModal
-        isOpen={isSignatureModalOpen}
-        onClose={handleSignatureComplete}
-        documentTitle={currentTitle}
-        documentContent={content}
-      />
-      <div className="flex items-center justify-between">
-        <div className="flex items-center">
-          <input
-            type="text"
+    <div className="flex items-center justify-between p-2 px-4 border-b border-border/40 bg-background">
+       {/* Link for programmatic downloads */}
+       <a ref={linkRef} style={{ display: 'none' }} download></a>
+       {/* Signature Modal */}
+       <SignatureRequestModal
+         isOpen={isSignatureModalOpen}
+         onClose={() => {
+           setIsSignatureModalOpen(false);
+           handleSignatureComplete(true); // Assuming modal closing normally counts as success
+         }}
+         documentTitle={currentTitle}
+         documentContent={content} 
+       />
+      
+      {/* Left side: Title and Status */}
+      <div className="flex items-center gap-3">
+        {isEditing ? (
+          <Input
             value={currentTitle}
-            onChange={(e) => setCurrentTitle(e.target.value)}
-            className="text-lg font-medium border-none focus:outline-none focus:ring-0 bg-transparent max-w-[200px] md:max-w-sm lg:max-w-lg rounded-md px-2 py-1 hover:bg-muted/50 transition-colors"
+            onChange={handleTitleChange}
+            onBlur={handleTitleBlur}
+            onKeyDown={handleTitleKeyDown}
+            className="h-8 text-lg font-medium"
+            autoFocus
             placeholder="Contract Title"
           />
-          <div className="flex items-center ml-4 space-x-1 text-xs">
-            <span className={`px-2 py-0.5 rounded-full font-medium ${
-              status === 'draft' ? 'bg-muted text-muted-foreground' :
-              status === 'submitted' ? 'bg-blue-100 text-blue-800' :
-              'bg-green-100 text-green-800'
-            }`}>
-              {status === 'draft' ? 'Draft' : 
-               status === 'submitted' ? 'Submitted' : 
-               'Sent for Signing'}
-            </span>
-            <span className="text-muted-foreground">{new Date().toLocaleDateString()}</span>
-          </div>
-        </div>
-        
-        <div className="flex items-center space-x-2">
+        ) : (
           <TooltipProvider>
-            <DropdownMenu>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="icon" className="h-8 w-8 rounded-full shadow-sm">
-                      <Download size={16} />
-                    </Button>
-                  </DropdownMenuTrigger>
-                </TooltipTrigger>
-                <TooltipContent>Export</TooltipContent>
-              </Tooltip>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>Export Document</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => handleExport('PDF')} className="flex items-center gap-2">
-                  <FileText size={16} /> PDF Document
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleExport('DOCX')} className="flex items-center gap-2">
-                  <FileDigit size={16} /> Word Document (.docx)
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            
-            <DropdownMenu>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="icon" className="h-8 w-8 rounded-full shadow-sm">
-                      <Share2 size={16} />
-                    </Button>
-                  </DropdownMenuTrigger>
-                </TooltipTrigger>
-                <TooltipContent>Share & Integrate</TooltipContent>
-              </Tooltip>
-              <DropdownMenuContent align="end" className="w-60">
-                <DropdownMenuLabel>Share & Integrate</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuLabel className="text-xs text-muted-foreground">Share with</DropdownMenuLabel>
-                  <DropdownMenuItem onClick={() => handleIntegration('Email')} className="flex items-center gap-2">
-                    <Mail size={16} /> Send via Email
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleIntegration('Link')} className="flex items-center gap-2">
-                    <FileSymlink size={16} /> Copy Share Link
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuLabel className="text-xs text-muted-foreground flex items-center justify-between">
-                    Integrate with
-                    <span className="text-xs font-normal bg-primary/10 text-primary px-2 py-0.5 rounded-full">
-                      Coming Soon
-                    </span>
-                  </DropdownMenuLabel>
-                  <DropdownMenuItem onClick={() => handleIntegration('Google Docs')} className="flex items-center gap-2">
-                    <FileText size={16} /> Google Docs
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleIntegration('MS Word')} className="flex items-center gap-2">
-                    <FileText size={16} /> Microsoft Word
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleIntegration('Notion')} className="flex items-center gap-2">
-                    <NotebookPen size={16} /> Notion
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleIntegration('Slack')} className="flex items-center gap-2">
-                    <MessageSquare size={16} /> Slack
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleIntegration('Calendar')} className="flex items-center gap-2">
-                    <CalendarDays size={16} /> Calendar
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                 <h2 
+                   className="text-lg font-medium cursor-pointer hover:text-primary transition-colors truncate max-w-xs md:max-w-sm lg:max-w-md"
+                   onClick={handleTitleClick}
+                 >
+                   {currentTitle || title || 'Untitled Contract'}
+                 </h2>
+              </TooltipTrigger>
+              <TooltipContent>Click to edit title</TooltipContent>
+            </Tooltip>
           </TooltipProvider>
-          
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="h-8 px-2 rounded-lg shadow-sm">
-                <span>AI Check</span>
-                <ChevronDown size={16} className="ml-1" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-60">
-              <DropdownMenuLabel>Contract Analysis</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem className="flex items-center gap-2" onClick={() => handleAIAnalysis("risk")}>
-                <FileSearch size={16} /> Risk Analysis
-              </DropdownMenuItem>
-              <DropdownMenuItem className="flex items-center gap-2" onClick={() => handleAIAnalysis("grammar")}>
-                <CheckCircle size={16} /> Grammar & Clarity Check
-              </DropdownMenuItem>
-              <DropdownMenuItem className="flex items-center gap-2" onClick={() => handleAIAnalysis("compliance")}>
-                <Scale size={16} /> Legal Compliance
-              </DropdownMenuItem>
-              <DropdownMenuItem className="flex items-center gap-2" onClick={() => handleAIAnalysis("terms")}>
-                <GanttChart size={16} /> Term Extraction
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem className="flex items-center justify-center" onClick={handleAddYourOwnClause}>
-                <Button variant="default" className="w-full">
-                  Add your own clause
+        )}
+         {/* Status Indicator (optional) */}
+         {/* <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+           status === 'draft' ? 'bg-muted text-muted-foreground' :
+           status === 'submitted' ? 'bg-blue-100 text-blue-800' :
+           'bg-green-100 text-green-800'
+         }`}>
+           {status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+         </span> */}
+      </div>
+      
+      {/* Right side: Actions */}
+      <div className="flex items-center space-x-1">
+        <TooltipProvider>
+          {/* Last Saved Time */}
+          {lastSaved && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="text-xs text-muted-foreground flex items-center mr-2 cursor-default">
+                  <Clock size={12} className="mr-1 flex-shrink-0" />
+                  <span className="truncate">{formatLastSaved(lastSaved)}</span>
+                </span>
+              </TooltipTrigger>
+              <TooltipContent>Last saved time</TooltipContent>
+            </Tooltip>
+          )}
+
+          {/* Versions Button (conditionally rendered) */}
+          {onVersionsClick && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="outline" size="sm" className="h-8" onClick={onVersionsClick}>
+                   <History size={14} className="mr-1"/> Versions
                 </Button>
+              </TooltipTrigger>
+              <TooltipContent>View Document History</TooltipContent>
+            </Tooltip>
+          )}
+          
+          {/* Export Dropdown */}
+          <DropdownMenu>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="icon" className="h-8 w-8">
+                    <Download size={16} />
+                  </Button>
+                </DropdownMenuTrigger>
+              </TooltipTrigger>
+              <TooltipContent>Export</TooltipContent>
+            </Tooltip>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Export As</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => handleExport('docx')}>
+                <FileText size={16} className="mr-2" /> Word (.docx)
+              </DropdownMenuItem>
+              {/* PDF Option removed by user */}
+              <DropdownMenuItem onClick={() => handleExport('image')}>
+                <FileImage size={16} className="mr-2" /> Image (.png) <span className="ml-auto text-xs text-muted-foreground">(Soon)</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleExport('json')}>
+                <FileJson size={16} className="mr-2" /> JSON (.json)
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
           
-          {lastSaved && (
-            <div className="hidden md:flex items-center text-xs text-muted-foreground">
-              <Clock size={12} className="mr-1" />
-              <span>
-                Saved {lastSaved.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-              </span>
-            </div>
-          )}
+          {/* Share/Integrate Dropdown */}
+          <DropdownMenu>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                 <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="icon" className="h-8 w-8">
+                      <Share2 size={16} />
+                    </Button>
+                 </DropdownMenuTrigger>
+              </TooltipTrigger>
+              <TooltipContent>Share & Integrate</TooltipContent>
+            </Tooltip>
+             <DropdownMenuContent align="end" className="w-60">
+               <DropdownMenuLabel>Share Options</DropdownMenuLabel>
+               <DropdownMenuSeparator />
+               <DropdownMenuGroup>
+                 <DropdownMenuItem onClick={handleShareEmail} className="flex items-center gap-2">
+                   <Mail size={16} /> Send via Email
+                 </DropdownMenuItem>
+                 <DropdownMenuItem onClick={handleShareLink} className="flex items-center gap-2">
+                   <FileSymlink size={16} /> Copy Share Link
+                 </DropdownMenuItem>
+               </DropdownMenuGroup>
+               <DropdownMenuSeparator />
+               <DropdownMenuGroup>
+                 <DropdownMenuLabel className="text-xs text-muted-foreground flex items-center justify-between">
+                   Integrations
+                   <span className="text-xs font-normal bg-primary/10 text-primary px-1.5 py-0.5 rounded-full">
+                     Planned
+                   </span>
+                 </DropdownMenuLabel>
+                 <DropdownMenuItem disabled className="flex items-center gap-2">
+                   <FileText size={16} /> Google Docs
+                 </DropdownMenuItem>
+                 <DropdownMenuItem disabled className="flex items-center gap-2">
+                   <NotebookPen size={16} /> Notion
+                 </DropdownMenuItem>
+                 <DropdownMenuItem disabled className="flex items-center gap-2">
+                   <MessageSquare size={16} /> Slack
+                 </DropdownMenuItem>
+                 <DropdownMenuItem disabled className="flex items-center gap-2">
+                   <CalendarDays size={16} /> Calendar
+                 </DropdownMenuItem>
+               </DropdownMenuGroup>
+             </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* Print Button */}
+           <Tooltip>
+             <TooltipTrigger asChild>
+               <Button variant="outline" size="icon" onClick={handlePrint} className="h-8 w-8">
+                 <Printer size={16} />
+               </Button>
+             </TooltipTrigger>
+             <TooltipContent>Print</TooltipContent>
+           </Tooltip>
+
+          {/* AI Check Dropdown */}
+          <DropdownMenu>
+             <Tooltip>
+               <TooltipTrigger asChild>
+                 <DropdownMenuTrigger asChild>
+                   <Button variant="outline" size="sm" className="h-8">
+                     <Brain size={14} className="mr-1"/> AI Check <ChevronDown size={14} className="ml-1"/>
+                   </Button>
+                 </DropdownMenuTrigger>
+               </TooltipTrigger>
+               <TooltipContent>Analyze contract with AI</TooltipContent>
+             </Tooltip>
+             <DropdownMenuContent align="end" className="w-56">
+               <DropdownMenuLabel>AI Contract Analysis</DropdownMenuLabel>
+               <DropdownMenuSeparator />
+               <DropdownMenuItem onClick={() => handleAIAnalysis('risk')}><FileSearch size={16} className="mr-2"/> Risk Analysis</DropdownMenuItem>
+               <DropdownMenuItem onClick={() => handleAIAnalysis('grammar')}><CheckCircle size={16} className="mr-2"/> Grammar & Clarity</DropdownMenuItem>
+               <DropdownMenuItem onClick={() => handleAIAnalysis('compliance')}><Scale size={16} className="mr-2"/> Compliance Check</DropdownMenuItem>
+               <DropdownMenuItem onClick={() => handleAIAnalysis('terms')}><GanttChart size={16} className="mr-2"/> Key Term Extraction</DropdownMenuItem>
+               <DropdownMenuSeparator />
+               <DropdownMenuItem onClick={() => handleAIAnalysis('full')}><Brain size={16} className="mr-2"/> Full Review</DropdownMenuItem>
+             </DropdownMenuContent>
+          </DropdownMenu>
           
-          <div className="flex items-center gap-2">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  size="sm"
-                  variant={status === 'draft' ? "default" : "outline"}
-                  className="h-8 rounded-lg shadow-sm"
-                  disabled={isSaving}
-                >
-                  {isSaving ? (
-                    <>
-                      <div className="animate-spin mr-1 h-3 w-3 border-2 border-current border-t-transparent rounded-full"></div>
-                      <span>Saving...</span>
-                    </>
-                  ) : (
-                    <>
-                      <SaveIcon size={16} className="mr-1" />
-                      <span>Save</span>
-                      <ChevronDown size={14} className="ml-1" />
-                    </>
-                  )}
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem onClick={handleSave} className="flex items-center gap-2">
-                  <Folder size={16} /> Save as Draft
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleSaveAsTemplate} className="flex items-center gap-2">
-                  <FileIcon size={16} /> Save as Template
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            
-            <Button
-              onClick={handleSendForSigning}
-              size="sm"
-              variant="outline"
-              className="h-8 rounded-lg shadow-sm"
-            >
-              <Send size={16} className="mr-1" />
-              <span>Send for Signing</span>
-            </Button>
-          </div>
-        </div>
+          {/* Save Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                size="sm"
+                variant="default" // Default action is save
+                className="h-8 pl-2 pr-1"
+                disabled={isSaving}
+                onClick={handleSave} // Direct click saves
+              >
+                {isSaving ? (
+                  <div className="animate-spin mr-1 h-3 w-3 border-2 border-current border-t-transparent rounded-full"></div>
+                ) : (
+                  <SaveIcon size={16} className="mr-1" />
+                )}
+                <span>{isSaving ? 'Saving...' : 'Save'}</span>
+                {/* Split button part */}
+                 <DropdownMenuSeparator className="bg-primary-foreground/20 h-4 mx-1 w-px" orientation="vertical"/>
+                <ChevronDown size={16} className="-ml-1" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+               <DropdownMenuItem onClick={handleSave} className="flex items-center gap-2">
+                 <Folder size={16} /> Save Draft
+               </DropdownMenuItem>
+               <DropdownMenuItem onClick={handleSaveAsTemplate} className="flex items-center gap-2">
+                 <FileIcon size={16} /> Save as Template
+               </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          
+          {/* Send for Signing Button */}
+          <Button
+            onClick={handleSendForSigning}
+            size="sm"
+            variant="outline"
+            className="h-8"
+          >
+            <Send size={14} className="mr-1" />
+            <span>Send for Signing</span>
+          </Button>
+          
+        </TooltipProvider>
       </div>
     </div>
   );

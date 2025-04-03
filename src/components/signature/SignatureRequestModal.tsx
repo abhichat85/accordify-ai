@@ -334,11 +334,11 @@ export const SignatureRequestModal: React.FC<SignatureRequestModalProps> = ({
       });
       
       onClose();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error sending for signature:", error);
       toast({
         title: "Failed to send for signature",
-        description: error.message || "An unexpected error occurred",
+        description: error instanceof Error ? error.message : "An unexpected error occurred",
         variant: "destructive"
       });
     } finally {
@@ -399,7 +399,7 @@ export const SignatureRequestModal: React.FC<SignatureRequestModalProps> = ({
       );
       
       let startPage = Math.max(2, currentPage - 1);
-      let endPage = Math.min(totalPages - 1, startPage + 2);
+      const endPage = Math.min(totalPages - 1, startPage + 2);
       
       if (endPage === totalPages - 1) {
         startPage = Math.max(2, endPage - 2);
