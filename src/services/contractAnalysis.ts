@@ -1,6 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 
-export type AnalysisType = "general" | "risk" | "clauses" | "generate" | "outline" | "section";
+export type AnalysisType = "general" | "risk" | "clauses" | "generate" | "outline" | "section" | "summary";
 
 export interface Risk {
   type: "high" | "medium" | "low";
@@ -72,6 +72,7 @@ export type AnalysisResult =
   | { type: "generate"; result: GeneratedContract; formattedContract: string }
   | { type: "outline"; result: ContractOutline }
   | { type: "section"; result: ContractSection }
+  | { type: "summary"; result: ContractSummary }
   | { type: "error"; error: string };
 
 // Progress tracking state
@@ -132,6 +133,71 @@ export const getGenerationProgress = (): GenerationProgress => {
   return { ...generationProgress };
 };
 
+export interface SummaryActionPoint {
+  title: string;
+  description: string;
+  priority: 'high' | 'medium' | 'low';
+  category: 'obligation' | 'right' | 'date' | 'payment' | 'condition' | 'restriction' | 'other';
+}
+
+export interface ContractSummary {
+  title: string;
+  overview: string;
+  actionPoints: SummaryActionPoint[];
+  keyTerms: { term: string; definition: string }[];
+  dates: { title: string; date: string; description: string }[];
+}
+
+/**
+ * Summarizes a contract and extracts action points
+ * @param content The contract content to summarize
+ * @returns The contract summary with action points
+ */
+export const summarizeContract = async (content: string): Promise<AnalysisResult> => {
+  console.log('Summarizing contract...');
+  try {
+    const response = await supabase.functions.invoke('analyze-contract', {
+      body: {
+        contractText: content,
+        analysisType: 'summary',
+      },
+    });
+
+    console.log('Summary response:', response);
+
+    if (response.error) {
+      console.error('Error in contract summary:', response.error);
+      return {
+        type: 'error',
+        error: response.error.message || 'Failed to summarize contract',
+      };
+    }
+
+    // Ensure we have a valid summary with initialized arrays
+    const summary = response.data || {};
+    
+    // Create a properly formatted summary with default values for all fields
+    const formattedSummary: ContractSummary = {
+      title: summary.title || 'Contract Summary',
+      overview: summary.overview || 'This is a summary of the contract.',
+      actionPoints: Array.isArray(summary.actionPoints) ? summary.actionPoints : [],
+      keyTerms: Array.isArray(summary.keyTerms) ? summary.keyTerms : [],
+      dates: Array.isArray(summary.dates) ? summary.dates : []
+    };
+
+    return {
+      type: 'summary',
+      result: formattedSummary
+    };
+  } catch (error) {
+    console.error('Exception in contract summary:', error);
+    return {
+      type: 'error',
+      error: error instanceof Error ? error.message : 'An unknown error occurred',
+    };
+  }
+};
+
 export const analyzeContract = async (
   content: string,
   analysisType: AnalysisType,
@@ -189,6 +255,12 @@ export const analyzeContract = async (
       case "section":
         return {
           type: "section",
+          result: data.result,
+        };
+
+      case "summary":
+        return {
+          type: "summary",
           result: data.result,
         };
 

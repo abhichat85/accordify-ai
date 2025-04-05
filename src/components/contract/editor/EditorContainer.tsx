@@ -30,6 +30,8 @@ interface EditorContainerProps {
   handleFormatting: (command: string) => void;
   textSelection: { start: number; end: number; text: string } | null;
   onTextSelection: (selection: { start: number; end: number; text: string }) => void;
+  onVersionsClick?: () => void;
+  onSummarize?: () => void;
   className?: string;
 }
 
@@ -54,6 +56,8 @@ export const EditorContainer: React.FC<EditorContainerProps> = ({
   handleFormatting,
   textSelection,
   onTextSelection,
+  onVersionsClick,
+  onSummarize,
   className
 }) => {
   const [historyDialogOpen, setHistoryDialogOpen] = useState(false);
@@ -84,6 +88,8 @@ export const EditorContainer: React.FC<EditorContainerProps> = ({
         status={status}
         onStatusChange={setStatus}
         setChatPrompt={setChatPrompt}
+        onVersionsClick={handleVersionHistory}
+        onSummarize={onSummarize}
       />
       
       <FormattingToolbar 

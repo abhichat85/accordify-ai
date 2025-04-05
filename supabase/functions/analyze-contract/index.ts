@@ -101,6 +101,44 @@ serve(async (req) => {
         break;
       }
 
+      case "summary": {
+        systemPrompt = `You are an AI legal assistant specializing in contract analysis and summarization.
+        Analyze the provided contract and create a comprehensive summary with actionable points.
+        
+        Format your response as a direct JSON object (not in a code block) with these keys:
+        title: (the title of the contract),
+        overview: (a concise 3-5 sentence summary of the contract's purpose and main provisions),
+        actionPoints: [
+          {
+            title: (short title of the action point),
+            description: (detailed explanation of what needs to be done),
+            priority: (one of: 'high', 'medium', 'low'),
+            category: (one of: 'obligation', 'right', 'date', 'payment', 'condition', 'restriction', 'other')
+          }
+        ],
+        keyTerms: [
+          { 
+            term: (important term or concept from the contract),
+            definition: (brief explanation of what it means)
+          }
+        ],
+        dates: [
+          {
+            title: (name of the deadline or milestone),
+            date: (the date or timeframe specified),
+            description: (what happens on this date)
+          }
+        ]
+        
+        Identify at least 5-10 specific action points from the contract that require attention, tracking, or follow-up.
+        Focus on deadlines, payment obligations, reporting requirements, conditions precedent, and key restrictions.
+        For each action point, provide a meaningful title, detailed description, appropriate priority, and relevant category.
+        Include all defined terms that are important for understanding the contract.
+        Extract all important dates, deadlines, and milestones mentioned in the contract.
+        Do not include any explanations or markdown formatting in your response, just the pure JSON object.`;
+        break;
+      }
+
       case "outline": {
         let outlineInstructions = "";
         

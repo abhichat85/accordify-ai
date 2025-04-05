@@ -1,9 +1,11 @@
-
-import React from "react";
+import React, { useState } from "react";
 import { useContractEditor } from "@/hooks/useContractEditor";
 import { useFormatting } from "@/hooks/useFormatting";
 import { EditorContainer } from "./editor/EditorContainer";
 import { cn } from "@/lib/utils";
+import { SummaryModal } from "./SummaryModal";
+import { ContractSummary, summarizeContract } from "@/services/contractAnalysis";
+import { useToast } from "@/components/ui/use-toast";
 
 interface ModernContractEditorProps {
   title: string;
@@ -16,6 +18,12 @@ export const ModernContractEditor: React.FC<ModernContractEditorProps> = ({
   className,
   initialContent = ""
 }) => {
+  const [isSummaryModalOpen, setIsSummaryModalOpen] = useState(false);
+  const [summaryLoading, setSummaryLoading] = useState(false);
+  const [summarizationError, setSummarizationError] = useState<string | null>(null);
+  const [contractSummary, setContractSummary] = useState<ContractSummary | null>(null);
+  const { toast } = useToast();
+
   const {
     content,
     currentTitle,
@@ -44,29 +52,99 @@ export const ModernContractEditor: React.FC<ModernContractEditorProps> = ({
     setTextSelection(selection);
   };
 
+  // Handle summarization request
+  const handleSummarize = async () => {
+    if (!content.trim()) {
+      toast({
+        title: "Empty Contract",
+        description: "There is no content to summarize.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      // Reset state before starting
+      setContractSummary(null);
+      setSummarizationError(null);
+      setSummaryLoading(true);
+      setIsSummaryModalOpen(true);
+      
+      console.log("Starting contract summarization for content length:", content.length);
+      const result = await summarizeContract(content);
+      
+      console.log("Summarization result:", result);
+      
+      if (result.type === "error") {
+        console.error("Summarization error:", result.error);
+        setSummarizationError(result.error);
+        toast({
+          title: "Summarization Failed",
+          description: result.error,
+          variant: "destructive"
+        });
+      } else if (result.type === "summary" && result.result) {
+        console.log("Summary received:", result.result);
+        setContractSummary(result.result);
+      } else {
+        // Unexpected result type or missing result
+        const errorMsg = "Received invalid response from summarization service";
+        console.error(errorMsg, result);
+        setSummarizationError(errorMsg);
+        toast({
+          title: "Summarization Failed",
+          description: errorMsg,
+          variant: "destructive" 
+        });
+      }
+    } catch (err) {
+      console.error("Exception in handleSummarize:", err);
+      const errorMessage = err instanceof Error ? err.message : "Unknown error occurred";
+      setSummarizationError(errorMessage);
+      toast({
+        title: "Summarization Failed",
+        description: errorMessage,
+        variant: "destructive"
+      });
+    } finally {
+      setSummaryLoading(false);
+    }
+  };
+
   return (
-    <EditorContainer
-      title={title}
-      currentTitle={currentTitle}
-      setCurrentTitle={setCurrentTitle}
-      content={content}
-      viewMode={viewMode}
-      editorMode={editorMode}
-      showFormatting={true}
-      status={status}
-      isSaving={isSaving}
-      lastSaved={lastSaved}
-      setContent={setContent}
-      setViewMode={setViewMode}
-      setEditorMode={setEditorMode}
-      setShowFormatting={() => {}} // Empty function as formatting is always shown
-      setStatus={setStatus}
-      handleSave={handleSave}
-      setChatPrompt={setChatPrompt}
-      handleFormatting={handleFormatting}
-      textSelection={textSelection}
-      onTextSelection={handleTextSelection}
-      className={cn(className, "font-jost")}
-    />
+    <>
+      <EditorContainer
+        title={title}
+        currentTitle={currentTitle}
+        setCurrentTitle={setCurrentTitle}
+        content={content}
+        viewMode={viewMode}
+        editorMode={editorMode}
+        showFormatting={true}
+        status={status}
+        isSaving={isSaving}
+        lastSaved={lastSaved}
+        setContent={setContent}
+        setViewMode={setViewMode}
+        setEditorMode={setEditorMode}
+        setShowFormatting={() => {}} // Empty function as formatting is always shown
+        setStatus={setStatus}
+        handleSave={handleSave}
+        setChatPrompt={setChatPrompt}
+        handleFormatting={handleFormatting}
+        textSelection={textSelection}
+        onTextSelection={handleTextSelection}
+        onSummarize={handleSummarize}
+        className={cn(className, "font-jost")}
+      />
+      
+      <SummaryModal
+        isOpen={isSummaryModalOpen}
+        onClose={() => setIsSummaryModalOpen(false)}
+        summary={contractSummary}
+        isLoading={summaryLoading}
+        error={summarizationError}
+      />
+    </>
   );
 };

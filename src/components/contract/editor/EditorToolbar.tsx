@@ -24,7 +24,8 @@ import {
   Brain,
   Folder,
   FileIcon,
-  History // Keep History for Versions button if needed later
+  History,
+  ListChecks // Adding ListChecks icon for the Summary button
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -58,8 +59,9 @@ interface EditorToolbarProps {
   content: string;
   status: 'draft' | 'submitted' | 'sent_for_signing';
   onStatusChange: (status: 'draft' | 'submitted' | 'sent_for_signing') => void;
-  setChatPrompt?: (prompt: string) => boolean; // Keep this prop
-  onVersionsClick?: () => void; // Keep this prop for now, can remove if Versions button is unwanted
+  setChatPrompt?: (prompt: string) => boolean;
+  onVersionsClick?: () => void;
+  onSummarize?: () => void; // Adding a new prop for the summarize action
 }
 
 export const EditorToolbar: React.FC<EditorToolbarProps> = ({
@@ -72,8 +74,9 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
   content,
   status,
   onStatusChange,
-  setChatPrompt, // Destructure the prop
-  onVersionsClick // Destructure the prop
+  setChatPrompt,
+  onVersionsClick,
+  onSummarize // Destructuring the new prop
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [isSignatureModalOpen, setIsSignatureModalOpen] = useState(false);
@@ -515,7 +518,7 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
                 )}
                 <span>{isSaving ? 'Saving...' : 'Save'}</span>
                 {/* Split button part */}
-                 <DropdownMenuSeparator className="bg-primary-foreground/20 h-4 mx-1 w-px" orientation="vertical"/>
+                <DropdownMenuSeparator className="bg-primary-foreground/20 h-4 mx-1 w-px" />
                 <ChevronDown size={16} className="-ml-1" />
               </Button>
             </DropdownMenuTrigger>
@@ -540,6 +543,16 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
             <span>Send for Signing</span>
           </Button>
           
+          {/* Summary Button */}
+          <Button
+            onClick={onSummarize}
+            size="sm"
+            variant="outline"
+            className="h-8"
+          >
+            <ListChecks size={14} className="mr-1" />
+            <span>Summary</span>
+          </Button>
         </TooltipProvider>
       </div>
     </div>
