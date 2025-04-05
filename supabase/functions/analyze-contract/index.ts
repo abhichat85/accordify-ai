@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 
@@ -16,9 +15,9 @@ serve(async (req) => {
   }
 
   try {
-    const { contractText, analysisType, contractType } = await req.json();
+    const { contractText, analysisType, contractType, section, metadata } = await req.json();
     
-    if (!contractText && analysisType !== "generate") {
+    if (!contractText && analysisType !== "generate" && analysisType !== "outline" && analysisType !== "section") {
       return new Response(
         JSON.stringify({ error: 'Contract text is required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -26,9 +25,13 @@ serve(async (req) => {
     }
 
     console.log(`Analyzing contract with type: ${analysisType}, contract type: ${contractType}`);
+    console.log(`Received parameters: contractText length: ${contractText ? contractText.length : 0}, section: ${section ? 'present' : 'not present'}, metadata: ${metadata ? 'present' : 'not present'}`);
     
     // Define different system prompts based on analysis type
     let systemPrompt = "";
+    let specificInstructions = "";
+    let sectionId = "";
+    let sectionTitle = "";
     
     switch (analysisType) {
       case "general":
@@ -50,9 +53,7 @@ serve(async (req) => {
         Format your response in JSON with an array of clauses, each containing: 
         name, content, and risk (high, medium, low, or null if no risk).`;
         break;
-      case "generate":
-        let specificInstructions = "";
-        
+      case "generate": {
         // Add specific instructions based on contract type
         if (contractType === "Co-Founder Agreement") {
           specificInstructions = `This should be a comprehensive co-founder agreement covering equity distribution, roles and responsibilities, 
@@ -61,6 +62,28 @@ serve(async (req) => {
           
           Extract any relevant names, company details, or specific requirements from the user's prompt and incorporate them into the agreement.
           Use formal legal language appropriate for a binding agreement between co-founders.`;
+        } else if (contractType === "Shareholder Agreement") {
+          specificInstructions = `This should be a comprehensive shareholder agreement covering:
+          
+          1. Detailed share classes, rights, and voting structures
+          2. Capital contributions and financing provisions
+          3. Corporate governance and management structure
+          4. Director appointment rights and board composition
+          5. Transfer restrictions and share disposal mechanisms
+          6. Pre-emptive rights, tag-along and drag-along provisions
+          7. Dividend policy and distribution of profits
+          8. Reserved matters requiring special approval
+          9. Information rights and financial reporting
+          10. Non-compete and confidentiality provisions
+          11. Dispute resolution mechanisms
+          12. Exit strategy and liquidation procedures
+          13. Valuation methodologies for share transfers
+          14. Anti-dilution protections
+          15. Default and remedy provisions
+          
+          Extract any company names, shareholder details, or specific requirements from the user's prompt and incorporate them into the agreement.
+          This should be a detailed, legally sound document suitable for a private company with multiple shareholders.
+          Use formal legal language and structure appropriate for a binding shareholder agreement.`;
         }
         
         systemPrompt = `You are an AI legal assistant specializing in contract drafting. 
@@ -76,6 +99,101 @@ serve(async (req) => {
         The contract should be ready to use with minimal editing needed.
         Do not include any explanations or markdown formatting in your response, just the pure JSON object.`;
         break;
+      }
+
+      case "outline": {
+        let outlineInstructions = "";
+        
+        // Add specific instructions for shareholder agreements
+        if (contractType === "Shareholder Agreement") {
+          outlineInstructions = `
+          For a Shareholder Agreement, your outline MUST include the following sections (along with any others you deem necessary):
+          
+          1. Definitions and Interpretation
+          2. Business of the Company
+          3. Capital Structure and Contributions
+          4. Issuance of Shares
+          5. Transfer Restrictions
+          6. Pre-emptive Rights
+          7. Tag-Along and Drag-Along Rights
+          8. Corporate Governance (Board composition, meetings, etc.)
+          9. Shareholder Meetings and Voting
+          10. Reserved Matters
+          11. Information Rights and Reporting
+          12. Dividend Policy
+          13. Non-compete and Non-solicitation
+          14. Confidentiality
+          15. Representations and Warranties
+          16. Default and Remedies
+          17. Dispute Resolution
+          18. Termination and Exit Provisions
+          19. Valuation Methodology
+          20. General Provisions (notices, amendments, etc.)
+          
+          For each section, include a brief but informative description explaining its purpose and key components.`;
+        }
+        
+        systemPrompt = `You are an AI legal assistant specializing in contract structure and organization.
+        Create a detailed outline for a ${contractType || "legal document"} based on the user's requirements.
+        ${outlineInstructions}
+        
+        Format your response as a direct JSON object (not in a code block) with these keys:
+        title (the title of the contract),
+        type (the type of contract),
+        metadata: {
+          parties: [] (array of party names involved),
+          effectiveDate: (optional expected effective date),
+          jurisdiction: (optional governing jurisdiction)
+        },
+        sections: [
+          {
+            id: (unique identifier for the section),
+            title: (section title),
+            content: (brief description of what this section will contain),
+            subsections: [] (optional array of subsections following the same structure),
+            clauseNumbers: [] (optional array of clause numbers this section will contain)
+          }
+        ]
+        
+        The outline should be comprehensive and include all standard sections expected in a professional ${contractType || "legal document"}.
+        For a complex document like a Shareholders Agreement, include at least 15-20 main sections covering all essential aspects.
+        Do not include any explanations or markdown formatting in your response, just the pure JSON object.`;
+        break;
+      }
+
+      case "section": {
+        // Extract section information from the request
+        sectionId = section?.id || "unknown";
+        sectionTitle = section?.title || "Contract Section";
+        
+        systemPrompt = `You are an AI legal assistant specializing in contract drafting.
+        Generate the complete content for the "${sectionTitle}" section of a ${contractType || "legal document"}.
+        
+        Here is the section information:
+        ${JSON.stringify(section)}
+        
+        Additional context about the contract:
+        ${JSON.stringify(metadata || {})}
+        
+        Format your response as a direct JSON object (not in a code block) with these keys:
+        id: "${sectionId}",
+        title: (keep the original section title),
+        content: (the complete, detailed content for this section with proper legal language and formatting),
+        subsections: (if applicable, include fully developed subsections following the same structure)
+        
+        IMPORTANT GUIDELINES:
+        1. Be extremely comprehensive - each section should be at least 500-1000 words with detailed clauses
+        2. Include appropriate legal language, defined terms, and cross-references
+        3. For Shareholder Agreements in particular, ensure detailed provisions appropriate for complex business relationships
+        4. DO NOT abbreviate or summarize - provide the full, detailed text as it would appear in a final legal document
+        5. Include numbered sub-clauses and paragraphs where appropriate (e.g., 1.1, 1.2, etc.)
+        6. Ensure content is practically usable without further editing
+        
+        The section content should be comprehensive, professionally written in formal legal language, and ready to use with minimal editing.
+        Do not include any explanations or markdown formatting in your response, just the pure JSON object.`;
+        break;
+      }
+
       default:
         systemPrompt = `You are an AI legal assistant specializing in contract analysis. 
         Analyze the provided contract text and provide insights. Format your response in JSON.`;
@@ -89,12 +207,13 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'gpt-4o',
         messages: [
           { role: 'system', content: systemPrompt },
-          { role: 'user', content: contractText }
+          { role: 'user', content: analysisType === 'section' ? JSON.stringify({ section, metadata, contractType }) : contractText }
         ],
         temperature: 0.1, // Lower temperature for more consistent, analytical results
+        max_tokens: 4000, // Ensure we have enough tokens for comprehensive content
       }),
     });
 
@@ -130,6 +249,107 @@ serve(async (req) => {
           throw new Error('Failed to parse JSON directly or extract from code block');
         }
       }
+      
+      // Validate the parsed result based on analysis type
+      if (analysisType === "outline") {
+        // Ensure the outline has a title
+        if (!parsedResult.title || typeof parsedResult.title !== 'string') {
+          console.warn('Outline missing title, adding default title');
+          parsedResult.title = contractType || "Generated Agreement";
+        }
+        
+        // Ensure the outline has a type
+        if (!parsedResult.type || typeof parsedResult.type !== 'string') {
+          console.warn('Outline missing type, adding default type');
+          parsedResult.type = contractType || "Legal Agreement";
+        }
+        
+        // Ensure the outline has metadata
+        if (!parsedResult.metadata || typeof parsedResult.metadata !== 'object') {
+          console.warn('Outline missing metadata, adding default metadata');
+          parsedResult.metadata = {
+            parties: [],
+            effectiveDate: new Date().toISOString().split('T')[0]
+          };
+        }
+        
+        // Ensure the outline has sections and they have valid titles
+        if (!parsedResult.sections || !Array.isArray(parsedResult.sections) || parsedResult.sections.length === 0) {
+          console.warn('Outline missing sections or has empty sections array, adding default sections');
+          parsedResult.sections = [];
+          
+          // For Shareholder Agreement, add default sections based on the specific instructions
+          if (contractType === "Shareholder Agreement") {
+            const defaultSections = [
+              "Definitions and Interpretation",
+              "Business of the Company",
+              "Capital Structure and Contributions",
+              "Issuance of Shares",
+              "Transfer Restrictions",
+              "Pre-emptive Rights",
+              "Tag-Along and Drag-Along Rights",
+              "Corporate Governance",
+              "Shareholder Meetings and Voting",
+              "Reserved Matters",
+              "Information Rights and Reporting",
+              "Dividend Policy",
+              "Non-compete and Non-solicitation",
+              "Confidentiality",
+              "Representations and Warranties"
+            ];
+            
+            defaultSections.forEach((title, index) => {
+              parsedResult.sections.push({
+                id: `section-${index + 1}`,
+                title: title,
+                content: `This section covers important aspects related to ${title}.`
+              });
+            });
+          } else {
+            // Generic default section
+            parsedResult.sections.push({
+              id: "section-1",
+              title: "Agreement Terms",
+              content: "This section contains the terms and conditions of the agreement."
+            });
+          }
+        } else {
+          // Validate each section has a valid title and id
+          parsedResult.sections = parsedResult.sections.map((section, index) => {
+            const validSection = { ...section };
+            
+            // Ensure section has a valid id
+            if (!validSection.id || typeof validSection.id !== 'string') {
+              validSection.id = `section-${index + 1}`;
+            }
+            
+            // Ensure section has a valid title
+            if (!validSection.title || typeof validSection.title !== 'string') {
+              validSection.title = `Section ${index + 1}`;
+            }
+            
+            // Ensure section has content (even if brief)
+            if (!validSection.content || typeof validSection.content !== 'string') {
+              validSection.content = `This section covers important aspects of the agreement.`;
+            }
+            
+            return validSection;
+          });
+        }
+      } else if (analysisType === "section") {
+        // Validate section response
+        if (!parsedResult.id || typeof parsedResult.id !== 'string') {
+          parsedResult.id = sectionId || "unknown-section";
+        }
+        
+        if (!parsedResult.title || typeof parsedResult.title !== 'string') {
+          parsedResult.title = sectionTitle || "Untitled Section";
+        }
+        
+        if (!parsedResult.content || typeof parsedResult.content !== 'string' || parsedResult.content.trim() === '') {
+          parsedResult.content = `This section should contain detailed information about ${parsedResult.title}.`;
+        }
+      }
     } catch (e) {
       console.warn('Failed to parse OpenAI response as JSON:', e);
       parsedResult = { rawAnalysis: analysisResult };
@@ -145,6 +365,28 @@ serve(async (req) => {
           title: title || contractType || "Generated Agreement",
           content: content,
           type: contractType || "Legal Agreement"
+        };
+      } else if (analysisType === "outline") {
+        parsedResult = {
+          title: contractType || "Generated Agreement",
+          type: contractType || "Legal Agreement",
+          metadata: {
+            parties: [],
+            effectiveDate: new Date().toISOString().split('T')[0]
+          },
+          sections: [
+            {
+              id: "section-1",
+              title: "Default Section",
+              content: "This is a placeholder section. The outline could not be properly generated."
+            }
+          ]
+        };
+      } else if (analysisType === "section") {
+        parsedResult = {
+          id: sectionId,
+          title: sectionTitle,
+          content: analysisResult || "Section content could not be properly generated."
         };
       }
     }

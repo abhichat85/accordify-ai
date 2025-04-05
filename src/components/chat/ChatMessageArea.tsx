@@ -4,6 +4,8 @@ import { ProactiveSuggestions } from "./components/ProactiveSuggestions";
 import { ContextAwarenessPanel } from "./components/ContextAwarenessPanel";
 import { MessagesList } from "./components/MessagesList";
 import { EmptyChat } from "./components/EmptyChat";
+import { ContractGenerationProgress } from "../contract/ContractGenerationProgress";
+import { getGenerationProgress } from "@/services/contractAnalysis";
 
 interface ChatMessageAreaProps {
   messages: Message[];
@@ -25,6 +27,7 @@ export const ChatMessageArea: React.FC<ChatMessageAreaProps> = ({
   const [autoScroll, setAutoScroll] = useState(true);
   const [lastMessageCount, setLastMessageCount] = useState(0);
   const [lastMessageId, setLastMessageId] = useState("");
+  const [showProgressTracker, setShowProgressTracker] = useState(false);
 
   // Process messages to create an integrated flow
   const processedMessages = processMessagesForIntegratedFlow(messages);
@@ -71,6 +74,12 @@ export const ChatMessageArea: React.FC<ChatMessageAreaProps> = ({
     }
   }, [messages, lastMessageCount, lastMessageId, autoScroll]);
   
+  // Check if we should show the contract generation progress tracker
+  useEffect(() => {
+    const progress = getGenerationProgress();
+    setShowProgressTracker(progress.status !== 'idle' && progress.status !== 'completed');
+  }, [messages]); // Re-check when messages change
+  
   // Scroll to bottom helper function with smooth animation
   const scrollToBottom = () => {
     // Use requestAnimationFrame for more natural scrolling
@@ -115,6 +124,11 @@ export const ChatMessageArea: React.FC<ChatMessageAreaProps> = ({
             <EmptyChat />
           ) : (
             <>
+              {/* Contract Generation Progress Tracker */}
+              {showProgressTracker && (
+                <ContractGenerationProgress />
+              )}
+            
               <MessagesList messages={processedMessages} />
 
               {showProactiveSuggestions && messages.length > 0 && messages.length % 3 === 0 && (

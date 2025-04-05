@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { nanoid } from "@/lib/utils";
 import { Message } from "../chat/MessageBubble";
@@ -127,6 +126,9 @@ export const MainLayout: React.FC<{children?: React.ReactNode}> = ({ children })
         } else if (isCoFounderAgreement) {
           contractType = "Co-Founder Agreement";
           actions.push("Creating personalized Co-Founder Agreement");
+        } else if (lowerContent.includes("shareholder") || lowerContent.includes("shareholding") || lowerContent.includes("sha")) {
+          contractType = "Shareholder Agreement";
+          actions.push("Creating comprehensive Shareholder Agreement");
         }
         
         console.log("Generating contract of type:", contractType);
@@ -139,26 +141,78 @@ export const MainLayout: React.FC<{children?: React.ReactNode}> = ({ children })
         if (result.type === "generate" && result.result) {
           const generatedContract = result.result;
           
-          console.log("Contract generated successfully:", generatedContract.title);
+          // Use the pre-formatted contract content if available
+          let combinedContent = "";
           
-          // Important: Update the editor state with the generated content
+          if (result.formattedContract) {
+            // Use the pre-formatted content that contains all sections properly formatted
+            console.log("Using pre-formatted contract content");
+            combinedContent = result.formattedContract;
+          } else {
+            // Fallback to manual formatting (should not happen with new implementation)
+            console.log("FALLBACK: Manually formatting contract content");
+            
+            // Convert the new contract structure to what the UI expects
+            // Combine section contents into a single document
+            const contractTitle = generatedContract.outline?.title || contractType || "Generated Agreement";
+            
+            // Add a title
+            combinedContent += `# ${contractTitle}\n\n`;
+            
+            // If we have sections, combine their content
+            if (generatedContract.sections && generatedContract.sections.length > 0) {
+              generatedContract.sections.forEach((section, index) => {
+                // Add section title with safeguards against undefined
+                combinedContent += `## ${section.title || `Section ${index + 1}`}\n\n`;
+                
+                // Add section content with safeguards against undefined
+                if (section.content) {
+                  combinedContent += `${section.content}\n\n`;
+                } else {
+                  combinedContent += `This section content is being generated...\n\n`;
+                }
+                
+                // Add subsections if they exist
+                if (section.subsections && section.subsections.length > 0) {
+                  section.subsections.forEach(subsection => {
+                    combinedContent += `### ${subsection.title || 'Subsection'}\n\n`;
+                    if (subsection.content) {
+                      combinedContent += `${subsection.content}\n\n`;
+                    } else {
+                      combinedContent += `This subsection content is being generated...\n\n`;
+                    }
+                  });
+                }
+              });
+            } else {
+              combinedContent += "## Agreement Content\n\nThe contract content is being generated...\n";
+            }
+          }
+          
+          // Get the contract title from the generated contract
+          const contractTitle = generatedContract.outline?.title || contractType || "Generated Agreement";
+          
+          console.log("Contract generated successfully:", contractTitle);
+          console.log("Combined content length:", combinedContent.length);
+          
+          // Update the editor content
           setIsEditorOpen(true);
           setIsReviewOpen(false);
           
           // Update the current contract with the generated content
           setCurrentContract({
-            title: generatedContract.title,
-            type: generatedContract.type,
-            content: generatedContract.content
+            title: contractTitle,
+            type: contractType,
+            content: combinedContent
           });
           
           console.log("Updated current contract state:", {
-            title: generatedContract.title,
-            type: generatedContract.type,
-            contentLength: generatedContract.content.length
+            title: contractTitle,
+            type: contractType,
+            contentLength: combinedContent.length
           });
           
-          responseContent = `I've created a draft ${generatedContract.type} based on your requirements. The document includes standard provisions customized to your needs. You can now review and edit it in the editor. Would you like me to explain any specific section in more detail?`;
+          responseContent = `I've created a draft ${contractType} based on your requirements. The document includes ${generatedContract.sections?.length || 0} sections with standard provisions customized to your needs. You can now review and edit it in the editor. Would you like me to explain any specific section in more detail?`;
         } else {
           // Fallback if generation failed
           console.error("Contract generation failed:", result);
