@@ -68,7 +68,7 @@ export const MainLayout: React.FC<{children?: React.ReactNode}> = ({ children })
   const handleAgentResponse = async (content: string) => {
     const lowerContent = content.toLowerCase();
     let responseContent = "";
-    let actions = [];
+    const actions: string[] = [];
     let reasoning = "";
     
     // Detect if this is a request that requires contract generation
