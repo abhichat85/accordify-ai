@@ -3,6 +3,9 @@ import "https://deno.land/x/xhr@0.1.0/mod.ts";
 
 const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
 
+// Log API key status (safely)
+console.log(`OpenAI API Key status: ${openAIApiKey ? 'Present (length: ' + openAIApiKey.length + ')' : 'Missing'}`);
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -16,6 +19,18 @@ serve(async (req) => {
 
   try {
     const { contractText, analysisType, contractType, section, metadata } = await req.json();
+    
+    // Validate OpenAI API key before proceeding
+    if (!openAIApiKey) {
+      console.error('OpenAI API key is missing in environment variables');
+      return new Response(
+        JSON.stringify({ 
+          error: 'OpenAI API key is not configured. Please set the OPENAI_API_KEY environment variable in Supabase.',
+          details: 'Missing API key'
+        }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
     
     if (!contractText && analysisType !== "generate" && analysisType !== "outline" && analysisType !== "section") {
       return new Response(
@@ -238,204 +253,230 @@ serve(async (req) => {
     }
 
     // Call OpenAI API
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: analysisType === 'section' ? JSON.stringify({ section, metadata, contractType }) : contractText }
-        ],
-        temperature: 0.1, // Lower temperature for more consistent, analytical results
-        max_tokens: 4000, // Ensure we have enough tokens for comprehensive content
-      }),
-    });
-
-    const data = await response.json();
+    console.log(`Calling OpenAI API with model: gpt-4o, analysis type: ${analysisType}`);
     
-    if (data.error) {
-      console.error('OpenAI API error:', data.error);
+    try {
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${openAIApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o',
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: analysisType === 'section' ? JSON.stringify({ section, metadata, contractType }) : contractText }
+          ],
+          temperature: 0.1, // Lower temperature for more consistent, analytical results
+          max_tokens: 4000, // Ensure we have enough tokens for comprehensive content
+        }),
+      });
+
+      // Check for HTTP errors first
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`OpenAI API HTTP error: ${response.status} ${response.statusText}`, errorText);
+        return new Response(
+          JSON.stringify({ 
+            error: `OpenAI API returned status ${response.status}: ${response.statusText}`,
+            details: errorText
+          }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      const data = await response.json();
+      
+      if (data.error) {
+        console.error('OpenAI API error:', data.error);
+        return new Response(
+          JSON.stringify({ 
+            error: 'Error from OpenAI: ' + data.error.message,
+            details: JSON.stringify(data.error)
+          }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      // Extract and parse the content
+      const analysisResult = data.choices[0].message.content;
+      console.log('Response received from OpenAI. Parsing...');
+      
+      // Try to parse as JSON, but fallback to sending raw text if parsing fails
+      let parsedResult;
+      try {
+        // First, try to parse directly
+        try {
+          parsedResult = JSON.parse(analysisResult);
+          console.log('Successfully parsed OpenAI response as JSON directly');
+        } catch (directParseError) {
+          // If direct parsing fails, try to extract JSON from a code block
+          const jsonMatch = analysisResult.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+          if (jsonMatch && jsonMatch[1]) {
+            parsedResult = JSON.parse(jsonMatch[1]);
+            console.log('Successfully extracted and parsed JSON from code block');
+          } else {
+            // If both methods fail, throw error to trigger fallback
+            throw new Error('Failed to parse JSON directly or extract from code block');
+          }
+        }
+        
+        // Validate the parsed result based on analysis type
+        if (analysisType === "outline") {
+          // Ensure the outline has a title
+          if (!parsedResult.title || typeof parsedResult.title !== 'string') {
+            console.warn('Outline missing title, adding default title');
+            parsedResult.title = contractType || "Generated Agreement";
+          }
+          
+          // Ensure the outline has a type
+          if (!parsedResult.type || typeof parsedResult.type !== 'string') {
+            console.warn('Outline missing type, adding default type');
+            parsedResult.type = contractType || "Legal Agreement";
+          }
+          
+          // Ensure the outline has metadata
+          if (!parsedResult.metadata || typeof parsedResult.metadata !== 'object') {
+            console.warn('Outline missing metadata, adding default metadata');
+            parsedResult.metadata = {
+              parties: [],
+              effectiveDate: new Date().toISOString().split('T')[0]
+            };
+          }
+          
+          // Ensure the outline has sections and they have valid titles
+          if (!parsedResult.sections || !Array.isArray(parsedResult.sections) || parsedResult.sections.length === 0) {
+            console.warn('Outline missing sections or has empty sections array, adding default sections');
+            parsedResult.sections = [];
+            
+            // For Shareholder Agreement, add default sections based on the specific instructions
+            if (contractType === "Shareholder Agreement") {
+              const defaultSections = [
+                "Definitions and Interpretation",
+                "Business of the Company",
+                "Capital Structure and Contributions",
+                "Issuance of Shares",
+                "Transfer Restrictions",
+                "Pre-emptive Rights",
+                "Tag-Along and Drag-Along Rights",
+                "Corporate Governance",
+                "Shareholder Meetings and Voting",
+                "Reserved Matters",
+                "Information Rights and Reporting",
+                "Dividend Policy",
+                "Non-compete and Non-solicitation",
+                "Confidentiality",
+                "Representations and Warranties"
+              ];
+              
+              defaultSections.forEach((title, index) => {
+                parsedResult.sections.push({
+                  id: `section-${index + 1}`,
+                  title: title,
+                  content: `This section covers important aspects related to ${title}.`
+                });
+              });
+            } else {
+              // Generic default section
+              parsedResult.sections.push({
+                id: "section-1",
+                title: "Agreement Terms",
+                content: "This section contains the terms and conditions of the agreement."
+              });
+            }
+          } else {
+            // Validate each section has a valid title and id
+            parsedResult.sections = parsedResult.sections.map((section, index) => {
+              const validSection = { ...section };
+              
+              // Ensure section has a valid id
+              if (!validSection.id || typeof validSection.id !== 'string') {
+                validSection.id = `section-${index + 1}`;
+              }
+              
+              // Ensure section has a valid title
+              if (!validSection.title || typeof validSection.title !== 'string') {
+                validSection.title = `Section ${index + 1}`;
+              }
+              
+              // Ensure section has content (even if brief)
+              if (!validSection.content || typeof validSection.content !== 'string') {
+                validSection.content = `This section covers important aspects of the agreement.`;
+              }
+              
+              return validSection;
+            });
+          }
+        } else if (analysisType === "section") {
+          // Validate section response
+          if (!parsedResult.id || typeof parsedResult.id !== 'string') {
+            parsedResult.id = sectionId || "unknown-section";
+          }
+          
+          if (!parsedResult.title || typeof parsedResult.title !== 'string') {
+            parsedResult.title = sectionTitle || "Untitled Section";
+          }
+          
+          if (!parsedResult.content || typeof parsedResult.content !== 'string' || parsedResult.content.trim() === '') {
+            parsedResult.content = `This section should contain detailed information about ${parsedResult.title}.`;
+          }
+        }
+      } catch (e) {
+        console.warn('Failed to parse OpenAI response as JSON:', e);
+        parsedResult = { rawAnalysis: analysisResult };
+        
+        // For generation, attempt to create a more structured response
+        if (analysisType === "generate") {
+          // Extract title from first line
+          const lines = analysisResult.split('\n');
+          const title = lines[0].trim();
+          const content = analysisResult;
+          
+          parsedResult = {
+            title: title || contractType || "Generated Agreement",
+            content: content,
+            type: contractType || "Legal Agreement"
+          };
+        } else if (analysisType === "outline") {
+          parsedResult = {
+            title: contractType || "Generated Agreement",
+            type: contractType || "Legal Agreement",
+            metadata: {
+              parties: [],
+              effectiveDate: new Date().toISOString().split('T')[0]
+            },
+            sections: [
+              {
+                id: "section-1",
+                title: "Default Section",
+                content: "This is a placeholder section. The outline could not be properly generated."
+              }
+            ]
+          };
+        } else if (analysisType === "section") {
+          parsedResult = {
+            id: sectionId,
+            title: sectionTitle,
+            content: analysisResult || "Section content could not be properly generated."
+          };
+        }
+      }
+
       return new Response(
-        JSON.stringify({ error: 'Error from OpenAI: ' + data.error.message }),
+        JSON.stringify({ 
+          result: parsedResult,
+          type: analysisType 
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    } catch (error) {
+      console.error('Error in analyze-contract function:', error);
+      return new Response(
+        JSON.stringify({ error: error.message }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
-
-    // Extract and parse the content
-    const analysisResult = data.choices[0].message.content;
-    console.log('Response received from OpenAI. Parsing...');
-    
-    // Try to parse as JSON, but fallback to sending raw text if parsing fails
-    let parsedResult;
-    try {
-      // First, try to parse directly
-      try {
-        parsedResult = JSON.parse(analysisResult);
-        console.log('Successfully parsed OpenAI response as JSON directly');
-      } catch (directParseError) {
-        // If direct parsing fails, try to extract JSON from a code block
-        const jsonMatch = analysisResult.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
-        if (jsonMatch && jsonMatch[1]) {
-          parsedResult = JSON.parse(jsonMatch[1]);
-          console.log('Successfully extracted and parsed JSON from code block');
-        } else {
-          // If both methods fail, throw error to trigger fallback
-          throw new Error('Failed to parse JSON directly or extract from code block');
-        }
-      }
-      
-      // Validate the parsed result based on analysis type
-      if (analysisType === "outline") {
-        // Ensure the outline has a title
-        if (!parsedResult.title || typeof parsedResult.title !== 'string') {
-          console.warn('Outline missing title, adding default title');
-          parsedResult.title = contractType || "Generated Agreement";
-        }
-        
-        // Ensure the outline has a type
-        if (!parsedResult.type || typeof parsedResult.type !== 'string') {
-          console.warn('Outline missing type, adding default type');
-          parsedResult.type = contractType || "Legal Agreement";
-        }
-        
-        // Ensure the outline has metadata
-        if (!parsedResult.metadata || typeof parsedResult.metadata !== 'object') {
-          console.warn('Outline missing metadata, adding default metadata');
-          parsedResult.metadata = {
-            parties: [],
-            effectiveDate: new Date().toISOString().split('T')[0]
-          };
-        }
-        
-        // Ensure the outline has sections and they have valid titles
-        if (!parsedResult.sections || !Array.isArray(parsedResult.sections) || parsedResult.sections.length === 0) {
-          console.warn('Outline missing sections or has empty sections array, adding default sections');
-          parsedResult.sections = [];
-          
-          // For Shareholder Agreement, add default sections based on the specific instructions
-          if (contractType === "Shareholder Agreement") {
-            const defaultSections = [
-              "Definitions and Interpretation",
-              "Business of the Company",
-              "Capital Structure and Contributions",
-              "Issuance of Shares",
-              "Transfer Restrictions",
-              "Pre-emptive Rights",
-              "Tag-Along and Drag-Along Rights",
-              "Corporate Governance",
-              "Shareholder Meetings and Voting",
-              "Reserved Matters",
-              "Information Rights and Reporting",
-              "Dividend Policy",
-              "Non-compete and Non-solicitation",
-              "Confidentiality",
-              "Representations and Warranties"
-            ];
-            
-            defaultSections.forEach((title, index) => {
-              parsedResult.sections.push({
-                id: `section-${index + 1}`,
-                title: title,
-                content: `This section covers important aspects related to ${title}.`
-              });
-            });
-          } else {
-            // Generic default section
-            parsedResult.sections.push({
-              id: "section-1",
-              title: "Agreement Terms",
-              content: "This section contains the terms and conditions of the agreement."
-            });
-          }
-        } else {
-          // Validate each section has a valid title and id
-          parsedResult.sections = parsedResult.sections.map((section, index) => {
-            const validSection = { ...section };
-            
-            // Ensure section has a valid id
-            if (!validSection.id || typeof validSection.id !== 'string') {
-              validSection.id = `section-${index + 1}`;
-            }
-            
-            // Ensure section has a valid title
-            if (!validSection.title || typeof validSection.title !== 'string') {
-              validSection.title = `Section ${index + 1}`;
-            }
-            
-            // Ensure section has content (even if brief)
-            if (!validSection.content || typeof validSection.content !== 'string') {
-              validSection.content = `This section covers important aspects of the agreement.`;
-            }
-            
-            return validSection;
-          });
-        }
-      } else if (analysisType === "section") {
-        // Validate section response
-        if (!parsedResult.id || typeof parsedResult.id !== 'string') {
-          parsedResult.id = sectionId || "unknown-section";
-        }
-        
-        if (!parsedResult.title || typeof parsedResult.title !== 'string') {
-          parsedResult.title = sectionTitle || "Untitled Section";
-        }
-        
-        if (!parsedResult.content || typeof parsedResult.content !== 'string' || parsedResult.content.trim() === '') {
-          parsedResult.content = `This section should contain detailed information about ${parsedResult.title}.`;
-        }
-      }
-    } catch (e) {
-      console.warn('Failed to parse OpenAI response as JSON:', e);
-      parsedResult = { rawAnalysis: analysisResult };
-      
-      // For generation, attempt to create a more structured response
-      if (analysisType === "generate") {
-        // Extract title from first line
-        const lines = analysisResult.split('\n');
-        const title = lines[0].trim();
-        const content = analysisResult;
-        
-        parsedResult = {
-          title: title || contractType || "Generated Agreement",
-          content: content,
-          type: contractType || "Legal Agreement"
-        };
-      } else if (analysisType === "outline") {
-        parsedResult = {
-          title: contractType || "Generated Agreement",
-          type: contractType || "Legal Agreement",
-          metadata: {
-            parties: [],
-            effectiveDate: new Date().toISOString().split('T')[0]
-          },
-          sections: [
-            {
-              id: "section-1",
-              title: "Default Section",
-              content: "This is a placeholder section. The outline could not be properly generated."
-            }
-          ]
-        };
-      } else if (analysisType === "section") {
-        parsedResult = {
-          id: sectionId,
-          title: sectionTitle,
-          content: analysisResult || "Section content could not be properly generated."
-        };
-      }
-    }
-
-    return new Response(
-      JSON.stringify({ 
-        result: parsedResult,
-        type: analysisType 
-      }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
   } catch (error) {
     console.error('Error in analyze-contract function:', error);
     return new Response(

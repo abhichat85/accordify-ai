@@ -42,6 +42,8 @@ export interface ContractOutline {
     jurisdiction?: string;
   };
   sections: ContractSection[];
+  // For handling nested structures that might appear in API responses
+  [key: string]: unknown;
 }
 
 export interface GeneratedContract {
@@ -73,7 +75,7 @@ export type AnalysisResult =
   | { type: "outline"; result: ContractOutline }
   | { type: "section"; result: ContractSection }
   | { type: "summary"; result: ContractSummary }
-  | { type: "error"; error: string };
+  | { type: "error"; error: string; result?: GeneratedContract; formattedContract?: string };
 
 // Progress tracking state
 let generationProgress: GenerationProgress = {
@@ -301,41 +303,66 @@ export const generateContractOutline = async (
   contractType: string,
   prompt: string
 ): Promise<AnalysisResult> => {
-  const { data, error } = await supabase.functions.invoke("analyze-contract", {
-    body: {
-      analysisType: "outline",
-      contractText: prompt,  
-      contractType,
-    },
-  });
+  try {
+    console.log(`Generating contract outline for type: ${contractType}`);
+    console.log(`Prompt length: ${prompt.length} characters`);
+    console.log(`Prompt preview: ${prompt.substring(0, 100)}...`);
+    
+    // Call the Supabase function to generate the outline
+    console.log(`Calling Supabase function 'analyze-contract' with analysisType: "outline"`);
+    const { data, error } = await supabase.functions.invoke("analyze-contract", {
+      body: {
+        contractText: prompt,
+        analysisType: "outline",
+        contractType,
+      },
+    });
+    
+    console.log(`Response received from Supabase function:`, error ? `Error: ${error.message}` : 'Success');
 
-  if (error) {
-    console.error("Error generating contract outline:", error);
-    return { type: "error", error: error.message };
-  }
-
-  console.log("Outline generation response:", data);
-  
-  // Validate the outline structure
-  if (!data.result) {
-    console.error("Missing result in outline response");
-    return { type: "error", error: "Invalid outline response: missing result" };
-  }
-  
-  // Ensure the outline has a sections array
-  const result = data.result;
-  if (!result.sections) {
-    console.log("Adding empty sections array to outline");
-    result.sections = [
-      {
-        id: "section-1",
-        title: "Introduction",
-        content: "This agreement is made between the parties."
+    if (error) {
+      console.error("Error generating contract outline:", error);
+      console.error("Error details:", JSON.stringify(error));
+      
+      // Check for specific API key error messages
+      if (error.message && (
+        error.message.includes("API key") || 
+        error.message.includes("OpenAI") ||
+        error.message.includes("non-2xx status code")
+      )) {
+        return { 
+          type: "error", 
+          error: "OpenAI API key error: Please check that your OpenAI API key is correctly configured in Supabase."
+        };
       }
-    ];
+      
+      return { type: "error", error: error.message };
+    }
+
+    console.log("Outline generation response received:", data ? "Data present" : "No data");
+    if (data && data.result) {
+      console.log("Outline sections:", data.result.sections ? data.result.sections.length : "No sections");
+    }
+
+    if (!data || !data.result) {
+      console.error("Invalid response from outline generation:", data);
+      return {
+        type: "error",
+        error: "Invalid response from outline generation. Missing result data."
+      };
+    }
+
+    return {
+      type: "outline",
+      result: data.result,
+    };
+  } catch (error) {
+    console.error("Exception in contract outline generation:", error);
+    return {
+      type: "error",
+      error: error instanceof Error ? error.message : "Unknown error occurred during outline generation",
+    };
   }
-  
-  return { type: "outline", result: data.result };
 };
 
 export const generateContractSection = async (
@@ -359,88 +386,6 @@ export const generateContractSection = async (
   }
 
   return { type: "section", result: data.result };
-};
-
-// Define standard section titles for different contract types
-const standardSectionTitles = {
-  "Shareholder Agreement": [
-    "Definitions and Interpretation",
-    "Business of the Company",
-    "Capital Structure and Contributions",
-    "Issuance of Shares",
-    "Transfer Restrictions",
-    "Pre-emptive Rights",
-    "Tag-Along and Drag-Along Rights",
-    "Corporate Governance",
-    "Shareholder Meetings and Voting",
-    "Reserved Matters",
-    "Information Rights and Reporting",
-    "Dividend Policy",
-    "Non-compete and Non-solicitation",
-    "Confidentiality",
-    "Representations and Warranties",
-    "Default and Remedies",
-    "Dispute Resolution",
-    "Termination and Exit Provisions",
-    "Valuation Methodology",
-    "General Provisions"
-  ],
-  "Co-Founder Agreement": [
-    "Definitions and Interpretation",
-    "Business of the Company",
-    "Roles and Responsibilities",
-    "Equity Distribution",
-    "Vesting Schedule",
-    "Intellectual Property Rights",
-    "Decision Making Process",
-    "Compensation and Benefits",
-    "Non-compete and Non-solicitation",
-    "Confidentiality",
-    "Dispute Resolution",
-    "Exit Provisions",
-    "General Provisions"
-  ]
-};
-
-// Helper function to get a standard section title
-const getStandardSectionTitle = (contractType: string, index: number): string => {
-  const titles = standardSectionTitles[contractType as keyof typeof standardSectionTitles];
-  if (titles && index < titles.length) {
-    return titles[index];
-  }
-  return `Section ${index + 1}`;
-};
-
-// Helper function to format a contract for display in the editor
-export const formatContractForEditor = (contract: GeneratedContract): string => {
-  // Start with the contract title
-  let markdownContent = `# ${contract.outline.title || "Contract Agreement"}\n\n`;
-  
-  // Add each section with its content
-  contract.sections.forEach((section, index) => {
-    // Add section heading
-    markdownContent += `## ${section.title}\n\n`;
-    
-    // Add section content
-    if (section.content) {
-      markdownContent += `${section.content}\n\n`;
-    }
-    
-    // Add any subsections
-    if (section.subsections && Array.isArray(section.subsections) && section.subsections.length > 0) {
-      section.subsections.forEach(subsection => {
-        // Add subsection heading
-        markdownContent += `### ${subsection.title}\n\n`;
-        
-        // Add subsection content
-        if (subsection.content) {
-          markdownContent += `${subsection.content}\n\n`;
-        }
-      });
-    }
-  });
-  
-  return markdownContent;
 };
 
 export const generateComprehensiveContract = async (
@@ -477,10 +422,163 @@ export const generateComprehensiveContract = async (
       return { type: "error", error: "Failed to generate contract outline" };
     }
 
-    // Validate outline structure
+    // Debug the API response structure
+    console.log("Original outline structure:", JSON.stringify(outline, null, 2));
+    
+    // Fix for specific structure issues with NDAs - MUST RUN BEFORE OTHER VALIDATIONS
+    let isNDA = false;
+    if (contractType.toLowerCase().includes('non') && contractType.toLowerCase().includes('disclosure')) {
+      isNDA = true;
+      // If this is an NDA and there's a nested structure (API sometimes returns this)
+      if (outline.NonDisclosureAgreement && typeof outline.NonDisclosureAgreement === 'object') {
+        console.log("Found nested NDA structure, fixing...");
+        
+        // Extract the nested structure with proper type checking
+        const nda = outline.NonDisclosureAgreement as Record<string, unknown>;
+        
+        // Force the correct title and type
+        outline.title = "Non-Disclosure Agreement";
+        if (outline.type === "legal agreement") {
+          outline.type = "Non-Disclosure Agreement";
+        }
+        
+        // Create proper sections from the NDA object structure
+        console.log("Creating sections from NDA object structure");
+        
+        // Clear any existing sections that might be invalid
+        outline.sections = [];
+        
+        // Create sections from the NDA object properties
+        const ndaSections: ContractSection[] = [];
+        
+        // 1. Parties Section
+        if (nda.Parties) {
+          const partiesContent = formatNDAPartiesSection(nda.Parties as Record<string, unknown>);
+          ndaSections.push({
+            id: "section-parties",
+            title: "Parties to the Agreement",
+            content: partiesContent
+          });
+        }
+        
+        // 2. Definitions Section - Handle multiple possible property names
+        const definitionsSection = nda.Definitions || nda.DefinitionOfConfidentialInformation;
+        if (definitionsSection) {
+          const definitionsContent = formatNDADefinitionsSection(definitionsSection as Record<string, unknown>);
+          ndaSections.push({
+            id: "section-definitions",
+            title: "Definition of Confidential Information",
+            content: definitionsContent
+          });
+        }
+        
+        // 3. Obligations Section - Handle multiple possible property names
+        const obligationsSection = nda.Obligations || nda.ObligationsOfReceivingParty;
+        if (obligationsSection) {
+          const obligationsContent = formatNDAObligationsSection(obligationsSection as Record<string, unknown>);
+          ndaSections.push({
+            id: "section-obligations",
+            title: "Obligations of Receiving Party",
+            content: obligationsContent
+          });
+        }
+        
+        // 4. Exclusions Section - Handle multiple possible property names
+        const exclusionsSection = nda.Exclusions || nda.ExclusionsFromConfidentialInformation;
+        if (exclusionsSection) {
+          const exclusionsContent = formatNDAExclusionsSection(exclusionsSection as Record<string, unknown>);
+          ndaSections.push({
+            id: "section-exclusions",
+            title: "Exclusions from Confidential Information",
+            content: exclusionsContent
+          });
+        }
+        
+        // 5. Term Section
+        if (nda.Term) {
+          const termContent = formatNDATermSection(nda.Term as Record<string, unknown>);
+          ndaSections.push({
+            id: "section-term",
+            title: "Term and Termination",
+            content: termContent
+          });
+        }
+        
+        // 6. Return of Materials Section - Handle multiple possible property names
+        const returnSection = nda.ReturnOfMaterials || nda["Return of Materials"];
+        if (returnSection) {
+          const returnContent = formatNDAReturnSection(returnSection as Record<string, unknown>);
+          ndaSections.push({
+            id: "section-return",
+            title: "Return of Confidential Information",
+            content: returnContent
+          });
+        }
+        
+        // 7. Governing Law Section
+        if (nda.GoverningLaw) {
+          let govContent = "";
+          if (typeof nda.GoverningLaw === 'string') {
+            govContent = nda.GoverningLaw as string;
+          } else if (typeof nda.GoverningLaw === 'object') {
+            const govLaw = nda.GoverningLaw as Record<string, unknown>;
+            govContent = govLaw.Jurisdiction ? govLaw.Jurisdiction.toString() : 
+              "This Agreement shall be governed by and construed in accordance with the laws of India.";
+          }
+          
+          ndaSections.push({
+            id: "section-law",
+            title: "Governing Law",
+            content: govContent
+          });
+        }
+        
+        // 8. Dispute Resolution Section
+        if (nda.DisputeResolution) {
+          const disputeContent = formatNDADisputeSection(nda.DisputeResolution as Record<string, unknown>);
+          ndaSections.push({
+            id: "section-dispute",
+            title: "Dispute Resolution",
+            content: disputeContent
+          });
+        }
+        
+        // 9. Miscellaneous Section
+        if (nda.Miscellaneous) {
+          const miscContent = formatNDAMiscellaneousSection(nda.Miscellaneous as Record<string, unknown>);
+          ndaSections.push({
+            id: "section-misc",
+            title: "Miscellaneous Provisions",
+            content: miscContent
+          });
+        }
+        
+        // 10. Signatures Section
+        if (nda.Signatures) {
+          const signaturesContent = formatNDASignaturesSection(nda.Signatures as Record<string, unknown>);
+          ndaSections.push({
+            id: "section-signatures",
+            title: "Signatures",
+            content: signaturesContent
+          });
+        }
+        
+        // Set the sections in the outline
+        outline.sections = ndaSections;
+        console.log(`Created ${ndaSections.length} sections from NDA structure`);
+        
+        // Update metadata type to ensure it's consistent
+        if (outline.metadata) {
+          // Use type assertion with Record<string, unknown> instead of any
+          (outline.metadata as Record<string, unknown>)["type"] = "Non-Disclosure Agreement";
+        }
+      }
+    }
+    
+    // Validate outline structure - ONLY IF NOT ALREADY HANDLED BY NDA PROCESSING
     if (!outline.title || typeof outline.title !== 'string') {
       console.warn('Outline missing title, setting default title');
-      outline.title = contractType || "Generated Agreement";
+      outline.title = isNDA ? "Non-Disclosure Agreement" : (contractType || "Generated Agreement");
     }
 
     // Make sure sections exist and is an array
@@ -490,7 +588,7 @@ export const generateComprehensiveContract = async (
     }
 
     // Ensure each section in the outline has a valid title and ID
-    if (outline.sections.length === 0) {
+    if (outline.sections.length === 0 && !isNDA) {
       console.warn('Outline has no sections, adding default sections');
       
       // Add default sections based on contract type
@@ -677,22 +775,25 @@ export const generateComprehensiveContract = async (
         
         // Validate section has a valid title - CRITICAL FIX
         if (!section.title || typeof section.title !== 'string' || section.title.includes('undefined')) {
-          // Use standard section titles for Shareholder Agreements
+          // Use standard section titles for contracts
           const fallbackTitle = getStandardSectionTitle(contractType, index);
-          console.warn(`Section has invalid title: "${section.title}", using fallback: "${fallbackTitle}"`);
+          console.log(`Section has invalid title: "${section.title}", using fallback: "${fallbackTitle}"`);
           section.title = fallbackTitle;
         }
         
-        // Add fallback content for any section that may be missing content
-        if (!section.content || typeof section.content !== 'string' || section.content.trim() === "") {
-          console.warn(`Section "${section.title}" has no content, adding fallback content`);
+        // Add fallback content ONLY if section is truly missing content
+        if (!section.content || section.content.trim() === "") {
+          console.log(`Section "${section.title}" has empty content, adding fallback content`);
           section.content = `This section should contain detailed information about ${section.title}.\n\nPlease add specific content here.`;
+        } else {
+          // Valid content exists, make sure we're using it
+          console.log(`Using valid content for section "${section.title}" (${section.content.length} chars)`);
         }
         
         // Ensure subsections are properly handled
         if (section.subsections) {
           if (!Array.isArray(section.subsections)) {
-            console.warn(`Section "${section.title}" has invalid subsections (not an array), resetting to empty array`);
+            console.log(`Section "${section.title}" has invalid subsections (not an array), resetting to empty array`);
             section.subsections = [];
           } else {
             section.subsections = section.subsections.map((subsection, subIndex) => {
@@ -742,19 +843,50 @@ export const generateComprehensiveContract = async (
 
     console.log(`Contract generation completed with ${generatedSections.length} sections`);
     
-    // Step 4: Create the final contract
+    // Create the final contract with the properly processed sections
     const contract: GeneratedContract = {
       outline,
       sections: generatedSections,
       metadata: {
         generatedAt: new Date().toISOString(),
         version: "1.0",
-        type: contractType
+        type: isNDA ? "Non-Disclosure Agreement" : (contractType || "Agreement")
       }
     };
 
+    // Special handling for NDAs - use the sections we created directly from the NDA structure
+    if (isNDA && outline.NonDisclosureAgreement && outline.sections && outline.sections.length > 0) {
+      console.log("Using NDA-specific sections for the final contract");
+      contract.sections = outline.sections;
+      
+      // Ensure the title is correctly set
+      if (contract.outline.title !== "Non-Disclosure Agreement") {
+        contract.outline.title = "Non-Disclosure Agreement";
+      }
+      
+      // Ensure the type is correctly set
+      if (contract.metadata.type !== "Non-Disclosure Agreement") {
+        contract.metadata.type = "Non-Disclosure Agreement";
+      }
+    }
+
+    // Ensure the metadata type is set correctly for NDAs
+    if (contract.metadata && 
+        (contract.metadata.type === "legal agreement" || !contract.metadata.type) && 
+        contract.outline.title === "Non-Disclosure Agreement") {
+      contract.metadata.type = "Non-Disclosure Agreement";
+    }
+
     // Format the contract for display in the editor
     const formattedContract = formatContractForEditor(contract);
+
+    // Debugging log for contract structure
+    console.log("Final contract structure:", {
+      title: contract.outline.title,
+      type: contract.metadata.type,
+      sectionCount: contract.sections.length,
+      firstSectionTitle: contract.sections[0]?.title || "No sections"
+    });
 
     return { type: "generate", result: contract, formattedContract };
   } catch (error) {
@@ -763,9 +895,334 @@ export const generateComprehensiveContract = async (
       status: 'error',
       error: error instanceof Error ? error.message : "Unknown error occurred"
     });
+    
+    // Create a fallback contract with error information
+    const fallbackContract: GeneratedContract = {
+      outline: {
+        title: `${contractType || "Contract"} (Error Recovery)`,
+        type: contractType || "Agreement",
+        metadata: {
+          parties: [],
+          effectiveDate: new Date().toISOString().split('T')[0]
+        },
+        sections: [{
+          id: "error-section",
+          title: "Error Information",
+          content: `There was an error generating the contract: ${error instanceof Error ? error.message : "Unknown error occurred"}\n\nPlease try again or contact support if the issue persists.`
+        }]
+      },
+      sections: [{
+        id: "error-section",
+        title: "Error Information",
+        content: `There was an error generating the contract: ${error instanceof Error ? error.message : "Unknown error occurred"}\n\nPlease try again or contact support if the issue persists.`
+      }],
+      metadata: {
+        generatedAt: new Date().toISOString(),
+        version: "1.0",
+        type: contractType || "Agreement"
+      }
+    };
+    
+    // Generate a fallback formatted contract
+    const fallbackFormattedContract = formatContractForEditor(fallbackContract);
+    
     return {
       type: "error",
-      error: error instanceof Error ? error.message : "Unknown error occurred"
+      error: error instanceof Error ? error.message : "Unknown error occurred",
+      result: fallbackContract,
+      formattedContract: fallbackFormattedContract
     };
   }
+};
+
+// Define standard section titles for different contract types
+const standardSectionTitles: Record<string, string[]> = {
+  "Shareholder Agreement": [
+    "Definitions and Interpretation",
+    "Business of the Company",
+    "Capital Structure and Contributions",
+    "Issuance of Shares",
+    "Transfer Restrictions",
+    "Pre-emptive Rights",
+    "Tag-Along and Drag-Along Rights",
+    "Corporate Governance",
+    "Shareholder Meetings and Voting",
+    "Reserved Matters",
+    "Information Rights and Reporting",
+    "Dividend Policy",
+    "Non-compete and Non-solicitation",
+    "Confidentiality",
+    "Representations and Warranties",
+    "Default and Remedies",
+    "Dispute Resolution",
+    "Termination and Exit Provisions",
+    "Valuation Methodology",
+    "General Provisions"
+  ],
+  "Non-Disclosure Agreement": [
+    "Parties to the Agreement",
+    "Definitions",
+    "Purpose of Disclosure",
+    "Confidential Information",
+    "Exclusions from Confidential Information",
+    "Obligations of Receiving Party",
+    "Term and Termination",
+    "Return of Confidential Information",
+    "Remedies",
+    "Miscellaneous Provisions",
+    "Governing Law",
+    "Dispute Resolution"
+  ],
+  "Co-Founder Agreement": [
+    "Definitions and Interpretation",
+    "Business of the Company",
+    "Roles and Responsibilities",
+    "Equity Distribution",
+    "Vesting Schedule",
+    "Intellectual Property Rights",
+    "Decision Making Process",
+    "Compensation and Benefits",
+    "Non-compete and Non-solicitation",
+    "Confidentiality",
+    "Dispute Resolution",
+    "Exit Provisions",
+    "General Provisions"
+  ]
+};
+
+// Helper function to get a standard section title
+const getStandardSectionTitle = (contractType: string, index: number): string => {
+  const titles = standardSectionTitles[contractType as keyof typeof standardSectionTitles];
+  if (titles && index < titles.length) {
+    return titles[index];
+  }
+  return `Section ${index + 1}`;
+};
+
+// Helper function to format a contract for display in the editor
+export const formatContractForEditor = (contract: GeneratedContract): string => {
+  // Start with the contract title - ensure we use the proper title for NDAs
+  let contractTitle = contract.outline.title || "Contract Agreement";
+  
+  // Override with a proper title for NDAs if needed
+  if (contract.metadata.type?.toLowerCase().includes('non') && 
+      contract.metadata.type?.toLowerCase().includes('disclosure')) {
+    contractTitle = "Non-Disclosure Agreement";
+  }
+  
+  let markdownContent = `# ${contractTitle}\n\n`;
+  
+  // Add each section with its content
+  contract.sections.forEach((section, index) => {
+    // Add section heading
+    markdownContent += `## ${section.title}\n\n`;
+    
+    // Add section content
+    if (section.content) {
+      markdownContent += `${section.content}\n\n`;
+    }
+    
+    // Add any subsections
+    if (section.subsections && Array.isArray(section.subsections) && section.subsections.length > 0) {
+      section.subsections.forEach(subsection => {
+        // Add subsection heading
+        markdownContent += `### ${subsection.title}\n\n`;
+        
+        // Add subsection content
+        if (subsection.content) {
+          markdownContent += `${subsection.content}\n\n`;
+        }
+      });
+    }
+  });
+  
+  return markdownContent;
+};
+
+// Helper functions to format NDA sections
+const formatNDAPartiesSection = (parties: Record<string, unknown>): string => {
+  let content = "## Parties to the Agreement\n\n";
+  
+  if (parties.DisclosingParty && typeof parties.DisclosingParty === 'object') {
+    const disclosing = parties.DisclosingParty as Record<string, unknown>;
+    content += "**Disclosing Party**: ";
+    content += typeof disclosing.Name === 'string' ? disclosing.Name : "Disclosing Party";
+    content += "\n";
+    content += typeof disclosing.Address === 'string' ? `Address: ${disclosing.Address}` : "";
+    content += "\n\n";
+  }
+  
+  if (parties.ReceivingParty && typeof parties.ReceivingParty === 'object') {
+    const receiving = parties.ReceivingParty as Record<string, unknown>;
+    content += "**Receiving Party**: ";
+    content += typeof receiving.Name === 'string' ? receiving.Name : "Receiving Party";
+    content += "\n";
+    content += typeof receiving.Address === 'string' ? `Address: ${receiving.Address}` : "";
+    content += "\n\n";
+  }
+  
+  content += "This Non-Disclosure Agreement (\"Agreement\") is entered into between the above-named parties on the Effective Date.\n\n";
+  
+  return content;
+};
+
+const formatNDADefinitionsSection = (definitions: Record<string, unknown>): string => {
+  let content = "For the purposes of this Agreement, the following terms shall have the meanings set forth below:\n\n";
+  
+  // Handle the special case for DefinitionOfConfidentialInformation
+  if (definitions.Description && typeof definitions.Description === 'string') {
+    content += `**Confidential Information**: ${definitions.Description}\n\n`;
+  } else {
+    // Handle the general case for other definition structures
+    for (const [key, value] of Object.entries(definitions)) {
+      content += `**${key}**: ${value}\n\n`;
+    }
+  }
+  
+  return content;
+};
+
+const formatNDAObligationsSection = (obligations: Record<string, unknown>): string => {
+  let content = "The Receiving Party agrees to:\n\n";
+  
+  // Handle array structure
+  if (obligations.ReceivingPartyObligations && Array.isArray(obligations.ReceivingPartyObligations)) {
+    obligations.ReceivingPartyObligations.forEach((obligation, index) => {
+      content += `${index + 1}. ${obligation}\n\n`;
+    });
+  } 
+  // Handle ReceivingParty object structure (from latest API response)
+  else if (obligations.ReceivingParty && typeof obligations.ReceivingParty === 'object') {
+    const receivingParty = obligations.ReceivingParty as Record<string, unknown>;
+    let index = 1;
+    for (const [key, value] of Object.entries(receivingParty)) {
+      if (typeof value === 'string') {
+        content += `${index}. ${value}\n\n`;
+        index++;
+      }
+    }
+  }
+  // Handle direct object structure with specific obligation types
+  else {
+    let index = 1;
+    for (const [key, value] of Object.entries(obligations)) {
+      if (typeof value === 'string') {
+        content += `${index}. ${value}\n\n`;
+        index++;
+      }
+    }
+  }
+  
+  return content;
+};
+
+const formatNDAExclusionsSection = (exclusions: Record<string, unknown>): string => {
+  let content = "The obligations of confidentiality under this Agreement shall not apply to information that:\n\n";
+  
+  // Handle array structure for ExclusionsFromConfidentiality
+  if (exclusions.ExclusionsFromConfidentiality && Array.isArray(exclusions.ExclusionsFromConfidentiality)) {
+    exclusions.ExclusionsFromConfidentiality.forEach((exclusion, index) => {
+      content += `${index + 1}. ${exclusion}\n\n`;
+    });
+  } 
+  // Handle InformationNotConsideredConfidential array (from latest API response)
+  else if (exclusions.InformationNotConsideredConfidential && Array.isArray(exclusions.InformationNotConsideredConfidential)) {
+    exclusions.InformationNotConsideredConfidential.forEach((exclusion, index) => {
+      content += `${index + 1}. ${exclusion}\n\n`;
+    });
+  }
+  // Handle NotConfidential array (from latest API response)
+  else if (exclusions.NotConfidential && Array.isArray(exclusions.NotConfidential)) {
+    exclusions.NotConfidential.forEach((exclusion, index) => {
+      content += `${index + 1}. ${exclusion}\n\n`;
+    });
+  }
+  // Handle object structure with specific exclusion types
+  else {
+    let index = 1;
+    for (const [key, value] of Object.entries(exclusions)) {
+      if (typeof value === 'string') {
+        content += `${index}. ${value}\n\n`;
+        index++;
+      }
+    }
+  }
+  
+  return content;
+};
+
+const formatNDATermSection = (term: Record<string, unknown>): string => {
+  let content = "";
+  
+  if (term.Duration && typeof term.Duration === 'string') {
+    content += term.Duration + "\n\n";
+  }
+  
+  return content;
+};
+
+const formatNDAReturnSection = (returnMaterials: Record<string, unknown>): string => {
+  let content = "";
+  
+  // Handle ReturnOrDestruction property
+  if (returnMaterials.ReturnOrDestruction && typeof returnMaterials.ReturnOrDestruction === 'string') {
+    content += returnMaterials.ReturnOrDestruction + "\n\n";
+  }
+  // Handle Obligation property
+  else if (returnMaterials.Obligation && typeof returnMaterials.Obligation === 'string') {
+    content += returnMaterials.Obligation + "\n\n";
+  }
+  // Handle any other string property
+  else {
+    for (const [key, value] of Object.entries(returnMaterials)) {
+      if (typeof value === 'string') {
+        content += value + "\n\n";
+        break; // Just use the first string property
+      }
+    }
+  }
+  
+  return content;
+};
+
+const formatNDADisputeSection = (dispute: Record<string, unknown>): string => {
+  let content = "";
+  
+  if (dispute.Method && typeof dispute.Method === 'string') {
+    content += dispute.Method + "\n\n";
+  }
+  
+  if (dispute.Location && typeof dispute.Location === 'string') {
+    content += dispute.Location + "\n\n";
+  }
+  
+  return content;
+};
+
+const formatNDAMiscellaneousSection = (misc: Record<string, unknown>): string => {
+  let content = "";
+  
+  for (const [key, value] of Object.entries(misc)) {
+    if (typeof value === 'string') {
+      content += `**${key}**: ${value}\n\n`;
+    }
+  }
+  
+  return content;
+};
+
+const formatNDASignaturesSection = (signatures: Record<string, unknown>): string => {
+  let content = "IN WITNESS WHEREOF, the parties have executed this Non-Disclosure Agreement as of the Effective Date.\n\n";
+  
+  content += "Disclosing Party:\n\n";
+  content += "Signature: ________________________\n\n";
+  content += "Name: ________________________\n\n";
+  content += "Date: ________________________\n\n";
+  
+  content += "Receiving Party:\n\n";
+  content += "Signature: ________________________\n\n";
+  content += "Name: ________________________\n\n";
+  content += "Date: ________________________\n\n";
+  
+  return content;
 };

@@ -113,6 +113,8 @@ export const MainLayout: React.FC<{children?: React.ReactNode}> = ({ children })
       try {
         // Identify contract type from the content
         let contractType = "legal agreement";
+        
+        // For NDAs, use a more specific title
         if (lowerContent.includes("nda") || lowerContent.includes("non-disclosure")) {
           contractType = "Non-Disclosure Agreement";
         } else if (lowerContent.includes("employment")) {
@@ -136,10 +138,20 @@ export const MainLayout: React.FC<{children?: React.ReactNode}> = ({ children })
         // Generate the contract
         const result = await generateContract(content, contractType);
         
-        console.log("Contract generation API response:", result);
+        console.log("Contract generation API response type:", result.type);
+        console.log("Contract data structure:", JSON.stringify(result, null, 2));
         
         if (result.type === "generate" && result.result) {
           const generatedContract = result.result;
+          
+          console.log("Contract sections:", generatedContract.sections?.length || 0);
+          console.log("First section:", generatedContract.sections?.[0] ? {
+            title: generatedContract.sections[0].title,
+            contentLength: generatedContract.sections[0].content?.length || 0,
+            hasContent: !!generatedContract.sections[0].content,
+            subsections: generatedContract.sections[0].subsections?.length || 0
+          } : "No sections");
+          console.log("Formatted contract available:", !!result.formattedContract);
           
           // Use the pre-formatted contract content if available
           let combinedContent = "";
@@ -192,6 +204,15 @@ export const MainLayout: React.FC<{children?: React.ReactNode}> = ({ children })
           // Get the contract title from the generated contract
           const contractTitle = generatedContract.outline?.title || contractType || "Generated Agreement";
           
+          // Determine the proper contract type - for NDAs, use "Non-Disclosure Agreement" regardless of what's in the API
+          let displayContractType = contractType;
+          if (contractType?.toLowerCase().includes('non') && contractType?.toLowerCase().includes('disclosure')) {
+            displayContractType = "Non-Disclosure Agreement";
+          } else if (generatedContract.metadata?.type && generatedContract.metadata.type !== "legal agreement") {
+            // Use the metadata type if it's more specific than "legal agreement"
+            displayContractType = generatedContract.metadata.type;
+          }
+          
           console.log("Contract generated successfully:", contractTitle);
           console.log("Combined content length:", combinedContent.length);
           
@@ -202,17 +223,17 @@ export const MainLayout: React.FC<{children?: React.ReactNode}> = ({ children })
           // Update the current contract with the generated content
           setCurrentContract({
             title: contractTitle,
-            type: contractType,
+            type: displayContractType,
             content: combinedContent
           });
           
           console.log("Updated current contract state:", {
             title: contractTitle,
-            type: contractType,
+            type: displayContractType,
             contentLength: combinedContent.length
           });
           
-          responseContent = `I've created a draft ${contractType} based on your requirements. The document includes ${generatedContract.sections?.length || 0} sections with standard provisions customized to your needs. You can now review and edit it in the editor. Would you like me to explain any specific section in more detail?`;
+          responseContent = `I've created a draft ${displayContractType} based on your requirements. The document includes ${generatedContract.sections?.length || 0} sections with standard provisions customized to your needs. You can now review and edit it in the editor. Would you like me to explain any specific section in more detail?`;
         } else {
           // Fallback if generation failed
           console.error("Contract generation failed:", result);
