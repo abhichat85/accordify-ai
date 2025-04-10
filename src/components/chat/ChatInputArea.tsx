@@ -101,11 +101,6 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
             </span>
           )}
         </div>
-        <div>
-          {selectedModel && (
-            <span className="opacity-60">Using {selectedModel}</span>
-          )}
-        </div>
       </div>
       
       {/* Hidden file input */}

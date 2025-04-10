@@ -843,7 +843,7 @@ export const generateComprehensiveContract = async (
 
     console.log(`Contract generation completed with ${generatedSections.length} sections`);
     
-    // Create the final contract with the properly processed sections
+    // Combine the outline and generated sections into a complete contract
     const contract: GeneratedContract = {
       outline,
       sections: generatedSections,
@@ -860,35 +860,21 @@ export const generateComprehensiveContract = async (
       contract.sections = outline.sections;
       
       // Ensure the title is correctly set
-      if (contract.outline.title !== "Non-Disclosure Agreement") {
-        contract.outline.title = "Non-Disclosure Agreement";
-      }
+      contract.outline.title = "Non-Disclosure Agreement";
       
       // Ensure the type is correctly set
-      if (contract.metadata.type !== "Non-Disclosure Agreement") {
-        contract.metadata.type = "Non-Disclosure Agreement";
-      }
-    }
-
-    // Ensure the metadata type is set correctly for NDAs
-    if (contract.metadata && 
-        (contract.metadata.type === "legal agreement" || !contract.metadata.type) && 
-        contract.outline.title === "Non-Disclosure Agreement") {
       contract.metadata.type = "Non-Disclosure Agreement";
     }
 
-    // Format the contract for display in the editor
+    // Format the contract for the editor
     const formattedContract = formatContractForEditor(contract);
-
-    // Debugging log for contract structure
-    console.log("Final contract structure:", {
-      title: contract.outline.title,
-      type: contract.metadata.type,
-      sectionCount: contract.sections.length,
-      firstSectionTitle: contract.sections[0]?.title || "No sections"
-    });
-
-    return { type: "generate", result: contract, formattedContract };
+    
+    // Return the result
+    return {
+      type: "generate",
+      result: contract,
+      formattedContract
+    };
   } catch (error) {
     console.error("Error in comprehensive contract generation:", error);
     updateProgress({ 
