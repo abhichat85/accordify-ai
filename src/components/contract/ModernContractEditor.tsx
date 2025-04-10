@@ -6,6 +6,8 @@ import { cn } from "@/lib/utils";
 import { SummaryModal } from "./SummaryModal";
 import { ContractSummary, summarizeContract } from "@/services/contractAnalysis";
 import { useToast } from "@/components/ui/use-toast";
+import { TipTapEditor } from "./editor/TipTapEditor";
+import { TipTapToolbar } from "./editor/TipTapToolbar";
 
 interface ModernContractEditorProps {
   title: string;
@@ -111,32 +113,68 @@ export const ModernContractEditor: React.FC<ModernContractEditorProps> = ({
     }
   };
 
+  // Use the TipTap editor in code mode, otherwise use the standard editor container
   return (
     <>
-      <EditorContainer
-        title={title}
-        currentTitle={currentTitle}
-        setCurrentTitle={setCurrentTitle}
-        content={content}
-        viewMode={viewMode}
-        editorMode={editorMode}
-        showFormatting={true}
-        status={status}
-        isSaving={isSaving}
-        lastSaved={lastSaved}
-        setContent={setContent}
-        setViewMode={setViewMode}
-        setEditorMode={setEditorMode}
-        setShowFormatting={() => {}} // Empty function as formatting is always shown
-        setStatus={setStatus}
-        handleSave={handleSave}
-        setChatPrompt={setChatPrompt}
-        handleFormatting={handleFormatting}
-        textSelection={textSelection}
-        onTextSelection={handleTextSelection}
-        onSummarize={handleSummarize}
-        className={cn(className, "font-jost")}
-      />
+      {editorMode === 'code' ? (
+        <EditorContainer
+          title={title}
+          currentTitle={currentTitle}
+          setCurrentTitle={setCurrentTitle}
+          content={content}
+          viewMode={viewMode}
+          editorMode={editorMode}
+          showFormatting={true}
+          status={status}
+          isSaving={isSaving}
+          lastSaved={lastSaved}
+          setContent={setContent}
+          setViewMode={setViewMode}
+          setEditorMode={setEditorMode}
+          setShowFormatting={() => {}} // Empty function as formatting is always shown
+          setStatus={setStatus}
+          handleSave={handleSave}
+          setChatPrompt={setChatPrompt}
+          handleFormatting={handleFormatting}
+          textSelection={textSelection}
+          onTextSelection={handleTextSelection}
+          onSummarize={handleSummarize}
+          className={cn(className, "font-jost")}
+        />
+      ) : (
+        <div className={cn("flex flex-col h-full", className, "font-jost")}>
+          <div className="flex-1 overflow-auto flex flex-col">
+            <TipTapToolbar 
+              editor={null} 
+              currentTitle={currentTitle}
+              setCurrentTitle={setCurrentTitle}
+              handleSave={handleSave}
+              isSaving={isSaving}
+              lastSaved={lastSaved}
+              content={content}
+              status={status}
+              onStatusChange={setStatus}
+              setChatPrompt={setChatPrompt}
+              onVersionsClick={() => {}}
+              onSummarize={handleSummarize}
+              viewMode={viewMode}
+              setViewMode={setViewMode}
+              editorMode={editorMode}
+              setEditorMode={setEditorMode}
+              showFormatting={true}
+              setShowFormatting={() => {}}
+            />
+            <div className="flex-1 overflow-auto">
+              <TipTapEditor 
+                content={content} 
+                setContent={setContent} 
+                className="h-full"
+                readOnly={viewMode === 'preview'}
+              />
+            </div>
+          </div>
+        </div>
+      )}
       
       <SummaryModal
         isOpen={isSummaryModalOpen}

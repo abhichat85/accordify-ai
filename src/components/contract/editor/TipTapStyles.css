@@ -1,0 +1,488 @@
+/* TipTap Editor Styles */
+.tiptap-editor-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: 'Inter', sans-serif;
+}
+
+/* Toolbar styling */
+.tiptap-toolbar {
+  border-bottom: 2px solid #e2e8f0; /* More visible border in light mode */
+  background-color: var(--background);
+  z-index: 10;
+  padding: 8px 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); /* Subtle shadow for better separation */
+}
+
+/* Toolbar sections */
+.tiptap-toolbar .flex.items-center {
+  flex-wrap: nowrap;
+  gap: 8px;
+}
+
+/* Add dividers between toolbar sections */
+.tiptap-toolbar .h-4.w-px.bg-border {
+  height: 24px;
+  margin: 0 4px;
+  opacity: 0.5;
+}
+
+/* Make sure the toolbar buttons are properly sized and spaced */
+.tiptap-toolbar button.h-8.w-8 {
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 2px;
+}
+
+/* Title area styling */
+.tiptap-toolbar .flex.items-center.ml-2 {
+  min-width: 200px;
+}
+
+/* Purple save button */
+.tiptap-toolbar .bg-purple-600 {
+  background-color: #9333ea;
+}
+
+.tiptap-toolbar .hover\:bg-purple-700:hover {
+  background-color: #7e22ce;
+}
+
+/* Editor Area layout */
+.tiptap-editor-area {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  border-top: 1px solid var(--border);
+}
+
+/* Document Structure Panel */
+.document-structure-panel {
+  width: 280px;
+  border-right: 1px solid var(--border);
+  background-color: var(--background);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 5;
+}
+
+.document-structure-panel .panel-header {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  gap: 8px;
+  background-color: var(--muted);
+  justify-content: space-between;
+}
+
+.document-structure-panel .panel-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+}
+
+/* Fix overlapping text in document structure panel */
+.document-structure-panel .text-sm.font-medium {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 230px;
+}
+
+/* Toggle panel button (when panel is hidden) */
+.toggle-panel-button-hidden {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border-radius: 0 4px 4px 0;
+  border: 1px solid var(--border);
+  border-left: none;
+  background-color: var(--background);
+  box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+}
+
+/* Toggle panel button inside panel */
+.toggle-panel-button {
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Editor content area with panel */
+.tiptap-editor-content-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  background-color: white;
+  text-align: left;
+  position: relative;
+  transition: margin-left 0.3s ease;
+  border-left: 1px solid var(--border);
+}
+
+.tiptap-editor-content-area.with-panel {
+  margin-left: 280px;
+}
+
+.tiptap-editor-content {
+  height: 100%;
+  text-align: left;
+  outline: none;
+}
+
+/* TipTap Editor Content Styles */
+.tiptap-editor-content .ProseMirror {
+  height: 100%;
+  outline: none;
+  text-align: left; /* Ensure content is left-aligned */
+}
+
+.tiptap-editor-content .ProseMirror p {
+  margin-bottom: 1rem;
+  line-height: 1.6;
+  text-align: left; /* Ensure paragraphs are left-aligned */
+}
+
+/* Ensure all headings are left-aligned */
+.tiptap-editor-content .ProseMirror h1,
+.tiptap-editor-content .ProseMirror h2,
+.tiptap-editor-content .ProseMirror h3,
+.tiptap-editor-content .ProseMirror h4,
+.tiptap-editor-content .ProseMirror h5,
+.tiptap-editor-content .ProseMirror h6 {
+  text-align: left;
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+/* Ensure lists are left-aligned */
+.tiptap-editor-content .ProseMirror ul,
+.tiptap-editor-content .ProseMirror ol {
+  text-align: left;
+  padding-left: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+/* Ensure tables are left-aligned */
+.tiptap-editor-content .ProseMirror table {
+  text-align: left;
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+}
+
+/* Ensure blockquotes are left-aligned */
+.tiptap-editor-content .ProseMirror blockquote {
+  text-align: left;
+  border-left: 3px solid var(--border);
+  padding-left: 1rem;
+  margin-left: 0;
+  margin-right: 0;
+  font-style: italic;
+}
+
+/* Heading styles */
+.tiptap-editor-content h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  color: var(--foreground);
+  scroll-margin-top: 2rem;
+}
+
+.tiptap-editor-content h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  color: var(--foreground);
+  scroll-margin-top: 2rem;
+}
+
+.tiptap-editor-content h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-top: 1.25rem;
+  margin-bottom: 0.75rem;
+  color: var(--foreground);
+  scroll-margin-top: 2rem;
+}
+
+.tiptap-editor-content h4 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  color: var(--foreground);
+  scroll-margin-top: 2rem;
+}
+
+.tiptap-editor-content h5 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  color: var(--foreground);
+  scroll-margin-top: 2rem;
+}
+
+.tiptap-editor-content h6 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  color: var(--foreground);
+  scroll-margin-top: 2rem;
+}
+
+/* Paragraph styles */
+.tiptap-editor-content p {
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+
+.tiptap-editor-content ul,
+.tiptap-editor-content ol {
+  margin-left: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.tiptap-editor-content li {
+  margin-bottom: 0.25rem;
+}
+
+.tiptap-editor-content strong {
+  font-weight: 600;
+}
+
+.tiptap-editor-content em {
+  font-style: italic;
+}
+
+.tiptap-editor-content u {
+  text-decoration: underline;
+}
+
+.tiptap-editor-content s {
+  text-decoration: line-through;
+}
+
+/* Tables */
+.tiptap-editor-content table {
+  border-collapse: collapse;
+  margin: 1rem 0;
+  width: 100%;
+  table-layout: fixed;
+}
+
+.tiptap-editor-content th {
+  background-color: var(--muted);
+  font-weight: 600;
+  text-align: left;
+  padding: 0.5rem;
+  border: 1px solid var(--border);
+}
+
+.tiptap-editor-content td {
+  padding: 0.5rem;
+  border: 1px solid var(--border);
+  vertical-align: top;
+}
+
+/* Focus styles */
+.tiptap-editor-content .is-active {
+  background-color: rgba(var(--primary-rgb), 0.1);
+}
+
+/* Legal document specific styles */
+.tiptap-editor-content .definition {
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.tiptap-editor-content .section-reference {
+  color: var(--primary);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* Placeholder text */
+.tiptap-editor-content p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: var(--muted-foreground);
+  pointer-events: none;
+  height: 0;
+}
+
+/* Selection styles */
+.tiptap-editor-content ::selection {
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+}
+
+/* Document structure styles */
+.tiptap-editor-content > * + * {
+  margin-top: 0.75em;
+}
+
+/* Panel highlight for active sections */
+.document-structure-panel .is-active {
+  background-color: var(--primary-100) !important;
+  color: var(--primary);
+}
+
+/* List specific styles */
+.tiptap-editor-content ul {
+  list-style-type: disc;
+}
+
+.tiptap-editor-content ol {
+  list-style-type: decimal;
+}
+
+.tiptap-editor-content ul[data-type="taskList"] {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.tiptap-editor-content ul[data-type="taskList"] li {
+  display: flex;
+  align-items: flex-start;
+}
+
+.tiptap-editor-content ul[data-type="taskList"] li label {
+  margin-right: 0.5rem;
+  user-select: none;
+}
+
+/* Nested list styling */
+.tiptap-editor-content ul ul,
+.tiptap-editor-content ol ol,
+.tiptap-editor-content ul ol,
+.tiptap-editor-content ol ul {
+  margin-top: 0.25rem;
+}
+
+/* Table controls */
+.tiptap-editor-content .tableWrapper {
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+}
+
+/* Focus outline for tables and cells */
+.tiptap-editor-content .selectedCell {
+  background-color: var(--muted);
+}
+
+/* Node selection style */
+.tiptap-editor-content .ProseMirror-selectednode {
+  outline: 2px solid var(--primary);
+}
+
+/* Variable highlighting with purple colors */
+.tiptap-editor-content .variable-highlight {
+  background-color: rgba(147, 51, 234, 0.15);
+  color: #9333ea;
+  border-radius: 3px;
+  padding: 0 2px;
+  font-weight: 500;
+}
+
+.tiptap-editor-content .variable-highlight:hover {
+  background-color: rgba(147, 51, 234, 0.25);
+  cursor: pointer;
+}
+
+.dark .tiptap-editor-content .variable-highlight {
+  background-color: rgba(192, 132, 252, 0.2);
+  color: #c084fc;
+}
+
+/* Variable editor input styles */
+.variable-editor {
+  font-size: 14px;
+  line-height: 1.5;
+  padding: 2px 6px;
+  border: 1px solid #9333ea;
+  border-radius: 3px;
+  background-color: white;
+  color: #9333ea;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+  min-width: 120px;
+}
+
+.variable-editor:focus {
+  outline: none;
+  border-color: #7e22ce;
+  box-shadow: 0 0 0 2px rgba(147, 51, 234, 0.25);
+}
+
+/* Dark mode styles for variable editor */
+.dark .variable-editor {
+  background-color: #2d3748;
+  color: #c084fc;
+  border-color: #c084fc;
+}
+
+.dark .variable-editor:focus {
+  border-color: #a855f7;
+  box-shadow: 0 0 0 2px rgba(192, 132, 252, 0.25);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .document-structure-panel {
+    width: 240px;
+  }
+  
+  .tiptap-editor-content-area.with-panel {
+    margin-left: 240px;
+  }
+}
+
+/* Dark mode specific styles */
+.dark .tiptap-toolbar {
+  border-bottom: 2px solid #2d3748; /* Darker border for dark mode */
+}
+
+/* Fix for dark mode text visibility */
+.dark .tiptap-editor-content-area {
+  background-color: #1a1a1a; /* Darker background for dark mode */
+  color: #e2e8f0; /* Lighter text for dark mode */
+}
+
+.dark .tiptap-editor-content .ProseMirror {
+  color: #e2e8f0; /* Ensure text is visible in dark mode */
+}
+
+.dark .tiptap-editor-content h1,
+.dark .tiptap-editor-content h2,
+.dark .tiptap-editor-content h3,
+.dark .tiptap-editor-content h4,
+.dark .tiptap-editor-content h5,
+.dark .tiptap-editor-content h6 {
+  color: #f7fafc; /* Lighter heading color for dark mode */
+}
