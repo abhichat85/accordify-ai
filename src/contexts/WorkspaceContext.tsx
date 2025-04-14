@@ -100,10 +100,14 @@ export const WorkspaceProvider: React.FC<WorkspaceProviderProps> = ({ children, 
     setError(null);
     
     try {
+      // Generate a slug from the name
+      const slug = name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+      
       const newWorkspace = await workspaceService.createWorkspace({
         name,
         description,
-        created_by: userId
+        created_by: userId,
+        slug
       }, userId);
       
       // Fetch the full workspace with members
