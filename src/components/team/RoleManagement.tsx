@@ -1,11 +1,11 @@
-
 import React from "react";
 import { 
   Shield, 
   Users, 
   Eye, 
   Edit2,
-  Info
+  Info,
+  UserCog
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -21,33 +21,40 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { TeamRole } from "@/services/teamService";
 
-type Role = "Admin" | "Editor" | "Viewer";
+type Role = TeamRole;
 
 interface RoleInfoProps {
-  role: Role;
+  role: TeamRole;
 }
 
 const RoleInfo: React.FC<RoleInfoProps> = ({ role }) => {
-  const getRoleDetails = (role: Role) => {
+  const getRoleDetails = (role: TeamRole) => {
     switch (role) {
-      case "Admin":
+      case "owner":
         return {
-          icon: <Shield className="w-4 h-4 mr-1.5" />,
-          color: "bg-purple-100 text-purple-700",
-          description: "Full access to create, edit, and delete contracts."
+          icon: <Shield className="w-4 h-4 mr-1.5 text-amber-500" />,
+          color: "bg-amber-100 text-amber-700",
+          description: "Full access to all resources and settings"
         };
-      case "Editor":
+      case "admin":
         return {
-          icon: <Edit2 className="w-4 h-4 mr-1.5" />,
+          icon: <UserCog className="w-4 h-4 mr-1.5 text-blue-500" />,
           color: "bg-blue-100 text-blue-700",
-          description: "Can create and edit contracts, but cannot delete them."
+          description: "Can manage team members and most settings"
         };
-      case "Viewer":
+      case "member":
         return {
-          icon: <Eye className="w-4 h-4 mr-1.5" />,
+          icon: <Users className="w-4 h-4 mr-1.5 text-green-500" />,
+          color: "bg-green-100 text-green-700",
+          description: "Can view and edit shared resources"
+        };
+      default:
+        return {
+          icon: <Users className="w-4 h-4 mr-1.5 text-gray-500" />,
           color: "bg-gray-100 text-gray-700",
-          description: "View-only access to contracts."
+          description: "Unknown role"
         };
     }
   };
@@ -75,8 +82,8 @@ const RoleInfo: React.FC<RoleInfoProps> = ({ role }) => {
 };
 
 interface RoleSelectProps {
-  currentRole: Role;
-  onChange: (role: Role) => void;
+  currentRole: TeamRole;
+  onChange: (role: string) => void;
   disabled?: boolean;
 }
 
@@ -88,29 +95,29 @@ export const RoleSelect: React.FC<RoleSelectProps> = ({
   return (
     <Select 
       defaultValue={currentRole} 
-      onValueChange={(value) => onChange(value as Role)}
+      onValueChange={onChange}
       disabled={disabled}
     >
-      <SelectTrigger className="w-[140px]">
-        <SelectValue placeholder="Select role" />
+      <SelectTrigger className="w-[180px]">
+        <SelectValue placeholder="Select a role" />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="Admin">
+        <SelectItem value="owner">
           <div className="flex items-center">
-            <Shield className="w-4 h-4 mr-2 text-purple-700" />
+            <Shield className="mr-2 h-4 w-4 text-amber-500" />
+            <span>Owner</span>
+          </div>
+        </SelectItem>
+        <SelectItem value="admin">
+          <div className="flex items-center">
+            <UserCog className="mr-2 h-4 w-4 text-blue-500" />
             <span>Admin</span>
           </div>
         </SelectItem>
-        <SelectItem value="Editor">
+        <SelectItem value="member">
           <div className="flex items-center">
-            <Edit2 className="w-4 h-4 mr-2 text-blue-700" />
-            <span>Editor</span>
-          </div>
-        </SelectItem>
-        <SelectItem value="Viewer">
-          <div className="flex items-center">
-            <Eye className="w-4 h-4 mr-2 text-gray-700" />
-            <span>Viewer</span>
+            <Users className="mr-2 h-4 w-4 text-green-500" />
+            <span>Member</span>
           </div>
         </SelectItem>
       </SelectContent>

@@ -1,5 +1,4 @@
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { 
   Shield, 
   Users, 
@@ -28,86 +27,95 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RoleInfo, RoleSelect } from "../team/RoleManagement";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/use-toast";
+import { useTeam } from "@/contexts/TeamContext";
+import { TeamRole } from "@/services/teamService";
+import { supabase } from "@/integrations/supabase/client";
 
-// Team member type
-type Role = "Admin" | "Editor" | "Viewer";
-
-interface TeamMember {
-  id: number;
+// Team member type for UI display
+interface TeamMemberDisplay {
+  id: string;
   name: string;
   email: string;
-  role: Role;
+  role: TeamRole;
   status: "Active" | "Invited";
   initials: string;
 }
 
-// Team mock data
-const INITIAL_TEAM_DATA: TeamMember[] = [
-  {
-    id: 1,
-    name: "John Doe",
-    email: "john.doe@example.com",
-    role: "Admin",
-    status: "Active",
-    initials: "JD"
-  },
-  {
-    id: 2,
-    name: "Mary Smith",
-    email: "mary.smith@example.com",
-    role: "Editor",
-    status: "Active",
-    initials: "MS"
-  },
-  {
-    id: 3,
-    name: "Robert Lewis",
-    email: "robert.lewis@example.com",
-    role: "Viewer",
-    status: "Active",
-    initials: "RL"
-  },
-  {
-    id: 4,
-    name: "Kate Peterson",
-    email: "kate.p@example.com",
-    role: "Editor",
-    status: "Active",
-    initials: "KP"
-  },
-  {
-    id: 5,
-    name: "Brian Hall",
-    email: "brian.h@example.com",
-    role: "Viewer",
-    status: "Invited",
-    initials: "BH"
-  }
-];
-
 // Team section component
 export const TeamSection = () => {
-  const [teamData, setTeamData] = useState<TeamMember[]>(INITIAL_TEAM_DATA);
+  const { 
+    currentTeam, 
+    isLoading, 
+    inviteMember, 
+    updateMemberRole, 
+    removeMember 
+  } = useTeam();
+  
+  const [teamMembers, setTeamMembers] = useState<TeamMemberDisplay[]>([]);
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
   const [newMemberEmail, setNewMemberEmail] = useState("");
-  const [newMemberRole, setNewMemberRole] = useState<Role>("Editor");
+  const [newMemberRole, setNewMemberRole] = useState<TeamRole>("member");
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const handleRoleChange = (memberId: number, newRole: Role) => {
-    setTeamData(prevData => 
-      prevData.map(member => 
-        member.id === memberId ? { ...member, role: newRole } : member
-      )
-    );
+  // Get current user ID
+  useEffect(() => {
+    const getCurrentUser = async () => {
+      const { data } = await supabase.auth.getUser();
+      if (data?.user) {
+        setCurrentUserId(data.user.id);
+      }
+    };
     
-    toast({
-      title: "Role updated",
-      description: `Team member role has been updated to ${newRole}`,
-    });
+    getCurrentUser();
+  }, []);
+
+  // Transform team members data for display
+  useEffect(() => {
+    if (currentTeam) {
+      // In a real implementation, we would fetch user profiles
+      // For now, we'll create display data from the team members
+      const displayMembers: TeamMemberDisplay[] = currentTeam.members.map(member => {
+        // In a real app, we'd get this from profiles
+        const name = member.user_id;
+        const email = `${name.substring(0, 6)}@example.com`;
+        const initials = name.substring(0, 2).toUpperCase();
+        
+        return {
+          id: member.user_id,
+          name,
+          email,
+          role: member.role as TeamRole,
+          status: "Active",
+          initials
+        };
+      });
+      
+      setTeamMembers(displayMembers);
+    } else {
+      // If no team is selected, show demo data
+      setTeamMembers(INITIAL_TEAM_DATA);
+    }
+  }, [currentTeam]);
+
+  const handleRoleChange = async (memberId: string, newRole: TeamRole) => {
+    try {
+      await updateMemberRole(memberId, newRole);
+      
+      // Update local state for immediate UI feedback
+      setTeamMembers(prevData => 
+        prevData.map(member => 
+          member.id === memberId ? { ...member, role: newRole } : member
+        )
+      );
+    } catch (error) {
+      // Error is already handled in the context
+      console.error("Error updating role:", error);
+    }
   };
 
-  const handleInviteMember = () => {
+  const handleInviteMember = async () => {
     if (!newMemberEmail.trim()) {
       toast({
         title: "Error",
@@ -117,25 +125,42 @@ export const TeamSection = () => {
       return;
     }
 
-    // In a real app, this would send an invitation
-    const newMember: TeamMember = {
-      id: teamData.length + 1,
-      name: newMemberEmail.split('@')[0], // Just for demo
-      email: newMemberEmail,
-      role: newMemberRole,
-      status: "Invited",
-      initials: newMemberEmail.substring(0, 2).toUpperCase(),
-    };
-
-    setTeamData([...teamData, newMember]);
-    setInviteDialogOpen(false);
-    setNewMemberEmail("");
-    
-    toast({
-      title: "Invitation sent",
-      description: `An invitation has been sent to ${newMemberEmail}`,
-    });
+    try {
+      await inviteMember(newMemberEmail, newMemberRole);
+      setInviteDialogOpen(false);
+      setNewMemberEmail("");
+      
+      // The team context will refresh the members list
+    } catch (error) {
+      // Error is already handled in the context
+      console.error("Error inviting member:", error);
+    }
   };
+
+  const handleRemoveMember = async (memberId: string) => {
+    try {
+      await removeMember(memberId);
+      
+      // Update is handled by the context refreshTeams function
+    } catch (error) {
+      // Error is already handled in the context
+      console.error("Error removing member:", error);
+    }
+  };
+
+  // If loading, show a loading state
+  if (isLoading) {
+    return (
+      <div className="p-6 h-full overflow-auto">
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-2xl font-bold">Team Management</h1>
+        </div>
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 h-full overflow-auto">
@@ -170,11 +195,15 @@ export const TeamSection = () => {
                 />
               </div>
               <div className="grid gap-2">
-                <Label>Role</Label>
-                <RoleSelect 
-                  currentRole={newMemberRole} 
-                  onChange={(role) => setNewMemberRole(role)} 
+                <Label htmlFor="role">Role</Label>
+                <RoleSelect
+                  currentRole={newMemberRole}
+                  onChange={(role) => setNewMemberRole(role as TeamRole)}
+                  disabled={false}
                 />
+                <p className="text-xs text-muted-foreground mt-1">
+                  This determines what actions they can perform in your workspace.
+                </p>
               </div>
             </div>
             <DialogFooter>
@@ -207,7 +236,7 @@ export const TeamSection = () => {
             </tr>
           </thead>
           <tbody>
-            {teamData.map((member) => (
+            {teamMembers.map((member) => (
               <tr key={member.id} className="border-t border-border/50 hover:bg-muted/10">
                 <td className="p-4">
                   <div className="flex items-center">
@@ -219,16 +248,18 @@ export const TeamSection = () => {
                 </td>
                 <td className="p-4 text-muted-foreground">{member.email}</td>
                 <td className="p-4">
-                  {member.id === 1 ? (
+                  {member.role === "owner" || member.id === currentUserId ? (
                     <div className="flex items-center">
-                      <RoleInfo role="Admin" />
-                      <div className="ml-2 text-xs text-muted-foreground">(Owner)</div>
+                      <RoleInfo role={member.role} />
+                      {member.role === "owner" && (
+                        <div className="ml-2 text-xs text-muted-foreground">(Owner)</div>
+                      )}
                     </div>
                   ) : (
                     <RoleSelect
                       currentRole={member.role}
-                      onChange={(role) => handleRoleChange(member.id, role)}
-                      disabled={member.id === 1} // Can't change the owner's role
+                      onChange={(role) => handleRoleChange(member.id, role as TeamRole)}
+                      disabled={member.role === "owner"} // Can't change the owner's role
                     />
                   )}
                 </td>
@@ -256,9 +287,19 @@ export const TeamSection = () => {
                         <DropdownMenuItem>Resend invitation</DropdownMenuItem>
                       )}
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem className="text-destructive">
-                        {member.id === 1 ? "Leave workspace" : "Remove member"}
-                      </DropdownMenuItem>
+                      {member.id !== currentUserId && member.role !== "owner" && (
+                        <DropdownMenuItem 
+                          className="text-destructive"
+                          onClick={() => handleRemoveMember(member.id)}
+                        >
+                          Remove member
+                        </DropdownMenuItem>
+                      )}
+                      {member.id === currentUserId && (
+                        <DropdownMenuItem className="text-destructive">
+                          Leave workspace
+                        </DropdownMenuItem>
+                      )}
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </td>
@@ -270,3 +311,47 @@ export const TeamSection = () => {
     </div>
   );
 };
+
+// Fallback mock data when no team is selected
+const INITIAL_TEAM_DATA: TeamMemberDisplay[] = [
+  {
+    id: "1",
+    name: "John Doe",
+    email: "john.doe@example.com",
+    role: "owner",
+    status: "Active",
+    initials: "JD"
+  },
+  {
+    id: "2",
+    name: "Mary Smith",
+    email: "mary.smith@example.com",
+    role: "admin",
+    status: "Active",
+    initials: "MS"
+  },
+  {
+    id: "3",
+    name: "Robert Lewis",
+    email: "robert.lewis@example.com",
+    role: "member",
+    status: "Active",
+    initials: "RL"
+  },
+  {
+    id: "4",
+    name: "Kate Peterson",
+    email: "kate.p@example.com",
+    role: "admin",
+    status: "Active",
+    initials: "KP"
+  },
+  {
+    id: "5",
+    name: "Brian Hall",
+    email: "brian.h@example.com",
+    role: "member",
+    status: "Invited",
+    initials: "BH"
+  }
+];

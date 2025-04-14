@@ -1,4 +1,3 @@
-
 import "./App.css"; // Add this import
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -11,6 +10,7 @@ import NotFound from "./pages/NotFound";
 import Signatures from "./pages/Signatures";
 import Blog from "./pages/Blog";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import { AppProviders } from "./providers/AppProviders";
 
 // Create a client for React Query
 const queryClient = new QueryClient({
@@ -26,28 +26,30 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <Routes>
-            <Route path="/" element={<Landing />} />
-            <Route path="/app" element={<Index />} />
-            <Route path="/contracts/*" element={<Index />} />
-            <Route path="/templates" element={<Index />} />
-            <Route path="/history" element={<Index />} />
-            <Route path="/workspaces" element={<Index />} />
-            <Route path="/team" element={<Index />} />
-            <Route path="/settings" element={<Index />} />
-            <Route path="/pricing" element={<Index />} />
-            <Route path="/profile" element={<Index />} />
-            <Route path="/billing" element={<Index />} />
-            <Route path="/notifications" element={<Index />} />
-            <Route path="/signatures" element={<Signatures />} />
-            <Route path="/blog" element={<Blog />} />
-            <Route path="/docs/*" element={<Index />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </TooltipProvider>
+        <AppProviders>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <Routes>
+              <Route path="/" element={<Landing />} />
+              <Route path="/app" element={<Index />} />
+              <Route path="/contracts/*" element={<Index />} />
+              <Route path="/templates" element={<Index />} />
+              <Route path="/history" element={<Index />} />
+              <Route path="/workspaces" element={<Index />} />
+              <Route path="/team" element={<Index />} />
+              <Route path="/settings" element={<Index />} />
+              <Route path="/pricing" element={<Index />} />
+              <Route path="/profile" element={<Index />} />
+              <Route path="/billing" element={<Index />} />
+              <Route path="/notifications" element={<Index />} />
+              <Route path="/signatures" element={<Signatures />} />
+              <Route path="/blog" element={<Blog />} />
+              <Route path="/docs/*" element={<Index />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </TooltipProvider>
+        </AppProviders>
       </ThemeProvider>
     </QueryClientProvider>
   );
