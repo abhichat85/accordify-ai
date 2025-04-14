@@ -23,26 +23,44 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Editor } from '@tiptap/react';
 
 interface FormattingToolbarProps {
-  editor: Editor | null;
+  editor?: Editor | null;
   showFormatting: boolean;
+  onFormat?: (command: string) => void;
+  selection?: { start: number; end: number; text: string } | null;
+  onVersionsClick?: () => void;
 }
 
 export const FormattingToolbar: React.FC<FormattingToolbarProps> = ({
   editor,
-  showFormatting
+  showFormatting,
+  onFormat,
+  selection,
+  onVersionsClick
 }) => {
-  if (!showFormatting || !editor) return null;
+  if (!showFormatting) return null;
 
   const setParagraph = () => {
-    editor.chain().focus().setParagraph().run();
+    if (editor) {
+      editor.chain().focus().setParagraph().run();
+    } else if (onFormat) {
+      onFormat('paragraph');
+    }
   };
 
   const setHeading = (level: number) => {
-    editor.chain().focus().toggleHeading({ level: level as 1 | 2 | 3 | 4 | 5 | 6 }).run();
+    if (editor) {
+      editor.chain().focus().toggleHeading({ level: level as 1 | 2 | 3 | 4 | 5 | 6 }).run();
+    } else if (onFormat) {
+      onFormat(`heading-${level}`);
+    }
   };
 
   const addTable = () => {
-    editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run();
+    if (editor) {
+      editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run();
+    } else if (onFormat) {
+      onFormat('table');
+    }
   };
 
   return (
@@ -60,8 +78,14 @@ export const FormattingToolbar: React.FC<FormattingToolbarProps> = ({
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8"
-                    onClick={() => editor.chain().focus().toggleBold().run()}
-                    data-active={editor.isActive('bold')}
+                    onClick={() => {
+                      if (editor) {
+                        editor.chain().focus().toggleBold().run();
+                      } else if (onFormat) {
+                        onFormat('bold');
+                      }
+                    }}
+                    data-active={editor?.isActive('bold')}
                   >
                     <Bold size={16} />
                   </Button>
@@ -75,8 +99,14 @@ export const FormattingToolbar: React.FC<FormattingToolbarProps> = ({
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8"
-                    onClick={() => editor.chain().focus().toggleItalic().run()}
-                    data-active={editor.isActive('italic')}
+                    onClick={() => {
+                      if (editor) {
+                        editor.chain().focus().toggleItalic().run();
+                      } else if (onFormat) {
+                        onFormat('italic');
+                      }
+                    }}
+                    data-active={editor?.isActive('italic')}
                   >
                     <Italic size={16} />
                   </Button>
@@ -90,8 +120,14 @@ export const FormattingToolbar: React.FC<FormattingToolbarProps> = ({
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8"
-                    onClick={() => editor.chain().focus().toggleUnderline().run()}
-                    data-active={editor.isActive('underline')}
+                    onClick={() => {
+                      if (editor) {
+                        editor.chain().focus().toggleUnderline().run();
+                      } else if (onFormat) {
+                        onFormat('underline');
+                      }
+                    }}
+                    data-active={editor?.isActive('underline')}
                   >
                     <Underline size={16} />
                   </Button>
@@ -105,8 +141,14 @@ export const FormattingToolbar: React.FC<FormattingToolbarProps> = ({
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8"
-                    onClick={() => editor.chain().focus().toggleStrike().run()}
-                    data-active={editor.isActive('strike')}
+                    onClick={() => {
+                      if (editor) {
+                        editor.chain().focus().toggleStrike().run();
+                      } else if (onFormat) {
+                        onFormat('strike');
+                      }
+                    }}
+                    data-active={editor?.isActive('strike')}
                   >
                     <Strikethrough size={16} />
                   </Button>
@@ -124,8 +166,14 @@ export const FormattingToolbar: React.FC<FormattingToolbarProps> = ({
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8"
-                    onClick={() => editor.chain().focus().toggleBulletList().run()}
-                    data-active={editor.isActive('bulletList')}
+                    onClick={() => {
+                      if (editor) {
+                        editor.chain().focus().toggleBulletList().run();
+                      } else if (onFormat) {
+                        onFormat('bulletList');
+                      }
+                    }}
+                    data-active={editor?.isActive('bulletList')}
                   >
                     <List size={16} />
                   </Button>
@@ -139,8 +187,14 @@ export const FormattingToolbar: React.FC<FormattingToolbarProps> = ({
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8"
-                    onClick={() => editor.chain().focus().toggleOrderedList().run()}
-                    data-active={editor.isActive('orderedList')}
+                    onClick={() => {
+                      if (editor) {
+                        editor.chain().focus().toggleOrderedList().run();
+                      } else if (onFormat) {
+                        onFormat('orderedList');
+                      }
+                    }}
+                    data-active={editor?.isActive('orderedList')}
                   >
                     <ListOrdered size={16} />
                   </Button>
@@ -150,11 +204,11 @@ export const FormattingToolbar: React.FC<FormattingToolbarProps> = ({
 
               <Select
                 value={
-                  editor.isActive('heading', { level: 1 })
+                  editor?.isActive('heading', { level: 1 })
                     ? 'h1'
-                    : editor.isActive('heading', { level: 2 })
+                    : editor?.isActive('heading', { level: 2 })
                     ? 'h2'
-                    : editor.isActive('heading', { level: 3 })
+                    : editor?.isActive('heading', { level: 3 })
                     ? 'h3'
                     : 'p'
                 }
@@ -194,6 +248,22 @@ export const FormattingToolbar: React.FC<FormattingToolbarProps> = ({
                 </TooltipTrigger>
                 <TooltipContent>Insert Table</TooltipContent>
               </Tooltip>
+
+              {onVersionsClick && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 ml-2"
+                      onClick={onVersionsClick}
+                    >
+                      <History size={16} />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Version History</TooltipContent>
+                </Tooltip>
+              )}
             </div>
           </TooltipProvider>
         </div>

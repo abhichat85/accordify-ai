@@ -170,6 +170,16 @@ export const ModernContractEditor: React.FC<ModernContractEditorProps> = ({
                 setContent={setContent} 
                 className="h-full"
                 readOnly={viewMode === 'preview'}
+                currentTitle={currentTitle}
+                setCurrentTitle={setCurrentTitle}
+                handleSave={handleSave}
+                isSaving={isSaving}
+                lastSaved={lastSaved}
+                status={status}
+                onStatusChange={setStatus}
+                setChatPrompt={setChatPrompt}
+                onVersionsClick={() => {}}
+                onSummarize={handleSummarize}
               />
             </div>
           </div>

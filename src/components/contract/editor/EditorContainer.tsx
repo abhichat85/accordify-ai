@@ -8,6 +8,9 @@ import { StatusBar } from "./StatusBar";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { RotateCcw } from "lucide-react";
+import { SummaryModal } from "../SummaryModal";
+import { ContractSummary, summarizeContract } from "@/services/contractAnalysis";
+import { useToast } from "@/components/ui/use-toast";
 
 interface EditorContainerProps {
   title: string;
@@ -66,6 +69,11 @@ export const EditorContainer: React.FC<EditorContainerProps> = ({
     { id: 2, date: new Date(Date.now() - 43200000), title: 'Clause additions' },
     { id: 3, date: new Date(Date.now() - 3600000), title: 'Latest changes' },
   ]);
+  const [isSummaryModalOpen, setIsSummaryModalOpen] = useState(false);
+  const [summaryLoading, setSummaryLoading] = useState(false);
+  const [summarizationError, setSummarizationError] = useState<string | null>(null);
+  const [contractSummary, setContractSummary] = useState<ContractSummary | null>(null);
+  const { toast } = useToast();
 
   const handleVersionHistory = () => {
     setHistoryDialogOpen(true);
@@ -75,10 +83,66 @@ export const EditorContainer: React.FC<EditorContainerProps> = ({
     setHistoryDialogOpen(false);
   };
 
+  const handleSummarizeContract = async () => {
+    if (!content.trim()) {
+      toast({
+        title: "Empty Contract",
+        description: "There is no content to summarize.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      // Reset state before starting
+      setContractSummary(null);
+      setSummarizationError(null);
+      setSummaryLoading(true);
+      setIsSummaryModalOpen(true);
+      
+      console.log("Starting contract summarization for content length:", content.length);
+      const result = await summarizeContract(content);
+      
+      if (result.type === "error") {
+        console.error("Summarization error:", result.error);
+        setSummarizationError(result.error);
+        toast({
+          title: "Summarization Failed",
+          description: result.error,
+          variant: "destructive"
+        });
+      } else if (result.type === "summary" && result.result) {
+        console.log("Summary received:", result.result);
+        setContractSummary(result.result);
+      } else {
+        // Unexpected result type or missing result
+        const errorMsg = "Received invalid response from summarization service";
+        console.error(errorMsg, result);
+        setSummarizationError(errorMsg);
+        toast({
+          title: "Summarization Failed",
+          description: errorMsg,
+          variant: "destructive" 
+        });
+      }
+    } catch (err) {
+      console.error("Exception in handleSummarize:", err);
+      const errorMessage = err instanceof Error ? err.message : "Unknown error occurred";
+      setSummarizationError(errorMessage);
+      toast({
+        title: "Summarization Failed",
+        description: errorMessage,
+        variant: "destructive"
+      });
+    } finally {
+      setSummaryLoading(false);
+    }
+  };
+
   return (
     <div className={`flex flex-col h-full bg-background border border-border/40 rounded-xl shadow-sm overflow-hidden ${className}`}>
       <EditorToolbar
-        title={title}
+        title={currentTitle || title}
         currentTitle={currentTitle}
         setCurrentTitle={setCurrentTitle}
         handleSave={handleSave}
@@ -89,7 +153,7 @@ export const EditorContainer: React.FC<EditorContainerProps> = ({
         onStatusChange={setStatus}
         setChatPrompt={setChatPrompt}
         onVersionsClick={handleVersionHistory}
-        onSummarize={onSummarize}
+        onSummarize={handleSummarizeContract}
       />
       
       <FormattingToolbar 
@@ -142,6 +206,13 @@ export const EditorContainer: React.FC<EditorContainerProps> = ({
           </div>
         </DialogContent>
       </Dialog>
+      <SummaryModal 
+        isOpen={isSummaryModalOpen} 
+        isLoading={summaryLoading} 
+        error={summarizationError} 
+        summary={contractSummary} 
+        onClose={() => setIsSummaryModalOpen(false)} 
+      />
     </div>
   );
 };

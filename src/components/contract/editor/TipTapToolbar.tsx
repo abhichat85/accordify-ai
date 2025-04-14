@@ -45,6 +45,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { cn } from "@/lib/utils";
 
 interface TipTapToolbarProps {
   editor: Editor | null;
@@ -410,11 +411,7 @@ export const TipTapToolbar: React.FC<TipTapToolbarProps> = ({
   };
 
   const handleVersionHistory = () => {
-    if (onVersionsClick) {
-      onVersionsClick();
-    } else {
-      setHistoryDialogOpen(true);
-    }
+    setHistoryDialogOpen(true);
   };
 
   const restoreVersion = (versionId: number) => {
@@ -427,63 +424,52 @@ export const TipTapToolbar: React.FC<TipTapToolbarProps> = ({
 
   return (
     <>
-      <div className="tiptap-toolbar">
+      <div className="border-b border-border/40 bg-background">
         <TooltipProvider>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <div className="flex items-center ml-2">
-                {isEditing ? (
-                  <Input
-                    value={currentTitle}
-                    onChange={handleTitleChange}
-                    onBlur={handleTitleBlur}
-                    onKeyDown={handleTitleKeyDown}
-                    className="h-8 min-w-[200px]"
-                    autoFocus
-                  />
-                ) : (
-                  <div
-                    onClick={handleTitleClick}
-                    className="font-medium cursor-pointer hover:text-primary"
-                  >
-                    {currentTitle}
-                  </div>
-                )}
-              </div>
-
-              <div className="h-4 w-px bg-border"></div>
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    onClick={handleVersionHistory}
-                    size="sm"
-                    variant="outline"
-                    className="h-8"
-                  >
-                    <History size={14} className="mr-1" />
-                    <span>History</span>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>View document history</TooltipContent>
-              </Tooltip>
-
+          <div className="flex items-center justify-between px-4 py-2">
+            <div className="flex items-center">
+              {isEditing ? (
+                <Input
+                  type="text"
+                  value={currentTitle}
+                  onChange={handleTitleChange}
+                  onBlur={handleTitleBlur}
+                  onKeyDown={handleTitleKeyDown}
+                  className="h-8 text-base font-medium w-[300px] focus-visible:ring-purple-500"
+                  autoFocus
+                />
+              ) : (
+                <h2
+                  className="text-base font-medium cursor-pointer hover:text-purple-500 transition-colors"
+                  onClick={handleTitleClick}
+                >
+                  {currentTitle || "Untitled Document"}
+                </h2>
+              )}
+              
               {lastSaved && (
-                <div className="text-xs text-muted-foreground flex items-center">
+                <span className="ml-4 text-xs text-muted-foreground flex items-center">
                   <Clock size={12} className="mr-1" />
                   {formatLastSaved(lastSaved)}
-                </div>
+                </span>
               )}
-
-              <div className="h-4 w-px bg-border"></div>
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <Button
+                onClick={handleVersionHistory}
+                size="sm"
+                variant="outline"
+                className="h-8 w-8"
+              >
+                <History size={16} />
+              </Button>
 
               <DropdownMenu>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="icon" className="h-8 w-8">
+                      <Button variant="outline" size="sm" className="h-8 w-8">
                         <Share2 size={16} />
                       </Button>
                     </DropdownMenuTrigger>
@@ -494,10 +480,10 @@ export const TipTapToolbar: React.FC<TipTapToolbarProps> = ({
                   <DropdownMenuLabel>Share Options</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleShareLink}>
-                    <FileSymlink size={16} className="mr-2"/> Copy Link
+                    <FileSymlink size={16} className="mr-2" /> Copy Link
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleShareEmail}>
-                    <Mail size={16} className="mr-2"/> Email
+                    <Mail size={16} className="mr-2" /> Share via Email
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -506,7 +492,7 @@ export const TipTapToolbar: React.FC<TipTapToolbarProps> = ({
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="icon" className="h-8 w-8">
+                      <Button variant="outline" size="sm" className="h-8 w-8">
                         <Download size={16} />
                       </Button>
                     </DropdownMenuTrigger>
@@ -517,37 +503,28 @@ export const TipTapToolbar: React.FC<TipTapToolbarProps> = ({
                   <DropdownMenuLabel>Export Options</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => handleExport('docx')}>
-                    <FileIcon size={16} className="mr-2"/> Word Document (.docx)
+                    <FileText size={16} className="mr-2" /> Export as DOCX
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => handleExport('json')}>
-                    <FileJson size={16} className="mr-2"/> JSON
+                    <FileJson size={16} className="mr-2" /> Export as JSON
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => handleExport('image')}>
-                    <FileImage size={16} className="mr-2"/> Image
+                    <FileImage size={16} className="mr-2" /> Export as Image
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handlePrint}>
+                    <Printer size={16} className="mr-2" /> Print
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    onClick={handlePrint}
-                    variant="outline" 
-                    size="icon"
-                    className="h-8 w-8"
-                  >
-                    <Printer size={16} />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Print document</TooltipContent>
-              </Tooltip>
 
               <DropdownMenu>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <DropdownMenuTrigger asChild>
                       <Button variant="outline" size="sm" className="h-8">
-                        <Brain size={14} className="mr-1"/> AI Check <ChevronDown size={14} className="ml-1"/>
+                        <Brain size={14} className="mr-1" />
+                        <span>AI Check</span>
                       </Button>
                     </DropdownMenuTrigger>
                   </TooltipTrigger>
@@ -557,54 +534,50 @@ export const TipTapToolbar: React.FC<TipTapToolbarProps> = ({
                   <DropdownMenuLabel>AI Contract Analysis</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => handleAIAnalysis('risk')}>
-                    <FileSearch size={16} className="mr-2"/> Risk Analysis
+                    <FileSearch size={16} className="mr-2" /> Risk Analysis
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => handleAIAnalysis('grammar')}>
-                    <CheckCircle size={16} className="mr-2"/> Grammar & Clarity
+                    <CheckCircle size={16} className="mr-2" /> Grammar & Clarity
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => handleAIAnalysis('compliance')}>
-                    <Scale size={16} className="mr-2"/> Compliance Check
+                    <Scale size={16} className="mr-2" /> Compliance Check
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => handleAIAnalysis('terms')}>
-                    <GanttChart size={16} className="mr-2"/> Key Term Extraction
+                    <GanttChart size={16} className="mr-2" /> Key Term Extraction
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => handleAIAnalysis('full')}>
-                    <Brain size={16} className="mr-2"/> Full Review
+                    <Brain size={16} className="mr-2" /> Full Review
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              {onSummarize && (
-                <Button
-                  onClick={onSummarize}
-                  size="sm"
-                  variant="outline"
-                  className="h-8"
-                >
-                  <FileText size={14} className="mr-1" />
-                  <span>Summary</span>
-                </Button>
-              )}
+              <Button
+                onClick={onSummarize}
+                size="sm"
+                variant="outline"
+                className="h-8"
+              >
+                <FileText size={14} className="mr-1" />
+                <span>Summary</span>
+              </Button>
 
-              <div className="h-4 w-px bg-border"></div>
+              <div className="h-4 w-px bg-border mx-2"></div>
 
-              {handleSave && (
-                <Button
-                  onClick={handleSave}
-                  size="sm"
-                  variant="default"
-                  className="h-8 bg-purple-600 hover:bg-purple-700"
-                  disabled={isSaving}
-                >
-                  {isSaving ? (
-                    <div className="animate-spin mr-1 h-3 w-3 border-2 border-current border-t-transparent rounded-full"></div>
-                  ) : (
-                    <Save size={16} className="mr-1" />
-                  )}
-                  <span>{isSaving ? 'Saving...' : 'Save'}</span>
-                </Button>
-              )}
+              <Button
+                onClick={handleSave}
+                size="sm"
+                variant="default"
+                className="h-8 bg-purple-600 hover:bg-purple-700 text-white font-medium"
+                disabled={isSaving}
+              >
+                {isSaving ? (
+                  <div className="animate-spin mr-1 h-3 w-3 border-2 border-current border-t-transparent rounded-full"></div>
+                ) : (
+                  <Save size={16} className="mr-1" />
+                )}
+                <span>{isSaving ? 'Saving...' : 'Save'}</span>
+              </Button>
 
               <Button
                 onClick={handleSendForSigning}
