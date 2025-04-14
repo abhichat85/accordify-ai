@@ -158,39 +158,82 @@ export interface ContractSummary {
 export const summarizeContract = async (content: string): Promise<AnalysisResult> => {
   console.log('Summarizing contract...');
   try {
-    const response = await supabase.functions.invoke('analyze-contract', {
-      body: {
-        contractText: content,
-        analysisType: 'summary',
-      },
-    });
-
-    console.log('Summary response:', response);
-
-    if (response.error) {
-      console.error('Error in contract summary:', response.error);
-      return {
-        type: 'error',
-        error: response.error.message || 'Failed to summarize contract',
-      };
-    }
-
-    // Ensure we have a valid summary with initialized arrays
-    const summary = response.data || {};
+    // Trim content if it's too large (OpenAI has token limits)
+    const MAX_CHARS = 15000; // Reduced to approximately 3,750 tokens to be safer
+    const trimmedContent = content.length > MAX_CHARS 
+      ? content.substring(0, MAX_CHARS) + "... [Content truncated due to length]" 
+      : content;
     
-    // Create a properly formatted summary with default values for all fields
-    const formattedSummary: ContractSummary = {
-      title: summary.title || 'Contract Summary',
-      overview: summary.overview || 'This is a summary of the contract.',
-      actionPoints: Array.isArray(summary.actionPoints) ? summary.actionPoints : [],
-      keyTerms: Array.isArray(summary.keyTerms) ? summary.keyTerms : [],
-      dates: Array.isArray(summary.dates) ? summary.dates : []
-    };
+    console.log(`Sending contract for summarization (length: ${trimmedContent.length} chars)`);
+    
+    // Add extra diagnostic info
+    console.log('Invoking Supabase function: analyze-contract');
+    
+    try {
+      // Using a timeout to ensure we don't hang indefinitely
+      const responsePromise = supabase.functions.invoke('analyze-contract', {
+        body: {
+          contractText: trimmedContent,
+          analysisType: 'summary',
+        },
+      });
+      
+      // Create a timeout promise
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Supabase function timeout after 15 seconds')), 15000);
+      });
+      
+      // Race the promises to handle timeouts
+      const response = await Promise.race([responsePromise, timeoutPromise]) as any;
+      
+      console.log('Response received from Supabase function:', response);
+      
+      // Deep inspection of response
+      if (response) {
+        console.log('Response status:', response.status);
+        console.log('Response data:', JSON.stringify(response.data || {}));
+        
+        if (response.error) {
+          console.error('Detailed error information:', {
+            message: response.error.message,
+            name: response.error.name,
+            stack: response.error.stack,
+            details: response.error.details,
+            context: response.error.context
+          });
+        }
+      }
 
-    return {
-      type: 'summary',
-      result: formattedSummary
-    };
+      // Handle any error in the response
+      if (response.error) {
+        // Generate a fallback summary since the actual summary failed
+        console.log('Error detected, generating fallback summary...');
+        return createFallbackSummary(content);
+      }
+
+      // Ensure we have a valid summary with initialized arrays
+      const result = response.data?.result || {};
+      
+      console.log('Processing summary result:', result);
+      
+      // Create a properly formatted summary with default values for all fields
+      const formattedSummary: ContractSummary = {
+        title: result.title || 'Contract Summary',
+        overview: result.overview || 'This is a summary of the contract.',
+        actionPoints: Array.isArray(result.actionPoints) ? result.actionPoints : [],
+        keyTerms: Array.isArray(result.keyTerms) ? result.keyTerms : [],
+        dates: Array.isArray(result.dates) ? result.dates : []
+      };
+
+      return {
+        type: 'summary',
+        result: formattedSummary
+      };
+    } catch (supabaseError) {
+      console.error('Detailed Supabase function error:', supabaseError);
+      // Return a fallback summary on error
+      return createFallbackSummary(content);
+    }
   } catch (error) {
     console.error('Exception in contract summary:', error);
     return {
@@ -198,6 +241,43 @@ export const summarizeContract = async (content: string): Promise<AnalysisResult
       error: error instanceof Error ? error.message : 'An unknown error occurred',
     };
   }
+};
+
+/**
+ * Creates a fallback summary when the API call fails
+ */
+const createFallbackSummary = (content: string): AnalysisResult => {
+  console.log('Creating fallback summary...');
+  
+  // Extract a simple overview from the first 500 characters
+  const overview = content.length > 500 
+    ? content.substring(0, 500) + '...' 
+    : content;
+  
+  const fallbackSummary: ContractSummary = {
+    title: 'Contract Summary (Fallback)',
+    overview: 'This is a basic summary of your contract. The full AI analysis is currently unavailable.',
+    actionPoints: [
+      {
+        title: 'Review the contract manually',
+        description: 'Due to technical limitations, automatic summarization is currently unavailable. Please review the full contract manually.',
+        priority: 'high',
+        category: 'obligation'
+      }
+    ],
+    keyTerms: [
+      {
+        term: 'Important Note',
+        definition: 'The automatic AI summarization is currently experiencing technical difficulties. Please try again later.'
+      }
+    ],
+    dates: []
+  };
+  
+  return {
+    type: 'summary',
+    result: fallbackSummary
+  };
 };
 
 export const analyzeContract = async (
