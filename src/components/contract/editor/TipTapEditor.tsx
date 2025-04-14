@@ -16,12 +16,19 @@ import Strike from '@tiptap/extension-strike';
 import BulletList from '@tiptap/extension-bullet-list';
 import OrderedList from '@tiptap/extension-ordered-list';
 import ListItem from '@tiptap/extension-list-item';
-import { PanelLeft, PanelLeftClose } from 'lucide-react';
+import { PanelLeft, PanelLeftClose, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DocumentStructurePanel } from './DocumentStructurePanel';
 import { TipTapToolbar } from './TipTapToolbar';
 import { FormattingToolbar } from './FormattingToolbar';
 import { VariableHighlighter } from './extensions/VariableHighlighter';
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
+import { useToast } from '@/components/ui/use-toast';
 import './TipTapStyles.css';
 
 // Extend the Window interface to include our custom property
@@ -84,6 +91,8 @@ export const TipTapEditor: React.FC<TipTapEditorProps> = ({
   const [showFormatting, setShowFormatting] = useState<boolean>(true);
   const [viewMode, setViewMode] = useState<'edit' | 'preview'>('edit');
   const [editorMode, setEditorMode] = useState<'rich' | 'code'>('rich');
+  const [selectedText, setSelectedText] = useState<string>('');
+  const { toast } = useToast();
   
   // Convert markdown content to HTML for initial editor content
   const initialContent = convertMarkdownToHTML(content);
@@ -139,6 +148,14 @@ export const TipTapEditor: React.FC<TipTapEditorProps> = ({
     },
     onCreate: () => {
       setIsEditorReady(true);
+    },
+    onSelectionUpdate: ({ editor }) => {
+      const { from, to } = editor.state.selection;
+      if (from !== to) {
+        setSelectedText(editor.state.doc.textBetween(from, to, ' '));
+      } else {
+        setSelectedText('');
+      }
     }
   });
 
@@ -158,28 +175,144 @@ export const TipTapEditor: React.FC<TipTapEditorProps> = ({
     };
   }, [editor]);
 
-  // Commented out for now - will be implemented later
-  // Toggle document structure panel
-  // const togglePanel = () => {
-  //   setShowPanel(!showPanel);
-  // };
+  // Add a selection change listener to track selected text
+  useEffect(() => {
+    if (!editor) return;
 
-  // Handle clicking on a section in the document structure panel
-  // const handleSectionClick = (headingId: string) => {
-  //   if (!editor) return;
-    
-  //   // Find the heading element by ID
-  //   const headingElement = document.getElementById(headingId);
-  //   if (headingElement) {
-  //     // Scroll to the heading
-  //     headingElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // This is a more reliable way to track selection changes
+    const updateSelection = () => {
+      if (editor.isActive && editor.state) {
+        const { from, to } = editor.state.selection;
+        if (from !== to) {
+          const text = editor.state.doc.textBetween(from, to, ' ');
+          setSelectedText(text);
+          console.log('Selected text:', text); // Debug log
+        } else {
+          setSelectedText('');
+        }
+      }
+    };
+
+    // Add DOM event listeners for selection changes
+    const editorElement = document.querySelector('.tiptap-editor-content');
+    if (editorElement) {
+      editorElement.addEventListener('mouseup', updateSelection);
+      editorElement.addEventListener('keyup', updateSelection);
       
-  //     // Focus the editor
-  //     setTimeout(() => {
-  //       editor.commands.focus();
-  //     }, 100);
-  //   }
-  // };
+      // Initial check for any existing selection
+      setTimeout(updateSelection, 100);
+    }
+
+    // Also use the editor's built-in selection update handler
+    editor.on('selectionUpdate', updateSelection);
+
+    return () => {
+      if (editorElement) {
+        editorElement.removeEventListener('mouseup', updateSelection);
+        editorElement.removeEventListener('keyup', updateSelection);
+      }
+      editor.off('selectionUpdate', updateSelection);
+    };
+  }, [editor]);
+
+  // Handle sending selected text to the agent
+  const handleSendToAgent = useCallback(() => {
+    console.log('Sending text to agent:', selectedText); // Debug log
+    
+    if (!selectedText || !setChatPrompt) {
+      console.log('Cannot send: selectedText or setChatPrompt is missing'); // Debug log
+      return;
+    }
+    
+    try {
+      // Force selection to persist during context menu interaction
+      const currentSelection = selectedText;
+      
+      const success = setChatPrompt(currentSelection);
+      
+      if (success) {
+        toast({
+          title: "Text Sent to Agent",
+          description: "Selected text has been sent to the AI assistant.",
+        });
+      } else {
+        toast({
+          title: "Failed to Send",
+          description: "Could not send text to AI assistant. Make sure the chat panel is open.",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error('Error sending text to agent:', error);
+      toast({
+        title: "Error",
+        description: "An error occurred while sending text to the agent.",
+        variant: "destructive"
+      });
+    }
+  }, [selectedText, setChatPrompt, toast]);
+
+  // Get the current paragraph text
+  const getCurrentParagraph = useCallback(() => {
+    if (!editor) return '';
+    
+    try {
+      const { from } = editor.state.selection;
+      const resolvedPos = editor.state.doc.resolve(from);
+      const paragraph = resolvedPos.parent;
+      
+      if (paragraph.type.name === 'paragraph') {
+        console.log('Current paragraph:', paragraph.textContent); // Debug log
+        return paragraph.textContent;
+      }
+      
+      // If not in a paragraph, try to get the closest text block
+      const node = editor.state.doc.nodeAt(from);
+      if (node && node.isText) {
+        const parentNode = resolvedPos.parent;
+        return parentNode.textContent;
+      }
+    } catch (error) {
+      console.error('Error getting paragraph:', error);
+    }
+    
+    return '';
+  }, [editor]);
+
+  // Send the current paragraph to the agent
+  const handleSendParagraphToAgent = useCallback(() => {
+    const paragraphText = getCurrentParagraph();
+    console.log('Sending paragraph to agent:', paragraphText); // Debug log
+    
+    if (!paragraphText || !setChatPrompt) {
+      console.log('Cannot send paragraph: text or setChatPrompt is missing'); // Debug log
+      return;
+    }
+    
+    try {
+      const success = setChatPrompt(paragraphText);
+      
+      if (success) {
+        toast({
+          title: "Paragraph Sent to Agent",
+          description: "Current paragraph has been sent to the AI assistant.",
+        });
+      } else {
+        toast({
+          title: "Failed to Send",
+          description: "Could not send paragraph to AI assistant. Make sure the chat panel is open.",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error('Error sending paragraph to agent:', error);
+      toast({
+        title: "Error",
+        description: "An error occurred while sending paragraph to the agent.",
+        variant: "destructive"
+      });
+    }
+  }, [getCurrentParagraph, setChatPrompt, toast]);
 
   return (
     <div className={`tiptap-editor-container ${className}`}>
@@ -250,9 +383,50 @@ export const TipTapEditor: React.FC<TipTapEditorProps> = ({
           </Button>
         )} */}
         
-        {/* Editor Content */}
-        <div className="tiptap-editor-content-area">
-          <EditorContent editor={editor} className="tiptap-editor-content" />
+        {/* Editor Content with Context Menu */}
+        <div 
+          className="tiptap-editor-content-area" 
+          data-selection-active={selectedText ? "true" : "false"}
+          onMouseUp={() => {
+            // Force selection check after mouse up
+            if (editor) {
+              const { from, to } = editor.state.selection;
+              if (from !== to) {
+                const text = editor.state.doc.textBetween(from, to, ' ');
+                setSelectedText(text);
+              }
+            }
+          }}
+        >
+          <ContextMenu>
+            <ContextMenuTrigger>
+              <EditorContent editor={editor} className="tiptap-editor-content" />
+            </ContextMenuTrigger>
+            <ContextMenuContent>
+              {selectedText ? (
+                <ContextMenuItem 
+                  onClick={() => {
+                    // Ensure we're using the most recent selection
+                    if (editor) {
+                      const { from, to } = editor.state.selection;
+                      if (from !== to) {
+                        const text = editor.state.doc.textBetween(from, to, ' ');
+                        setSelectedText(text);
+                      }
+                    }
+                    handleSendToAgent();
+                  }}
+                >
+                  <MessageSquare className="mr-2 h-4 w-4" />
+                  <span>Send Selection to Agent</span>
+                </ContextMenuItem>
+              ) : null}
+              <ContextMenuItem onClick={handleSendParagraphToAgent}>
+                <MessageSquare className="mr-2 h-4 w-4" />
+                <span>Send Paragraph to Agent</span>
+              </ContextMenuItem>
+            </ContextMenuContent>
+          </ContextMenu>
         </div>
       </div>
     </div>

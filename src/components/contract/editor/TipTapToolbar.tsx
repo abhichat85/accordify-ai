@@ -21,10 +21,7 @@ import {
   FileIcon,
   FileImage,
   FileJson,
-  Eye,
-  Code,
-  Edit,
-  RotateCcw
+  RotateCcw,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -41,9 +38,13 @@ import {
 import { useToast } from '@/components/ui/use-toast';
 import { setChatInputValue } from "@/utils/chatInputUtils";
 import { SignatureRequestModal } from "@/components/signature/SignatureRequestModal";
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface TipTapToolbarProps {
   editor: Editor | null;
@@ -66,7 +67,7 @@ interface TipTapToolbarProps {
   setShowFormatting?: (show: boolean) => void;
 }
 
-export function TipTapToolbar({ 
+export const TipTapToolbar: React.FC<TipTapToolbarProps> = ({
   editor, 
   currentTitle = "Untitled Document",
   setCurrentTitle,
@@ -85,10 +86,15 @@ export function TipTapToolbar({
   setEditorMode = () => {},
   showFormatting = true,
   setShowFormatting = () => {}
-}: TipTapToolbarProps) {
+}: TipTapToolbarProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [isSignatureModalOpen, setIsSignatureModalOpen] = useState(false);
   const [historyDialogOpen, setHistoryDialogOpen] = useState(false);
+  const [versionHistory, setVersionHistory] = useState([
+    { id: 1, date: new Date(Date.now() - 86400000), title: 'Original draft' },
+    { id: 2, date: new Date(Date.now() - 43200000), title: 'Clause additions' },
+    { id: 3, date: new Date(Date.now() - 3600000), title: 'Latest changes' },
+  ]);
   const linkRef = useRef<HTMLAnchorElement>(null);
   const { toast } = useToast();
 
@@ -406,257 +412,254 @@ export function TipTapToolbar({
   const handleVersionHistory = () => {
     if (onVersionsClick) {
       onVersionsClick();
+    } else {
+      setHistoryDialogOpen(true);
     }
   };
 
+  const restoreVersion = (versionId: number) => {
+    toast({
+      title: "Version Restored",
+      description: `Document restored to version ${versionId}`,
+    });
+    setHistoryDialogOpen(false);
+  };
+
   return (
-    <div className="tiptap-toolbar">
-      <TooltipProvider>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <div className="flex items-center ml-2">
-              {isEditing ? (
-                <Input
-                  value={currentTitle}
-                  onChange={handleTitleChange}
-                  onBlur={handleTitleBlur}
-                  onKeyDown={handleTitleKeyDown}
-                  className="h-8 min-w-[200px]"
-                  autoFocus
-                />
-              ) : (
-                <div
-                  onClick={handleTitleClick}
-                  className="font-medium cursor-pointer hover:text-primary"
-                >
-                  {currentTitle}
+    <>
+      <div className="tiptap-toolbar">
+        <TooltipProvider>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <div className="flex items-center ml-2">
+                {isEditing ? (
+                  <Input
+                    value={currentTitle}
+                    onChange={handleTitleChange}
+                    onBlur={handleTitleBlur}
+                    onKeyDown={handleTitleKeyDown}
+                    className="h-8 min-w-[200px]"
+                    autoFocus
+                  />
+                ) : (
+                  <div
+                    onClick={handleTitleClick}
+                    className="font-medium cursor-pointer hover:text-primary"
+                  >
+                    {currentTitle}
+                  </div>
+                )}
+              </div>
+
+              <div className="h-4 w-px bg-border"></div>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    onClick={handleVersionHistory}
+                    size="sm"
+                    variant="outline"
+                    className="h-8"
+                  >
+                    <History size={14} className="mr-1" />
+                    <span>History</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>View document history</TooltipContent>
+              </Tooltip>
+
+              {lastSaved && (
+                <div className="text-xs text-muted-foreground flex items-center">
+                  <Clock size={12} className="mr-1" />
+                  {formatLastSaved(lastSaved)}
                 </div>
               )}
-            </div>
 
-            <div className="h-4 w-px bg-border"></div>
+              <div className="h-4 w-px bg-border"></div>
 
-            <div className="flex items-center mr-2">
-              <Tabs 
-                value={viewMode} 
-                onValueChange={(value) => setViewMode(value as 'edit' | 'preview')}
-                className="h-8"
-              >
-                <TabsList className="h-8">
-                  <TabsTrigger value="edit" className="h-7 px-3">
-                    <Edit size={14} className="mr-1" />
-                    Edit
-                  </TabsTrigger>
-                  <TabsTrigger value="preview" className="h-7 px-3">
-                    <Eye size={14} className="mr-1" />
-                    Preview
-                  </TabsTrigger>
-                </TabsList>
-              </Tabs>
-            </div>
+              <DropdownMenu>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="icon" className="h-8 w-8">
+                        <Share2 size={16} />
+                      </Button>
+                    </DropdownMenuTrigger>
+                  </TooltipTrigger>
+                  <TooltipContent>Share document</TooltipContent>
+                </Tooltip>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel>Share Options</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleShareLink}>
+                    <FileSymlink size={16} className="mr-2"/> Copy Link
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleShareEmail}>
+                    <Mail size={16} className="mr-2"/> Email
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
 
-            <div className="flex items-center mr-2">
-              <Tabs 
-                value={editorMode} 
-                onValueChange={(value) => setEditorMode(value as 'rich' | 'code')}
-                className="h-8"
-              >
-                <TabsList className="h-8">
-                  <TabsTrigger value="rich" className="h-7 px-3">
-                    Rich
-                  </TabsTrigger>
-                  <TabsTrigger value="code" className="h-7 px-3">
-                    <Code size={14} className="mr-1" />
-                    Code
-                  </TabsTrigger>
-                </TabsList>
-              </Tabs>
-            </div>
+              <DropdownMenu>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="icon" className="h-8 w-8">
+                        <Download size={16} />
+                      </Button>
+                    </DropdownMenuTrigger>
+                  </TooltipTrigger>
+                  <TooltipContent>Export document</TooltipContent>
+                </Tooltip>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel>Export Options</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => handleExport('docx')}>
+                    <FileIcon size={16} className="mr-2"/> Word Document (.docx)
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleExport('json')}>
+                    <FileJson size={16} className="mr-2"/> JSON
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleExport('image')}>
+                    <FileImage size={16} className="mr-2"/> Image
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
 
-            <div className="flex items-center mr-2">
-              <div className="flex items-center space-x-2">
-                <Switch 
-                  id="show-formatting" 
-                  checked={showFormatting}
-                  onCheckedChange={setShowFormatting}
-                />
-                <Label htmlFor="show-formatting" className="text-xs">Show Formatting</Label>
-              </div>
-            </div>
-          </div>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    onClick={handlePrint}
+                    variant="outline" 
+                    size="icon"
+                    className="h-8 w-8"
+                  >
+                    <Printer size={16} />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Print document</TooltipContent>
+              </Tooltip>
 
-          <div className="flex items-center space-x-2">
-            <Tooltip>
-              <TooltipTrigger asChild>
+              <DropdownMenu>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="sm" className="h-8">
+                        <Brain size={14} className="mr-1"/> AI Check <ChevronDown size={14} className="ml-1"/>
+                      </Button>
+                    </DropdownMenuTrigger>
+                  </TooltipTrigger>
+                  <TooltipContent>Analyze contract with AI</TooltipContent>
+                </Tooltip>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel>AI Contract Analysis</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => handleAIAnalysis('risk')}>
+                    <FileSearch size={16} className="mr-2"/> Risk Analysis
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleAIAnalysis('grammar')}>
+                    <CheckCircle size={16} className="mr-2"/> Grammar & Clarity
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleAIAnalysis('compliance')}>
+                    <Scale size={16} className="mr-2"/> Compliance Check
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleAIAnalysis('terms')}>
+                    <GanttChart size={16} className="mr-2"/> Key Term Extraction
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => handleAIAnalysis('full')}>
+                    <Brain size={16} className="mr-2"/> Full Review
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              {onSummarize && (
                 <Button
-                  onClick={handleVersionHistory}
+                  onClick={onSummarize}
                   size="sm"
                   variant="outline"
                   className="h-8"
                 >
-                  <History size={14} className="mr-1" />
-                  <span>History</span>
+                  <FileText size={14} className="mr-1" />
+                  <span>Summary</span>
                 </Button>
-              </TooltipTrigger>
-              <TooltipContent>View document history</TooltipContent>
-            </Tooltip>
+              )}
 
-            {lastSaved && (
-              <div className="text-xs text-muted-foreground flex items-center">
-                <Clock size={12} className="mr-1" />
-                {formatLastSaved(lastSaved)}
-              </div>
-            )}
+              <div className="h-4 w-px bg-border"></div>
 
-            <div className="h-4 w-px bg-border"></div>
-
-            <DropdownMenu>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm" className="h-8">
-                      <Share2 size={14} className="mr-1"/> Share <ChevronDown size={14} className="ml-1"/>
-                    </Button>
-                  </DropdownMenuTrigger>
-                </TooltipTrigger>
-                <TooltipContent>Share document</TooltipContent>
-              </Tooltip>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>Share Options</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleShareLink}>
-                  <FileSymlink size={16} className="mr-2"/> Copy Link
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleShareEmail}>
-                  <Mail size={16} className="mr-2"/> Email
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            <DropdownMenu>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm" className="h-8">
-                      <Download size={14} className="mr-1"/> Export <ChevronDown size={14} className="ml-1"/>
-                    </Button>
-                  </DropdownMenuTrigger>
-                </TooltipTrigger>
-                <TooltipContent>Export document</TooltipContent>
-              </Tooltip>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>Export Options</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => handleExport('docx')}>
-                  <FileIcon size={16} className="mr-2"/> Word Document (.docx)
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleExport('json')}>
-                  <FileJson size={16} className="mr-2"/> JSON
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleExport('image')}>
-                  <FileImage size={16} className="mr-2"/> Image
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            <Tooltip>
-              <TooltipTrigger asChild>
+              {handleSave && (
                 <Button
-                  onClick={handlePrint}
+                  onClick={handleSave}
                   size="sm"
-                  variant="outline"
-                  className="h-8"
+                  variant="default"
+                  className="h-8 bg-purple-600 hover:bg-purple-700"
+                  disabled={isSaving}
                 >
-                  <Printer size={14} className="mr-1"/>
-                  <span>Print</span>
+                  {isSaving ? (
+                    <div className="animate-spin mr-1 h-3 w-3 border-2 border-current border-t-transparent rounded-full"></div>
+                  ) : (
+                    <Save size={16} className="mr-1" />
+                  )}
+                  <span>{isSaving ? 'Saving...' : 'Save'}</span>
                 </Button>
-              </TooltipTrigger>
-              <TooltipContent>Print document</TooltipContent>
-            </Tooltip>
+              )}
 
-            <DropdownMenu>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm" className="h-8">
-                      <Brain size={14} className="mr-1"/> AI Check <ChevronDown size={14} className="ml-1"/>
-                    </Button>
-                  </DropdownMenuTrigger>
-                </TooltipTrigger>
-                <TooltipContent>Analyze contract with AI</TooltipContent>
-              </Tooltip>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>AI Contract Analysis</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => handleAIAnalysis('risk')}>
-                  <FileSearch size={16} className="mr-2"/> Risk Analysis
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleAIAnalysis('grammar')}>
-                  <CheckCircle size={16} className="mr-2"/> Grammar & Clarity
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleAIAnalysis('compliance')}>
-                  <Scale size={16} className="mr-2"/> Compliance Check
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleAIAnalysis('terms')}>
-                  <GanttChart size={16} className="mr-2"/> Key Term Extraction
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => handleAIAnalysis('full')}>
-                  <Brain size={16} className="mr-2"/> Full Review
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            {onSummarize && (
               <Button
-                onClick={onSummarize}
+                onClick={handleSendForSigning}
                 size="sm"
                 variant="outline"
                 className="h-8"
               >
-                <FileText size={14} className="mr-1" />
-                <span>Summary</span>
+                <Send size={14} className="mr-1" />
+                <span>Send for Signing</span>
               </Button>
-            )}
-
-            <div className="h-4 w-px bg-border"></div>
-
-            {handleSave && (
-              <Button
-                onClick={handleSave}
-                size="sm"
-                variant="default"
-                className="h-8 bg-purple-600 hover:bg-purple-700"
-                disabled={isSaving}
-              >
-                {isSaving ? (
-                  <div className="animate-spin mr-1 h-3 w-3 border-2 border-current border-t-transparent rounded-full"></div>
-                ) : (
-                  <Save size={16} className="mr-1" />
-                )}
-                <span>{isSaving ? 'Saving...' : 'Save'}</span>
-              </Button>
-            )}
-
-            <Button
-              onClick={handleSendForSigning}
-              size="sm"
-              variant="outline"
-              className="h-8"
-            >
-              <Send size={14} className="mr-1" />
-              <span>Send for Signing</span>
-            </Button>
+            </div>
           </div>
-        </div>
-      </TooltipProvider>
-      
-      <SignatureRequestModal
-        isOpen={isSignatureModalOpen}
-        onClose={() => handleSignatureComplete(false)}
-        documentTitle={currentTitle}
-        documentContent={content}
-      />
-    </div>
+        </TooltipProvider>
+        
+        <SignatureRequestModal
+          isOpen={isSignatureModalOpen}
+          onClose={() => handleSignatureComplete(false)}
+          documentTitle={currentTitle}
+          documentContent={content}
+        />
+      </div>
+
+      {/* Version History Dialog */}
+      <Dialog open={historyDialogOpen} onOpenChange={setHistoryDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Document Version History</DialogTitle>
+            <DialogDescription>
+              Select a version to restore your document to that point.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <div className="space-y-2 max-h-60 overflow-y-auto styled-scrollbar">
+              {versionHistory.map((version) => (
+                <div 
+                  key={version.id}
+                  className="flex items-center justify-between p-3 rounded-md border border-border hover:bg-muted cursor-pointer"
+                  onClick={() => restoreVersion(version.id)}
+                >
+                  <div>
+                    <p className="font-medium">{version.title}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {version.date.toLocaleString()}
+                    </p>
+                  </div>
+                  <Button variant="outline" size="sm">
+                    <RotateCcw size={14} className="mr-1" />
+                    Restore
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
-}
+};

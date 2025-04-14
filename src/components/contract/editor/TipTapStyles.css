@@ -402,8 +402,53 @@
 
 /* Selection styles */
 .tiptap-editor-content ::selection {
-  background-color: var(--primary);
-  color: var(--primary-foreground);
+  background-color: rgba(147, 51, 234, 0.3); /* Purple with opacity */
+}
+
+.tiptap-editor-content p:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.tiptap-editor-content-area[data-selection-active="true"] .ProseMirror {
+  position: relative;
+}
+
+.tiptap-editor-content-area[data-selection-active="true"] .ProseMirror::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 24px;
+  height: 24px;
+  background-color: rgba(147, 51, 234, 0.1);
+  border-radius: 50%;
+  pointer-events: none;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(147, 51, 234, 0.4);
+  }
+  
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 10px rgba(147, 51, 234, 0);
+  }
+  
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(147, 51, 234, 0);
+  }
+}
+
+/* Improve context menu styling */
+.context-menu-content {
+  z-index: 1000;
+  background-color: white;
+  border-radius: 6px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
 /* Document structure styles */
