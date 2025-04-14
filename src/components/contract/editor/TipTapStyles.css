@@ -10,11 +10,19 @@
 
 /* Toolbar styling */
 .tiptap-toolbar {
-  border-bottom: 2px solid #e2e8f0; /* More visible border in light mode */
+  border-bottom: 1px solid #e2e8f0; /* Thinner border for main toolbar */
   background-color: var(--background);
   z-index: 10;
   padding: 8px 12px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); /* Subtle shadow for better separation */
+}
+
+/* Formatting toolbar specific styles */
+.formatting-toolbar {
+  background-color: var(--muted);
+  padding: 6px 12px;
+  border-bottom: 2px solid #e2e8f0; /* More visible border for formatting toolbar */
+  z-index: 9; /* Slightly lower than main toolbar */
 }
 
 /* Toolbar sections */
@@ -31,12 +39,20 @@
 }
 
 /* Make sure the toolbar buttons are properly sized and spaced */
-.tiptap-toolbar button.h-8.w-8 {
+.tiptap-toolbar button.h-8.w-8,
+.formatting-toolbar button.h-8.w-8 {
   padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0 2px;
+}
+
+/* Active button styles */
+.tiptap-toolbar button[data-active="true"],
+.formatting-toolbar button[data-active="true"] {
+  background-color: var(--primary-100);
+  color: var(--primary);
 }
 
 /* Title area styling */
@@ -203,7 +219,7 @@
 
 /* Heading styles */
 .tiptap-editor-content h1 {
-  font-size: 1.75rem;
+  font-size: 2rem;
   font-weight: 700;
   margin-top: 2rem;
   margin-bottom: 1rem;
@@ -232,7 +248,7 @@
 .tiptap-editor-content h4 {
   font-size: 1.125rem;
   font-weight: 600;
-  margin-top: 1rem;
+  margin-top: 1.25rem;
   margin-bottom: 0.5rem;
   color: var(--foreground);
   scroll-margin-top: 2rem;
@@ -288,12 +304,60 @@
   text-decoration: line-through;
 }
 
-/* Tables */
-.tiptap-editor-content table {
-  border-collapse: collapse;
+.tiptap-editor-content a {
+  color: var(--primary);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.tiptap-editor-content a:hover {
+  color: var(--primary-hover);
+}
+
+.tiptap-editor-content code {
+  font-family: 'JetBrains Mono', monospace;
+  background-color: var(--muted);
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-size: 0.9em;
+}
+
+.tiptap-editor-content pre {
+  background-color: var(--muted);
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  overflow-x: auto;
+  margin-bottom: 1rem;
+}
+
+.tiptap-editor-content pre code {
+  background-color: transparent;
+  padding: 0;
+  border-radius: 0;
+  font-size: 0.9em;
+  color: var(--foreground);
+}
+
+.tiptap-editor-content hr {
+  border: none;
+  border-top: 1px solid var(--border);
   margin: 1rem 0;
+}
+
+.tiptap-editor-content blockquote {
+  border-left: 3px solid var(--border);
+  padding-left: 1rem;
+  margin-left: 0;
+  margin-right: 0;
+  font-style: italic;
+  margin-bottom: 1rem;
+}
+
+.tiptap-editor-content table {
   width: 100%;
-  table-layout: fixed;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+  border: 1px solid var(--border);
 }
 
 .tiptap-editor-content th {
@@ -461,11 +525,39 @@
   .tiptap-editor-content-area.with-panel {
     margin-left: 240px;
   }
+  
+  /* Collapse formatting toolbar on smaller screens */
+  .formatting-toolbar {
+    padding: 4px 8px;
+  }
+  
+  .formatting-toolbar .flex.items-center {
+    flex-wrap: wrap;
+  }
+  
+  /* Stack toolbars on very small screens */
+  @media (max-width: 480px) {
+    .tiptap-toolbar, 
+    .formatting-toolbar {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    .tiptap-toolbar .flex.items-center,
+    .formatting-toolbar .flex.items-center {
+      margin-bottom: 4px;
+    }
+  }
 }
 
 /* Dark mode specific styles */
 .dark .tiptap-toolbar {
   border-bottom: 2px solid #2d3748; /* Darker border for dark mode */
+}
+
+.dark .formatting-toolbar {
+  background-color: #1f1f1f;
+  border-bottom: 2px solid #2d3748;
 }
 
 /* Fix for dark mode text visibility */

@@ -1,15 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Editor } from '@tiptap/react';
 import {
-  Bold,
-  Italic,
-  Underline,
-  Strikethrough,
-  List,
-  ListOrdered,
-  Table,
-  Heading1,
-  Heading2,
   Clock,
   History,
   Download,
@@ -37,7 +28,6 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import {
   DropdownMenu,
@@ -105,18 +95,6 @@ export function TipTapToolbar({
   if (!editor) {
     return null;
   }
-
-  const setParagraph = () => {
-    editor.chain().focus().setParagraph().run();
-  };
-
-  const setHeading = (level: number) => {
-    editor.chain().focus().toggleHeading({ level: level as 1 | 2 | 3 | 4 | 5 | 6 }).run();
-  };
-
-  const addTable = () => {
-    editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run();
-  };
 
   const handleTitleClick = () => {
     if (setCurrentTitle) {
@@ -235,105 +213,139 @@ export function TipTapToolbar({
       <!DOCTYPE html>
       <html>
         <head>
-          <title>${currentTitle}</title>
+          <title>${currentTitle} - Print Version</title>
           <style>
             body {
-              font-family: 'Arial', sans-serif;
-              line-height: 1.6;
+              font-family: Arial, sans-serif;
+              margin: 30px;
               color: #333;
-              max-width: 800px;
-              margin: 0 auto;
-              padding: 20px;
             }
-            h1, h2, h3, h4, h5, h6 {
-              margin-top: 1.5rem;
-              margin-bottom: 1rem;
+            h1 {
+              color: #1a1a1a;
+              font-size: 24px;
+              margin-bottom: 20px;
+              padding-bottom: 10px;
+              border-bottom: 1px solid #eaeaea;
+            }
+            h2 {
+              color: #333;
+              font-size: 20px;
+              margin-top: 20px;
+              margin-bottom: 10px;
+            }
+            h3 {
+              color: #444;
+              font-size: 18px;
+              margin-top: 18px;
+              margin-bottom: 8px;
+            }
+            p {
+              margin-bottom: 10px;
+              line-height: 1.5;
+            }
+            ul, ol {
+              margin-bottom: 10px;
+              padding-left: 30px;
+            }
+            li {
+              margin-bottom: 5px;
             }
             table {
               width: 100%;
               border-collapse: collapse;
-              margin-bottom: 1rem;
+              margin: 20px 0;
             }
             th, td {
               border: 1px solid #ddd;
-              padding: 8px;
+              padding: 10px;
               text-align: left;
             }
             th {
-              background-color: #f2f2f2;
+              background-color: #f5f5f5;
+              font-weight: bold;
+            }
+            .footnote {
+              font-size: 12px;
+              color: #666;
+              margin-top: 40px;
+              padding-top: 10px;
+              border-top: 1px solid #eaeaea;
             }
             @media print {
               body {
-                padding: 0;
+                margin: 1cm;
+              }
+              .no-print {
+                display: none;
               }
             }
           </style>
         </head>
         <body>
           <h1>${currentTitle}</h1>
-          ${content}
+          <div>${content.replace(/\n/g, '<br/>')}</div>
+          <div class="footnote">
+            Printed on ${new Date().toLocaleDateString()} via Accordify AI
+          </div>
+          <script>
+            window.onload = function() {
+              window.print();
+            }
+          </script>
         </body>
       </html>
     `);
     
     printWindow.document.close();
-    printWindow.onafterprint = () => {
+    
+    printWindow.onafterprint = function() {
       printWindow.close();
     };
-    
-    printWindow.print();
   };
 
   const handleAIAnalysis = (analysisType: string) => {
-    if (!content) {
-      toast({
-        title: "Empty Document",
-        description: "There is no content to analyze.",
-        variant: "destructive"
-      });
-      return;
-    }
+    if (!setChatPrompt || !currentTitle || !content) return;
     
     let prompt = '';
-    let title = '';
     
     switch(analysisType) {
       case 'risk':
-        title = 'Risk Analysis';
-        prompt = `Analyze the following contract for potential risks and liabilities:\n\n${content}\n\nPlease identify any clauses that may pose risks to either party, ambiguous language, or potential legal issues.`;
+        prompt = `Analyze this ${currentTitle} contract for legal risks and potential issues:\n\n${content}\n\nPlease identify any risks, ambiguous language, or potential legal issues in this contract. Focus on clauses that might be problematic.`;
         break;
       case 'grammar':
-        title = 'Grammar & Clarity Check';
-        prompt = `Review the following contract for grammar, clarity, and readability issues:\n\n${content}\n\nPlease identify any grammatical errors, unclear language, or readability issues.`;
+        prompt = `Review this ${currentTitle} contract for grammar, clarity, and readability issues:\n\n${content}\n\nPlease identify any grammar problems, unclear language, or readability issues. Suggest improvements for clarity.`;
         break;
       case 'compliance':
-        title = 'Compliance Check';
-        prompt = `Review the following contract for compliance with standard legal requirements:\n\n${content}\n\nPlease identify any potential compliance issues or missing standard clauses.`;
+        prompt = `Check this ${currentTitle} contract for compliance with standard legal requirements:\n\n${content}\n\nPlease verify if this contract includes all standard legal elements and complies with typical legal requirements. Identify any missing components.`;
         break;
       case 'terms':
-        title = 'Key Term Extraction';
-        prompt = `Extract and summarize the key terms from the following contract:\n\n${content}\n\nPlease list the most important terms, obligations, and rights defined in this contract.`;
+        prompt = `Extract and define key terms from this ${currentTitle} contract:\n\n${content}\n\nPlease identify and explain the key terms, defined terms, and important provisions in this contract.`;
         break;
       case 'full':
-        title = 'Full Contract Review';
-        prompt = `Perform a comprehensive review of the following contract:\n\n${content}\n\nPlease analyze for risks, grammar issues, compliance problems, and extract key terms. Provide a summary of findings and recommendations.`;
+        prompt = `Perform a comprehensive legal review of this ${currentTitle} contract:\n\n${content}\n\nPlease provide a complete analysis of this contract, including:
+1. Identification of potential legal risks and issues
+2. Grammar and clarity assessment
+3. Compliance with standard legal requirements
+4. Extraction and explanation of key terms
+5. Overall evaluation and suggestions for improvement`;
         break;
+      default:
+        prompt = `Analyze this ${currentTitle} contract:\n\n${content}`;
     }
     
-    if (setChatPrompt && prompt) {
-      const success = setChatPrompt(prompt);
-      if (success) {
-        toast({
-          title: `${title} Started`,
-          description: "The AI is now analyzing your contract. Results will appear in the chat.",
-        });
-      } else {
-        toast({
-          title: "Analysis Failed",
-          description: "Could not start the analysis. Please try again.",
-          variant: "destructive"
-        });
-      }
+    const success = setChatPrompt(prompt);
+    
+    if (success) {
+      toast({
+        title: `AI ${analysisType.charAt(0).toUpperCase() + analysisType.slice(1)} Analysis`,
+        description: "Your request has been sent to AI assistant.",
+      });
+    } else {
+      toast({
+        title: "Analysis Failed",
+        description: "Could not send your request to AI assistant.",
+        variant: "destructive"
+      });
     }
   };
 
@@ -345,18 +357,20 @@ export function TipTapToolbar({
     setIsSignatureModalOpen(false);
     
     if (success) {
+      toast({
+        title: "Signature Request Sent",
+        description: "Your document has been sent for signing.",
+      });
+      
+      // Update document status
       if (onStatusChange) {
         onStatusChange('sent_for_signing');
       }
-      
-      toast({
-        title: "Signature Request Sent",
-        description: "The document has been sent for electronic signature.",
-      });
     } else {
       toast({
         title: "Signature Request Cancelled",
-        description: "The signature request has been cancelled.",
+        description: "Your signature request was cancelled.",
+        variant: "destructive"
       });
     }
   };
@@ -370,18 +384,22 @@ export function TipTapToolbar({
 
   const formatLastSaved = (date: Date) => {
     const now = new Date();
-    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
     
-    if (diffInSeconds < 60) {
+    if (diffInMinutes < 1) {
       return 'Just now';
-    } else if (diffInSeconds < 3600) {
-      const minutes = Math.floor(diffInSeconds / 60);
-      return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
-    } else if (diffInSeconds < 86400) {
-      const hours = Math.floor(diffInSeconds / 3600);
-      return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+    } else if (diffInMinutes < 60) {
+      return `${diffInMinutes} minute${diffInMinutes === 1 ? '' : 's'} ago`;
+    } else if (diffInMinutes < 24 * 60) {
+      const hours = Math.floor(diffInMinutes / 60);
+      return `${hours} hour${hours === 1 ? '' : 's'} ago`;
     } else {
-      return date.toLocaleString();
+      return date.toLocaleDateString(undefined, { 
+        month: 'short', 
+        day: 'numeric', 
+        hour: '2-digit', 
+        minute: '2-digit' 
+      });
     }
   };
 
@@ -418,151 +436,6 @@ export function TipTapToolbar({
 
             <div className="h-4 w-px bg-border"></div>
 
-            <div className="flex items-center space-x-1">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8"
-                    onClick={() => editor.chain().focus().toggleBold().run()}
-                    data-active={editor.isActive('bold')}
-                  >
-                    <Bold size={16} />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Bold</TooltipContent>
-              </Tooltip>
-
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8"
-                    onClick={() => editor.chain().focus().toggleItalic().run()}
-                    data-active={editor.isActive('italic')}
-                  >
-                    <Italic size={16} />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Italic</TooltipContent>
-              </Tooltip>
-
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8"
-                    onClick={() => editor.chain().focus().toggleUnderline().run()}
-                    data-active={editor.isActive('underline')}
-                  >
-                    <Underline size={16} />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Underline</TooltipContent>
-              </Tooltip>
-
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8"
-                    onClick={() => editor.chain().focus().toggleStrike().run()}
-                    data-active={editor.isActive('strike')}
-                  >
-                    <Strikethrough size={16} />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Strikethrough</TooltipContent>
-              </Tooltip>
-            </div>
-
-            <div className="h-4 w-px bg-border"></div>
-
-            <div className="flex items-center space-x-1">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8"
-                    onClick={() => editor.chain().focus().toggleBulletList().run()}
-                    data-active={editor.isActive('bulletList')}
-                  >
-                    <List size={16} />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Bullet List</TooltipContent>
-              </Tooltip>
-
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8"
-                    onClick={() => editor.chain().focus().toggleOrderedList().run()}
-                    data-active={editor.isActive('orderedList')}
-                  >
-                    <ListOrdered size={16} />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Numbered List</TooltipContent>
-              </Tooltip>
-
-              <Select
-                value={
-                  editor.isActive('heading', { level: 1 })
-                    ? 'h1'
-                    : editor.isActive('heading', { level: 2 })
-                    ? 'h2'
-                    : editor.isActive('heading', { level: 3 })
-                    ? 'h3'
-                    : 'p'
-                }
-                onValueChange={(value) => {
-                  if (value === 'p') {
-                    setParagraph();
-                  } else if (value === 'h1') {
-                    setHeading(1);
-                  } else if (value === 'h2') {
-                    setHeading(2);
-                  } else if (value === 'h3') {
-                    setHeading(3);
-                  }
-                }}
-              >
-                <SelectTrigger className="h-8 w-[130px]">
-                  <SelectValue placeholder="Paragraph" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="p">Paragraph</SelectItem>
-                  <SelectItem value="h1">Heading 1</SelectItem>
-                  <SelectItem value="h2">Heading 2</SelectItem>
-                  <SelectItem value="h3">Heading 3</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8"
-                    onClick={addTable}
-                  >
-                    <Table size={16} />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Insert Table</TooltipContent>
-              </Tooltip>
-            </div>
-          </div>
-
-          <div className="flex items-center space-x-2">
             <div className="flex items-center mr-2">
               <Tabs 
                 value={viewMode} 
@@ -610,7 +483,9 @@ export function TipTapToolbar({
                 <Label htmlFor="show-formatting" className="text-xs">Show Formatting</Label>
               </div>
             </div>
+          </div>
 
+          <div className="flex items-center space-x-2">
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button

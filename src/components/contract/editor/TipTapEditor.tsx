@@ -20,6 +20,7 @@ import { PanelLeft, PanelLeftClose } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DocumentStructurePanel } from './DocumentStructurePanel';
 import { TipTapToolbar } from './TipTapToolbar';
+import { FormattingToolbar } from './FormattingToolbar';
 import { VariableHighlighter } from './extensions/VariableHighlighter';
 import './TipTapStyles.css';
 
@@ -80,6 +81,9 @@ export const TipTapEditor: React.FC<TipTapEditorProps> = ({
   // const [showPanel, setShowPanel] = useState<boolean>(true);
   const editorRef = useRef<HTMLDivElement>(null);
   const [isEditorReady, setIsEditorReady] = useState<boolean>(false);
+  const [showFormatting, setShowFormatting] = useState<boolean>(true);
+  const [viewMode, setViewMode] = useState<'edit' | 'preview'>('edit');
+  const [editorMode, setEditorMode] = useState<'rich' | 'code'>('rich');
   
   // Convert markdown content to HTML for initial editor content
   const initialContent = convertMarkdownToHTML(content);
@@ -129,7 +133,6 @@ export const TipTapEditor: React.FC<TipTapEditorProps> = ({
     content: initialContent,
     editable: !readOnly,
     onUpdate: ({ editor }) => {
-      // Convert HTML content to markdown when content changes
       const html = editor.getHTML();
       const markdown = convertHTMLToMarkdown(html);
       setContent(markdown);
@@ -139,24 +142,12 @@ export const TipTapEditor: React.FC<TipTapEditorProps> = ({
     }
   });
 
-  // Update editor content when content prop changes
+  // Make the editor focusable from external components
   useEffect(() => {
-    if (editor && content !== convertHTMLToMarkdown(editor.getHTML())) {
-      const newContent = convertMarkdownToHTML(content);
-      editor.commands.setContent(newContent);
-    }
-  }, [content, editor]);
-
-  // Register global focus method for external components to focus the editor
-  useEffect(() => {
-    // Define the focus function inside the effect to avoid dependency issues
-    const focusContractEditor = () => {
-      editor?.commands.focus('end');
-    };
-
-    // Add to window object for external access
-    if (typeof window !== 'undefined') {
-      window.focusContractEditor = focusContractEditor;
+    if (editor && typeof window !== 'undefined') {
+      window.focusContractEditor = () => {
+        editor.commands.focus('end');
+      };
     }
 
     return () => {
@@ -192,7 +183,7 @@ export const TipTapEditor: React.FC<TipTapEditorProps> = ({
 
   return (
     <div className={`tiptap-editor-container ${className}`}>
-      {/* Toolbar */}
+      {/* Main Toolbar for document actions */}
       <TipTapToolbar 
         editor={editor} 
         currentTitle={currentTitle}
@@ -206,14 +197,26 @@ export const TipTapEditor: React.FC<TipTapEditorProps> = ({
         setChatPrompt={setChatPrompt}
         onVersionsClick={onVersionsClick}
         onSummarize={onSummarize}
+        viewMode={viewMode}
+        setViewMode={setViewMode}
+        editorMode={editorMode}
+        setEditorMode={setEditorMode}
+        showFormatting={showFormatting}
+        setShowFormatting={setShowFormatting}
+      />
+      
+      {/* Formatting Toolbar */}
+      <FormattingToolbar 
+        editor={editor}
+        showFormatting={showFormatting}
       />
       
       {/* Editor Area */}
       <div className="tiptap-editor-area">
-        {/* Document Structure Panel (when visible) - Commented out for now */}
+        {/* Document Structure Panel - Commented out for now */}
         {/* {showPanel && (
           <div className="document-structure-panel">
-            <div className="panel-header flex justify-between items-center p-2 border-b border-gray-200">
+            <div className="panel-header">
               <Button
                 variant="ghost"
                 size="sm"
