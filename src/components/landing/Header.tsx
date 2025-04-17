@@ -137,7 +137,10 @@ const Header: React.FC<HeaderProps> = ({ openWaitlistForm, isHeaderVisible }) =>
         </NavigationMenu>
         
         <div className="flex items-center space-x-4">
-          <Button size="sm" onClick={openWaitlistForm}>
+          <Button 
+            size="sm" 
+            onClick={() => window.open('https://form.typeform.com/to/qBwMkuJw', '_blank')}
+          >
             REQUEST DEMO
           </Button>
         </div>

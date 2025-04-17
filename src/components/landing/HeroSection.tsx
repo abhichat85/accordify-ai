@@ -15,16 +15,20 @@ const HeroSection: React.FC<HeroSectionProps> = ({ openWaitlistForm }) => {
           <div className="space-y-6 animate-fade-in">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm mb-4">
               <Sparkles size={14} />
-              <span>AI-Powered Legal Intelligence</span>
+              <span>AI-Powered Contract Intelligence</span>
             </div>
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight">
-              <AnimatedHeroText text="Draft, Review and<br>Intelligence of Contracts,<br>powered by AI Agent" />
+              <AnimatedHeroText text="Draft, Review and<br>Smart Contracts,<br>powered by AI Agents" />
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground max-w-lg">
               Draft, review, and negotiate contracts with your intelligent AI assistant. Built with custom SLMs, LoRA fine-tuning, and RAG for unmatched accuracy and performance.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
-              <Button onClick={openWaitlistForm} size="lg" className="gap-2 rounded-full shadow-lg bg-primary text-primary-foreground">
+              <Button 
+                size="lg" 
+                className="gap-2 rounded-full shadow-lg bg-primary text-primary-foreground"
+                onClick={() => window.open('https://form.typeform.com/to/qBwMkuJw', '_blank')}
+              >
                 REQUEST DEMO
               </Button>
             </div>

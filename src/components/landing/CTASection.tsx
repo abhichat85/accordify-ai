@@ -22,8 +22,12 @@ const CTASection: React.FC<CTASectionProps> = ({ openWaitlistForm }) => {
         </p>
         
         <div className="flex flex-col sm:flex-row justify-center gap-4">
-          <Button size="lg" onClick={openWaitlistForm} className="gap-2 rounded-full shadow-lg">
-            Join Beta Waitlist <ChevronRight size={16} />
+          <Button 
+            size="lg" 
+            onClick={() => window.open('https://form.typeform.com/to/qBwMkuJw', '_blank')} 
+            className="gap-2 rounded-full shadow-lg"
+          >
+            REQUEST DEMO <ChevronRight size={16} />
           </Button>
         </div>
       </div>
