@@ -253,41 +253,41 @@ export const teamService = {
   /**
    * Invite a user to a team (creates a pending invitation)
    */
-  async inviteToTeam(
-    teamId: string,
-    email: string,
-    role: TeamRole
-  ): Promise<void> {
-    // In a real implementation, this would create an invitation record
-    // and send an email. For now, we'll simulate by directly adding the user
-    // if they exist, or creating a pending invitation.
-    
-    // Check if user exists
-    const { data: userProfile, error: userError } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('email', email)
-      .single();
-
-    if (userError && userError.code !== 'PGRST116') { // PGRST116 is "no rows returned"
-      console.error('Error checking user:', userError);
-      throw new Error('Failed to check if user exists');
-    }
-
-    if (userProfile) {
-      // User exists, add them directly
-      await this.addTeamMember({
-        team_id: teamId,
-        user_id: userProfile.id,
-        role: role
-      });
-    } else {
-      // For now, just simulate the invitation
-      // In a real app, you would have a team_invitations table
-      console.log(`Invitation would be sent to ${email} for team ${teamId} with role ${role}`);
+  // async inviteToTeam(
+  //   teamId: string,
+  //   email: string,
+  //   role: TeamRole
+  // ): Promise<void> {
+  //   try {
+  //     // Use a simpler query approach with explicit type assertions to avoid TypeScript errors
+  //     const { data, error } = await supabase
+  //       .from('profiles')
+  //       .select('id')
+  //       .eq('email', email) 
+  //       .maybeSingle();
       
-      // Simulate success
-      return Promise.resolve();
-    }
-  }
+  //     if (error) {
+  //       console.error('Error checking user:', error);
+  //       throw new Error('Failed to check if user exists');
+  //     }
+      
+  //     const userProfile = data as { id: string } | null;
+
+  //     if (userProfile) {
+  //       // User exists, add them directly
+  //       await this.addTeamMember({
+  //         team_id: teamId,
+  //         user_id: userProfile.id,
+  //         role: role
+  //       });
+  //     } else {
+  //       // User doesn't exist, create a pending invitation
+  //       // This would normally store the invitation in a database and send an email
+  //       console.log(`Invitation sent to ${email} for team ${teamId} with role ${role}`);
+  //     }
+  //   } catch (error) {
+  //     console.error('Error inviting user to team:', error);
+  //     throw new Error('Failed to invite user to team');
+  //   }
+  // }
 };

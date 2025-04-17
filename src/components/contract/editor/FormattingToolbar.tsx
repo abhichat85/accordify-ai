@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { 
   Bold, 
   Italic, 
@@ -9,7 +9,8 @@ import {
   History,
   List,
   ListOrdered,
-  Table
+  Table,
+  FileUp
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -21,6 +22,9 @@ import {
 } from "@/components/ui/tooltip";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Editor } from '@tiptap/react';
+import * as pdfjsLib from 'pdfjs-dist/build/pdf.mjs';
+import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
 
 interface FormattingToolbarProps {
   editor?: Editor | null;
@@ -30,6 +34,15 @@ interface FormattingToolbarProps {
   onVersionsClick?: () => void;
 }
 
+interface PdfTextItem {
+  str?: string;
+  dir?: string;
+  transform?: number[];
+  width?: number;
+  height?: number;
+  [key: string]: unknown;
+}
+
 export const FormattingToolbar: React.FC<FormattingToolbarProps> = ({
   editor,
   showFormatting,
@@ -37,6 +50,8 @@ export const FormattingToolbar: React.FC<FormattingToolbarProps> = ({
   selection,
   onVersionsClick
 }) => {
+  const [isUploading, setIsUploading] = useState(false);
+
   if (!showFormatting) return null;
 
   const setParagraph = () => {
@@ -248,24 +263,101 @@ export const FormattingToolbar: React.FC<FormattingToolbarProps> = ({
                 </TooltipTrigger>
                 <TooltipContent>Insert Table</TooltipContent>
               </Tooltip>
-
-              {onVersionsClick && (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 ml-2"
-                      onClick={onVersionsClick}
-                    >
-                      <History size={16} />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Version History</TooltipContent>
-                </Tooltip>
-              )}
             </div>
+
+            <div className="h-4 w-px bg-border mx-2"></div>
+
+            {onVersionsClick && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={onVersionsClick}
+                  >
+                    <History size={16} />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Version History</TooltipContent>
+              </Tooltip>
+            )}
           </TooltipProvider>
+        </div>
+        
+        {/* Upload Contract Button - Moved to right side */}
+        <div className="flex items-center">
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-1"
+            onClick={() => {
+              document.getElementById('upload-contract-input')?.click();
+            }}
+            disabled={isUploading}
+          >
+            {isUploading ? (
+              <>
+                <span className="animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full mr-1"></span>
+                <span>Parsing...</span>
+              </>
+            ) : (
+              <>
+                <FileUp size={16} />
+                <span>Upload Contract</span>
+              </>
+            )}
+          </Button>
+          <input
+            id="upload-contract-input"
+            type="file"
+            accept="application/pdf"
+            style={{ display: 'none' }}
+            onChange={async (e) => {
+              const file = e.target.files?.[0];
+              if (!file) return;
+              
+              setIsUploading(true);
+              try {
+                // Read the file data
+                const fileData = await file.arrayBuffer();
+                const typedArray = new Uint8Array(fileData);
+                // Load the PDF document using the pre-configured worker
+                const pdf = await pdfjsLib.getDocument({ data: typedArray }).promise;
+                
+                // Extract text from all pages with more robust filtering
+                let fullText = '';
+                for (let i = 1; i <= pdf.numPages; i++) {
+                  const page = await pdf.getPage(i);
+                  const textContent = await page.getTextContent();
+                  
+                  // Handle items in a type-safe way
+                  const pageText = textContent.items
+                    .filter((item: PdfTextItem) => typeof item.str === 'string')
+                    .map((item: PdfTextItem) => item.str as string)
+                    .join(' ');
+                    
+                  fullText += pageText + '\n\n';
+                }
+                
+                // Set the extracted text in the editor
+                if (editor) {
+                  editor.commands.setContent(fullText);
+                }
+              } catch (err) {
+                console.error('PDF processing error:', err); // Log the actual error
+                alert('Failed to parse PDF. Please try a different file or copy/paste the text directly.');
+                
+                // Provide feedback in the editor
+                if (editor) {
+                  editor.commands.setContent('Unable to extract text from the uploaded PDF. Please copy and paste your contract content here.');
+                }
+              } finally {
+                setIsUploading(false);
+                e.target.value = ''; // Reset the file input
+              }
+            }}
+          />
         </div>
       </div>
     </div>

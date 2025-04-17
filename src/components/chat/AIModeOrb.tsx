@@ -37,7 +37,7 @@ export const AIModeOrb: React.FC<AIModeOrbProps> = ({
   // Pulsating animation effect
   useEffect(() => {
     let animationFrame: number;
-    let startTime = Date.now();
+    const startTime = Date.now();
     
     const animate = () => {
       const elapsed = Date.now() - startTime;
