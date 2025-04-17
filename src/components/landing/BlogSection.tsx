@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, ScrollText } from "lucide-react";
@@ -69,8 +68,8 @@ const BlogSection: React.FC = () => {
   ];
   
   return (
-    <section id="blog" className="py-20 px-4 md:px-8 lg:px-0 bg-soft-mesh">
-      <div className="container mx-auto max-w-6xl">
+    <section id="blog" className="py-20 px-4 md:px-8 bg-subtle-accent">
+      <div className="container mx-auto max-w-[90%] xl:max-w-[1400px]">
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-12">
           <div className="space-y-3 mb-6 md:mb-0">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm mb-2">

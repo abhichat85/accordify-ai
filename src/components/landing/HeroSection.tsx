@@ -1,8 +1,7 @@
-
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Bot, CheckCircle2, Sparkles } from "lucide-react";
-import { HeroBackground, AnimatedHeroText, AnimatedWaitlistButton } from "@/components/ui/hero-background";
+import { HeroBackground, AnimatedHeroText } from "@/components/ui/hero-background";
 
 interface HeroSectionProps {
   openWaitlistForm: () => void;
@@ -10,8 +9,8 @@ interface HeroSectionProps {
 
 const HeroSection: React.FC<HeroSectionProps> = ({ openWaitlistForm }) => {
   return (
-    <section className="py-20 md:py-28 px-4 md:px-8 lg:px-0 bg-subtle-accent">
-      <HeroBackground className="container mx-auto max-w-6xl">
+    <section id="hero" className="py-12 md:py-16 px-4 md:px-8 bg-subtle-accent min-h-[90vh] flex items-center">
+      <HeroBackground className="container mx-auto max-w-[90%] xl:max-w-[1400px]">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div className="space-y-6 animate-fade-in">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm mb-4">
@@ -25,7 +24,9 @@ const HeroSection: React.FC<HeroSectionProps> = ({ openWaitlistForm }) => {
               Draft, review, and negotiate contracts with your intelligent AI assistant. Built with custom SLMs, LoRA fine-tuning, and RAG for unmatched accuracy and performance.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
-              <AnimatedWaitlistButton onClick={openWaitlistForm} />
+              <Button onClick={openWaitlistForm} size="lg" className="gap-2 rounded-full shadow-lg bg-primary text-primary-foreground">
+                REQUEST DEMO
+              </Button>
             </div>
             <div className="pt-6 flex flex-col sm:flex-row items-start sm:items-center gap-4 text-sm text-muted-foreground">
               <div className="flex items-center gap-1.5">

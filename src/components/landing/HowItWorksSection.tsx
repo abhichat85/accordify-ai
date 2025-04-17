@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Bot, PenLine, ClipboardCheck, FileSearch } from "lucide-react";
 
@@ -25,13 +24,13 @@ const InteractionStep: React.FC<InteractionStepProps> = ({ userMessage, aiRespon
         <div className="w-8 h-8 shrink-0 rounded-full bg-muted flex items-center justify-center text-xs font-medium">
           ME
         </div>
-        <div className="bg-muted px-4 py-3 rounded-2xl rounded-tl-none text-sm max-w-md">
+        <div className="bg-muted px-4 py-3 rounded-2xl rounded-tl-none text-sm max-w-full md:max-w-[200px] lg:max-w-[250px] break-words">
           <p className="typing-step">{userMessage}</p>
         </div>
       </div>
       
       <div className="flex gap-3 justify-end">
-        <div className="bg-primary/10 px-4 py-3 rounded-2xl rounded-tr-none text-sm max-w-md">
+        <div className="bg-primary/10 px-4 py-3 rounded-2xl rounded-tr-none text-sm max-w-full md:max-w-[200px] lg:max-w-[250px] break-words">
           <p>{aiResponse}</p>
         </div>
         <div className="w-8 h-8 shrink-0 rounded-full bg-primary flex items-center justify-center">
@@ -44,8 +43,8 @@ const InteractionStep: React.FC<InteractionStepProps> = ({ userMessage, aiRespon
 
 const HowItWorksSection: React.FC = () => {
   return (
-    <section id="how-it-works" className="py-20 px-4 md:px-8 lg:px-0 bg-grid">
-      <div className="container mx-auto max-w-6xl">
+    <section id="how-it-works" className="py-20 px-4 md:px-8 bg-grid">
+      <div className="container mx-auto max-w-[90%] xl:max-w-[1400px]">
         <div className="text-center mb-16 space-y-3">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm mb-2">
             <Bot size={14} />
@@ -63,21 +62,21 @@ const HowItWorksSection: React.FC = () => {
           <InteractionStep 
             icon={PenLine}
             title="Draft Contracts"
-            userMessage="Draft a simple NDA for a software development project with standard confidentiality clauses."
+            userMessage="Draft an NDA for software development."
             aiResponse="I've prepared a comprehensive NDA tailored for software development with standard confidentiality provisions, disclosure protocols, and a 2-year term. Would you like me to customize any specific sections?"
           />
           
           <InteractionStep 
             icon={ClipboardCheck}
             title="Review Contracts"
-            userMessage="Review this employment agreement and identify any clauses that favor the employer too heavily."
+            userMessage="Review this employment agreement for employer-biased clauses."
             aiResponse="I've identified 3 clauses that disproportionately favor the employer: 1) The non-compete is overly broad in scope and duration, 2) The IP assignment has no exceptions for prior work, and 3) The termination terms lack reciprocal notice periods."
           />
           
           <InteractionStep 
             icon={FileSearch}
             title="Summarize Contracts"
-            userMessage="Summarize the key terms of this 45-page service agreement for cloud infrastructure services."
+            userMessage="Summarize this 45-page cloud service agreement."
             aiResponse="This agreement covers cloud infrastructure services with: 1) A 3-year term with auto-renewal, 2) 99.9% uptime SLA with defined penalties, 3) Monthly billing with net-30 terms, and 4) Data protection terms compliant with GDPR and CCPA."
           />
         </div>

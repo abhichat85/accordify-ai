@@ -1,12 +1,11 @@
-
 import React from "react";
 import { Zap, FileText, BrainCircuit, Users, ScrollText, Shield } from "lucide-react";
 import Feature from "@/components/landing/Feature";
 
 const FeaturesSection: React.FC = () => {
   return (
-    <section id="features" className="py-20 px-4 md:px-8 lg:px-0 bg-soft-gradient">
-      <div className="container mx-auto max-w-6xl">
+    <section id="features" className="py-20 px-4 md:px-8 bg-soft-gradient">
+      <div className="container mx-auto max-w-[90%] xl:max-w-[1400px]">
         <div className="text-center mb-16 space-y-3">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm mb-2">
             <Zap size={14} />

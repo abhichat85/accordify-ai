@@ -1,11 +1,10 @@
-
 import React from "react";
 import { Users, CheckCircle2 } from "lucide-react";
 
 const UseCasesSection: React.FC = () => {
   return (
-    <section id="use-cases" className="py-20 px-4 md:px-8 lg:px-0 bg-wave">
-      <div className="container mx-auto max-w-6xl">
+    <section id="use-cases" className="py-20 px-4 md:px-8 bg-wave">
+      <div className="container mx-auto max-w-[90%] xl:max-w-[1400px]">
         <div className="text-center mb-16 space-y-3">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm mb-2">
             <Users size={14} />

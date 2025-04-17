@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronRight, Sparkles } from "lucide-react";
@@ -9,8 +8,8 @@ interface CTASectionProps {
 
 const CTASection: React.FC<CTASectionProps> = ({ openWaitlistForm }) => {
   return (
-    <section className="py-24 px-4 md:px-8 lg:px-0 bg-muted/30">
-      <div className="container mx-auto max-w-5xl text-center">
+    <section className="py-24 px-4 md:px-8 bg-muted/30">
+      <div className="container mx-auto max-w-[90%] xl:max-w-[1400px] text-center">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm mb-4">
           <Sparkles size={14} />
           <span>Limited Beta Access</span>

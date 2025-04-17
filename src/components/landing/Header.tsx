@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link } from "react-router-dom";
 import { FileText } from "lucide-react";
@@ -50,12 +49,14 @@ const Header: React.FC<HeaderProps> = ({ openWaitlistForm, isHeaderVisible }) =>
     <header className={`border-b border-border/20 backdrop-blur-md sticky top-0 z-50 bg-background/95 transition-transform duration-300 ${isHeaderVisible ? 'translate-y-0' : '-translate-y-full'}`}>
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
         <div className="flex items-center space-x-2">
-          <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
-            <FileText size={18} className="text-primary-foreground" />
-          </div>
-          <span className="text-xl font-semibold bg-gradient-to-r from-primary/90 to-primary bg-clip-text text-transparent">
-            Accord AI
-          </span>
+          <a href="#hero" className="flex items-center space-x-2">
+            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
+              <FileText size={18} className="text-primary-foreground" />
+            </div>
+            <span className="text-xl font-semibold bg-gradient-to-r from-primary/90 to-primary bg-clip-text text-transparent">
+              Accord AI
+            </span>
+          </a>
         </div>
         
         <NavigationMenu className="hidden md:flex">
@@ -128,16 +129,16 @@ const Header: React.FC<HeaderProps> = ({ openWaitlistForm, isHeaderVisible }) =>
               </Link>
             </NavigationMenuItem>
             <NavigationMenuItem>
-              <Link to="#documentation" className={navigationMenuTriggerStyle()}>
+              <a href="#documentation" className={navigationMenuTriggerStyle()}>
                 Documentation
-              </Link>
+              </a>
             </NavigationMenuItem>
           </NavigationMenuList>
         </NavigationMenu>
         
         <div className="flex items-center space-x-4">
           <Button size="sm" onClick={openWaitlistForm}>
-            Join Beta Waitlist
+            REQUEST DEMO
           </Button>
         </div>
       </div>
