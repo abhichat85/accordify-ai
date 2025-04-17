@@ -1,0 +1,215 @@
+/* Accord AI Design System - Tokens
+ * A centralized collection of design tokens for consistent styling
+ */
+
+:root {
+  /* Colors */
+  --background: 0 0% 16%; /* #282828 */
+  --foreground: 0 0% 98%; /* #fafafa */
+  --header-bg: 0 0% 12%; /* #1F1F1F */
+  
+  --primary: 265 84% 58%; /* #7c3aed - Purple */
+  --primary-foreground: 0 0% 100%; /* #ffffff */
+  
+  --secondary: 240 5% 24%; /* #383941 */
+  --secondary-foreground: 0 0% 98%; /* #fafafa */
+  
+  --muted: 240 5% 20%; /* #33333D */
+  --muted-foreground: 240 5% 65%; /* #A3A3AE */
+  
+  --accent: 265 84% 16%; /* #2a1447 */
+  --accent-foreground: 265 84% 98%; /* #f5edff */
+  
+  --border: 240 5% 26%; /* #3F3F4B */
+  --card: 240 6% 18%; /* #2B2B35 */
+  --card-foreground: 0 0% 98%; /* #fafafa */
+  
+  --success: 160 84% 39%; /* #10b981 */
+  --warning: 38 92% 50%; /* #f59e0b */
+  --error: 0 84% 60%; /* #ef4444 */
+  --info: 217 91% 60%; /* #3b82f6 */
+  
+  /* Border Radius */
+  --radius-sm: 0.375rem; /* 6px */
+  --radius-md: 0.5rem; /* 8px */
+  --radius-lg: 0.75rem; /* 12px */
+  --radius-xl: 1rem; /* 16px */
+  --radius-full: 9999px;
+  
+  /* Typography */
+  --font-sans: 'Inter', sans-serif;
+  --font-heading: var(--font-sans);
+  
+  /* Font Weights */
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-normal: 250ms ease;
+  --transition-slow: 350ms ease;
+  
+  /* Z-Indices */
+  --z-dropdown: 1000;
+  --z-sticky: 1100;
+  --z-fixed: 1200;
+  --z-modal: 1300;
+  --z-popover: 1400;
+  --z-toast: 1500;
+  --z-tooltip: 1600;
+}
+
+/* Reusable Animation Keyframes */
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(124, 58, 237, 0.4); }
+  50% { box-shadow: 0 0 20px 5px rgba(124, 58, 237, 0.6); }
+}
+
+@keyframes slide-up-fade-in {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Timeline animations */
+@keyframes growDown {
+  0% { transform: scaleY(0); }
+  100% { transform: scaleY(1); }
+}
+
+@keyframes typing {
+  from { width: 0 }
+  to { width: 100% }
+}
+
+/* Tech section animations */
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes reverse-spin-slow {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
+}
+
+/* Path drawing animation */
+@keyframes draw-path {
+  0% {
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.3;
+  }
+  100% {
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 0;
+    opacity: 0.3;
+  }
+}
+
+.animate-draw-path {
+  animation: draw-path 8s ease-in-out forwards;
+}
+
+/* Perspective and 3D transforms for tech cards */
+.perspective {
+  perspective: 1000px;
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.rotate-y-12 {
+  transform: rotateY(12deg);
+}
+
+/* Tech section specific styles */
+.shadow-glow-sm {
+  box-shadow: 0 0 10px 0 rgba(124, 58, 237, 0.3);
+}
+
+.shadow-glow {
+  box-shadow: 0 0 15px 2px rgba(124, 58, 237, 0.4);
+}
+
+/* Tech section animation utility classes */
+.animate-spin-slow {
+  animation: spin-slow 20s linear infinite;
+}
+
+.animate-reverse-spin-slow {
+  animation: reverse-spin-slow 15s linear infinite;
+}
+
+/* Button Enhancements */
+.btn-primary {
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  border-radius: var(--radius-md);
+  font-weight: var(--weight-medium);
+  transition: transform var(--transition-normal), 
+              box-shadow var(--transition-normal),
+              background-color var(--transition-fast);
+}
+
+.btn-primary:hover, 
+.btn-primary:focus {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 0 15px 3px rgba(124, 58, 237, 0.4);
+  background-color: hsl(265 84% 62%);
+}
+
+.btn-primary:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* Card Enhancements */
+.card-enhanced {
+  background-color: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius-lg);
+  transition: transform var(--transition-normal), 
+              box-shadow var(--transition-normal);
+}
+
+.card-enhanced:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Section Background Elements */
+.blob-bg {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(40px);
+  opacity: 0.15;
+  z-index: 0;
+}
+
+.mesh-bg {
+  background-image: radial-gradient(at 100% 0%, hsla(265, 84%, 35%, 0.2) 0px, transparent 50%),
+                    radial-gradient(at 0% 100%, hsla(265, 84%, 15%, 0.3) 0px, transparent 50%);
+}
+
+.gradient-bg {
+  background: linear-gradient(to bottom right, 
+              hsla(265, 84%, 25%, 0.1), 
+              hsla(265, 84%, 15%, 0.2));
+}

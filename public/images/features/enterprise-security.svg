@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400" height="200" viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#7c3aed;stop-opacity:0.1"/>
+      <stop offset="100%" style="stop-color:#7c3aed;stop-opacity:0.05"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="400" height="200" fill="url(#bg)" rx="10" ry="10"/>
+  
+  <!-- Shield outline -->
+  <path d="M200,30 L260,50 C260,120 240,160 200,180 C160,160 140,120 140,50 L200,30 Z" fill="#333" opacity="0.8"/>
+  <path d="M200,40 L250,56 C250,120 230,155 200,172 C170,155 150,120 150,56 L200,40 Z" fill="#444" opacity="0.9"/>
+  
+  <!-- Lock -->
+  <rect x="185" y="95" width="30" height="25" rx="3" ry="3" fill="#666"/>
+  <rect x="180" y="80" width="40" height="25" rx="3" ry="3" fill="#555"/>
+  <circle cx="200" cy="92" r="6" fill="#7c3aed" opacity="0.8">
+    <animate attributeName="opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite"/>
+  </circle>
+  
+  <!-- Data encryption icons -->
+  <text x="200" y="130" font-family="Courier" font-size="14" fill="#7c3aed" opacity="0.8" text-anchor="middle">10110</text>
+  <text x="200" y="145" font-family="Courier" font-size="14" fill="#ddd" opacity="0.8" text-anchor="middle">01001</text>
+  
+  <!-- Security pulse rings -->
+  <circle cx="200" cy="100" r="50" fill="none" stroke="#7c3aed" stroke-width="1" opacity="0.5">
+    <animate attributeName="r" values="50;70;50" dur="3s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.5;0.1;0.5" dur="3s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="200" cy="100" r="40" fill="none" stroke="#7c3aed" stroke-width="1" opacity="0.3">
+    <animate attributeName="r" values="40;60;40" dur="3s" repeatCount="indefinite" begin="0.5s"/>
+    <animate attributeName="opacity" values="0.3;0.1;0.3" dur="3s" repeatCount="indefinite" begin="0.5s"/>
+  </circle>
+  
+  <!-- Padlock icons (smaller padlocks around the shield) -->
+  <rect x="130" y="70" width="15" height="12" rx="2" ry="2" fill="#666"/>
+  <rect x="127" y="60" width="21" height="12" rx="2" ry="2" fill="#555"/>
+  <circle cx="137" cy="66" r="3" fill="#7c3aed" opacity="0.7"/>
+  
+  <rect x="255" y="70" width="15" height="12" rx="2" ry="2" fill="#666"/>
+  <rect x="252" y="60" width="21" height="12" rx="2" ry="2" fill="#555"/>
+  <circle cx="262" cy="66" r="3" fill="#7c3aed" opacity="0.7"/>
+  
+  <rect x="160" y="150" width="15" height="12" rx="2" ry="2" fill="#666"/>
+  <rect x="157" y="140" width="21" height="12" rx="2" ry="2" fill="#555"/>
+  <circle cx="167" cy="146" r="3" fill="#7c3aed" opacity="0.7"/>
+  
+  <rect x="225" y="150" width="15" height="12" rx="2" ry="2" fill="#666"/>
+  <rect x="222" y="140" width="21" height="12" rx="2" ry="2" fill="#555"/>
+  <circle cx="232" cy="146" r="3" fill="#7c3aed" opacity="0.7"/>
+  
+  <!-- SOC 2 Type II badge -->
+  <circle cx="315" cy="160" r="25" fill="#333" opacity="0.8"/>
+  <text x="315" y="155" font-family="Arial" font-size="9" fill="#ddd" text-anchor="middle" font-weight="bold">SOC 2</text>
+  <text x="315" y="168" font-family="Arial" font-size="8" fill="#ddd" text-anchor="middle">TYPE II</text>
+</svg>

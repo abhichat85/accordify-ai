@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { FileText } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { EnhancedButton } from "@/components/ui/enhanced-button";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -9,7 +9,6 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
-  navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 import { cn } from "@/lib/utils";
 
@@ -45,15 +44,20 @@ const ListItem = React.forwardRef<
 ListItem.displayName = "ListItem";
 
 const Header: React.FC<HeaderProps> = ({ openWaitlistForm, isHeaderVisible }) => {
+  // Enhanced navigation menu style with hover underline effect
+  const enhancedNavigationMenuTriggerStyle = () => {
+    return "group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground hover:underline decoration-primary decoration-2 underline-offset-4 focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50";
+  };
+
   return (
-    <header className={`border-b border-border/20 backdrop-blur-md sticky top-0 z-50 bg-background/95 transition-transform duration-300 ${isHeaderVisible ? 'translate-y-0' : '-translate-y-full'}`}>
-      <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+    <header className={`border-b border-border/20 backdrop-blur-md sticky top-0 z-50 bg-background/95 transition-all duration-300 shadow-md ${isHeaderVisible ? 'translate-y-0' : '-translate-y-full'}`}>
+      <div className="container mx-auto px-4 py-3 md:py-4 flex justify-between items-center max-w-[90%] xl:max-w-[1400px]">
         <div className="flex items-center space-x-2">
-          <a href="#hero" className="flex items-center space-x-2">
-            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
+          <a href="#hero" className="flex items-center space-x-2 group">
+            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center transition-transform group-hover:scale-105">
               <FileText size={18} className="text-primary-foreground" />
             </div>
-            <span className="text-xl font-semibold bg-gradient-to-r from-primary/90 to-primary bg-clip-text text-transparent">
+            <span className="text-xl font-semibold bg-gradient-to-r from-primary/90 to-primary bg-clip-text text-transparent group-hover:opacity-80 transition-opacity">
               Accord AI
             </span>
           </a>
@@ -124,12 +128,12 @@ const Header: React.FC<HeaderProps> = ({ openWaitlistForm, isHeaderVisible }) =>
               </NavigationMenuContent>
             </NavigationMenuItem>
             <NavigationMenuItem>
-              <Link to="/blog" className={navigationMenuTriggerStyle()}>
+              <Link to="/blog" className={enhancedNavigationMenuTriggerStyle()}>
                 Blog
               </Link>
             </NavigationMenuItem>
             <NavigationMenuItem>
-              <a href="#documentation" className={navigationMenuTriggerStyle()}>
+              <a href="#documentation" className={enhancedNavigationMenuTriggerStyle()}>
                 Documentation
               </a>
             </NavigationMenuItem>
@@ -137,12 +141,13 @@ const Header: React.FC<HeaderProps> = ({ openWaitlistForm, isHeaderVisible }) =>
         </NavigationMenu>
         
         <div className="flex items-center space-x-4">
-          <Button 
+          <EnhancedButton 
             size="sm" 
+            className="rounded-full font-medium"
             onClick={() => window.open('https://form.typeform.com/to/qBwMkuJw', '_blank')}
           >
             REQUEST DEMO
-          </Button>
+          </EnhancedButton>
         </div>
       </div>
     </header>

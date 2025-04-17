@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400" height="200" viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#7c3aed;stop-opacity:0.1"/>
+      <stop offset="100%" style="stop-color:#7c3aed;stop-opacity:0.05"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="400" height="200" fill="url(#bg)" rx="10" ry="10"/>
+  
+  <!-- Paper stack -->
+  <rect x="90" y="60" width="160" height="120" fill="#333" rx="4" ry="4" opacity="0.7"/>
+  <rect x="100" y="50" width="160" height="120" fill="#444" rx="4" ry="4" opacity="0.8"/>
+  <rect x="110" y="40" width="160" height="120" fill="#555" rx="4" ry="4" opacity="0.9"/>
+  
+  <!-- Main document -->
+  <rect x="120" y="30" width="160" height="120" fill="#666" rx="4" ry="4"/>
+  
+  <!-- Document lines -->
+  <rect x="140" y="50" width="120" height="4" fill="#7c3aed" opacity="0.6" rx="2" ry="2"/>
+  <rect x="140" y="65" width="100" height="3" fill="#888" opacity="0.6" rx="1.5" ry="1.5"/>
+  <rect x="140" y="75" width="110" height="3" fill="#888" opacity="0.6" rx="1.5" ry="1.5"/>
+  <rect x="140" y="85" width="90" height="3" fill="#888" opacity="0.6" rx="1.5" ry="1.5"/>
+  <rect x="140" y="95" width="105" height="3" fill="#888" opacity="0.6" rx="1.5" ry="1.5"/>
+  <rect x="140" y="105" width="80" height="3" fill="#888" opacity="0.6" rx="1.5" ry="1.5"/>
+
+  <!-- Light sparks -->
+  <circle cx="280" cy="40" r="5" fill="#7c3aed" opacity="0.8">
+    <animate attributeName="opacity" values="0.4;0.8;0.4" dur="2s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="290" cy="60" r="3" fill="#7c3aed" opacity="0.6">
+    <animate attributeName="opacity" values="0.3;0.6;0.3" dur="2.5s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="270" cy="80" r="4" fill="#7c3aed" opacity="0.7">
+    <animate attributeName="opacity" values="0.4;0.7;0.4" dur="1.8s" repeatCount="indefinite"/>
+  </circle>
+</svg>

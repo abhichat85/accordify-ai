@@ -1,7 +1,8 @@
 import React from "react";
-import { Button } from "@/components/ui/button";
 import { Bot, CheckCircle2, Sparkles } from "lucide-react";
 import { HeroBackground, AnimatedHeroText } from "@/components/ui/hero-background";
+import { AbstractBg } from "@/components/ui/abstract-bg";
+import { EnhancedButton } from "@/components/ui/enhanced-button";
 
 interface HeroSectionProps {
   openWaitlistForm: () => void;
@@ -9,7 +10,8 @@ interface HeroSectionProps {
 
 const HeroSection: React.FC<HeroSectionProps> = ({ openWaitlistForm }) => {
   return (
-    <section id="hero" className="py-12 md:py-16 px-4 md:px-8 bg-subtle-accent min-h-[90vh] flex items-center">
+    <section id="hero" className="py-12 md:py-16 px-4 md:px-8 bg-subtle-accent min-h-[90vh] flex items-center relative overflow-hidden">
+      <AbstractBg variant="purple" intensity="medium" />
       <HeroBackground className="container mx-auto max-w-[90%] xl:max-w-[1400px]">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div className="space-y-6 animate-fade-in">
@@ -17,20 +19,22 @@ const HeroSection: React.FC<HeroSectionProps> = ({ openWaitlistForm }) => {
               <Sparkles size={14} />
               <span>AI-Powered Contract Intelligence</span>
             </div>
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-[1.1] tracking-tight">
               <AnimatedHeroText text="Draft, Review and<br>Smart Contracts,<br>powered by AI Agents" />
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-lg">
+            <p className="text-lg md:text-xl text-muted-foreground max-w-xl mt-6">
               Draft, review, and negotiate contracts with your intelligent AI assistant. Built with custom SLMs, LoRA fine-tuning, and RAG for unmatched accuracy and performance.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
-              <Button 
+              <EnhancedButton 
                 size="lg" 
-                className="gap-2 rounded-full shadow-lg bg-primary text-primary-foreground"
+                className="gap-2 rounded-full shadow-lg bg-primary text-primary-foreground font-medium"
                 onClick={() => window.open('https://form.typeform.com/to/qBwMkuJw', '_blank')}
+                glowOnHover
+                scaleOnHover
               >
                 REQUEST DEMO
-              </Button>
+              </EnhancedButton>
             </div>
             <div className="pt-6 flex flex-col sm:flex-row items-start sm:items-center gap-4 text-sm text-muted-foreground">
               <div className="flex items-center gap-1.5">
