@@ -6,6 +6,12 @@ interface MessagesListProps {
   isProcessing?: boolean;
 }
 
+interface MessageSection {
+  title?: string;
+  content: string;
+  type: 'reasoning' | 'actions' | 'context' | 'thinking';
+}
+
 export const MessagesList: React.FC<MessagesListProps> = ({
   messages,
   isProcessing = false
