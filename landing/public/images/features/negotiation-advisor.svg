@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400" height="200" viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#7c3aed;stop-opacity:0.1"/>
+      <stop offset="100%" style="stop-color:#7c3aed;stop-opacity:0.05"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="400" height="200" fill="url(#bg)" rx="10" ry="10"/>
+  
+  <!-- Speech bubbles -->
+  <path d="M80,50 L160,50 C170,50 180,60 180,70 L180,100 C180,110 170,120 160,120 L110,120 L100,135 L90,120 L80,120 C70,120 60,110 60,100 L60,70 C60,60 70,50 80,50 Z" fill="#333" opacity="0.7"/>
+  <path d="M270,80 L350,80 C360,80 370,90 370,100 L370,130 C370,140 360,150 350,150 L300,150 L290,165 L280,150 L270,150 C260,150 250,140 250,130 L250,100 C250,90 260,80 270,80 Z" fill="#444" opacity="0.7"/>
+  
+  <!-- Chat contents -->
+  <text x="120" y="75" font-family="Arial" font-size="12" fill="#ddd" text-anchor="middle">Suggestions</text>
+  <rect x="90" y="85" width="60" height="5" fill="#7c3aed" rx="2.5" ry="2.5" opacity="0.8"/>
+  <rect x="90" y="95" width="50" height="5" fill="#ddd" rx="2.5" ry="2.5" opacity="0.7"/>
+  <rect x="90" y="105" width="55" height="5" fill="#ddd" rx="2.5" ry="2.5" opacity="0.7"/>
+  
+  <text x="310" y="105" font-family="Arial" font-size="12" fill="#ddd" text-anchor="middle">Contract Terms</text>
+  <rect x="280" y="115" width="60" height="5" fill="#7c3aed" rx="2.5" ry="2.5" opacity="0.8"/>
+  <rect x="280" y="125" width="50" height="5" fill="#ddd" rx="2.5" ry="2.5" opacity="0.7"/>
+  <rect x="280" y="135" width="55" height="5" fill="#ddd" rx="2.5" ry="2.5" opacity="0.7"/>
+  
+  <!-- Balance scale -->
+  <line x1="200" y1="80" x2="200" y2="140" stroke="#7c3aed" stroke-width="3"/>
+  <line x1="170" y1="140" x2="230" y2="140" stroke="#7c3aed" stroke-width="3"/>
+  <line x1="180" y1="90" x2="220" y2="90" stroke="#7c3aed" stroke-width="2"/>
+  
+  <circle cx="180" cy="100" r="10" fill="#333" opacity="0.8">
+    <animate attributeName="cy" values="100;105;100" dur="3s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="220" cy="100" r="10" fill="#333" opacity="0.8">
+    <animate attributeName="cy" values="100;95;100" dur="3s" repeatCount="indefinite"/>
+  </circle>
+  
+  <!-- Pulsing connections -->
+  <line x1="140" y1="120" x2="180" y2="100" stroke="#7c3aed" stroke-width="1" stroke-dasharray="4 2" opacity="0.6">
+    <animate attributeName="opacity" values="0.2;0.6;0.2" dur="2s" repeatCount="indefinite"/>
+  </line>
+  <line x1="260" y1="130" x2="220" y2="100" stroke="#7c3aed" stroke-width="1" stroke-dasharray="4 2" opacity="0.6">
+    <animate attributeName="opacity" values="0.2;0.6;0.2" dur="2s" repeatCount="indefinite"/>
+  </line>
+</svg>

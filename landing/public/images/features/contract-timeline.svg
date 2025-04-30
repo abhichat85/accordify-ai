@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400" height="200" viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#7c3aed;stop-opacity:0.1"/>
+      <stop offset="100%" style="stop-color:#7c3aed;stop-opacity:0.05"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="400" height="200" fill="url(#bg)" rx="10" ry="10"/>
+  
+  <!-- Timeline line -->
+  <line x1="70" y1="100" x2="330" y2="100" stroke="#444" stroke-width="4" stroke-linecap="round"/>
+  
+  <!-- Timeline nodes -->
+  <circle cx="100" cy="100" r="12" fill="#7c3aed" opacity="0.7"/>
+  <circle cx="180" cy="100" r="12" fill="#7c3aed" opacity="0.7"/>
+  <circle cx="260" cy="100" r="12" fill="#7c3aed" opacity="0.7"/>
+  <circle cx="340" cy="100" r="12" fill="#555" opacity="0.7"/>
+  
+  <!-- Current position indicator -->
+  <circle cx="180" cy="100" r="18" fill="none" stroke="#7c3aed" stroke-width="2" opacity="0.6">
+    <animate attributeName="r" values="18;22;18" dur="2s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.6;0.3;0.6" dur="2s" repeatCount="indefinite"/>
+  </circle>
+  
+  <!-- Timeline markers -->
+  <rect x="85" y="65" width="30" height="20" rx="3" ry="3" fill="#333" opacity="0.8"/>
+  <text x="100" y="80" font-family="Arial" font-size="12" fill="#fff" text-anchor="middle">Jan</text>
+  
+  <rect x="165" y="65" width="30" height="20" rx="3" ry="3" fill="#333" opacity="0.8"/>
+  <text x="180" y="80" font-family="Arial" font-size="12" fill="#fff" text-anchor="middle">Apr</text>
+  
+  <rect x="245" y="65" width="30" height="20" rx="3" ry="3" fill="#333" opacity="0.8"/>
+  <text x="260" y="80" font-family="Arial" font-size="12" fill="#fff" text-anchor="middle">Jul</text>
+  
+  <rect x="325" y="65" width="30" height="20" rx="3" ry="3" fill="#333" opacity="0.8"/>
+  <text x="340" y="80" font-family="Arial" font-size="12" fill="#fff" text-anchor="middle">Oct</text>
+  
+  <!-- Milestone flags -->
+  <path d="M100,100 L100,50 L120,60 L100,70 Z" fill="#444" opacity="0.7"/>
+  <path d="M180,100 L180,50 L200,60 L180,70 Z" fill="#7c3aed" opacity="0.9"/>
+  <path d="M260,100 L260,50 L280,60 L260,70 Z" fill="#444" opacity="0.7"/>
+  
+  <!-- Event reminders -->
+  <rect x="70" y="130" width="60" height="40" rx="5" ry="5" fill="#333" opacity="0.7"/>
+  <rect x="75" y="140" width="50" height="4" fill="#ddd" opacity="0.8"/>
+  <rect x="75" y="150" width="40" height="4" fill="#ddd" opacity="0.8"/>
+  <rect x="75" y="160" width="30" height="4" fill="#7c3aed" opacity="0.8"/>
+  
+  <rect x="150" y="130" width="60" height="40" rx="5" ry="5" fill="#333" opacity="0.7"/>
+  <rect x="155" y="140" width="50" height="4" fill="#ddd" opacity="0.8"/>
+  <rect x="155" y="150" width="40" height="4" fill="#ddd" opacity="0.8"/>
+  <rect x="155" y="160" width="30" height="4" fill="#7c3aed" opacity="0.8"/>
+  
+  <rect x="230" y="130" width="60" height="40" rx="5" ry="5" fill="#333" opacity="0.7"/>
+  <rect x="235" y="140" width="50" height="4" fill="#ddd" opacity="0.8"/>
+  <rect x="235" y="150" width="40" height="4" fill="#ddd" opacity="0.8"/>
+  <rect x="235" y="160" width="30" height="4" fill="#7c3aed" opacity="0.8"/>
+  
+  <!-- Calendar icon -->
+  <rect x="310" y="130" width="40" height="40" rx="5" ry="5" fill="#444" opacity="0.8"/>
+  <rect x="315" y="140" width="30" height="25" rx="3" ry="3" fill="#333"/>
+  <line x1="320" y1="140" x2="320" y2="135" stroke="#7c3aed" stroke-width="2"/>
+  <line x1="340" y1="140" x2="340" y2="135" stroke="#7c3aed" stroke-width="2"/>
+  <line x1="325" y1="150" x2="335" y2="150" stroke="#ddd" stroke-width="1.5"/>
+  <line x1="325" y1="155" x2="335" y2="155" stroke="#ddd" stroke-width="1.5"/>
+  <line x1="325" y1="160" x2="335" y2="160" stroke="#7c3aed" stroke-width="1.5"/>
+</svg>
