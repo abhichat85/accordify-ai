@@ -58,7 +58,7 @@ export const TriPanelLayout: React.FC<TriPanelLayoutProps> = ({
   };
 
   return (
-    <div className={cn("flex h-screen w-screen", className)}>
+    <div className={cn("flex h-screen w-screen overflow-hidden", className)}>
       {/* Left Panel */}
       <div className={cn(
         "flex flex-col bg-background border-r border-border/40 h-full transition-all duration-300",
@@ -295,14 +295,14 @@ export const TriPanelLayout: React.FC<TriPanelLayoutProps> = ({
       </div>
       
       <div className={cn(
-        "flex-grow h-full transition-all duration-300 overflow-auto relative",
-        rightCollapsed ? "pr-0" : "pr-0"
+        "flex-grow h-full transition-all duration-300 relative",
+        rightCollapsed ? "" : ""
       )}>
         {centerPanel}
       </div>
       
       <div className={cn(
-        "h-full border-l border-border/40 bg-background/50 backdrop-blur-sm transition-all duration-300 flex flex-col",
+        "h-full border-l border-border/40 bg-background/50 backdrop-blur-sm transition-all duration-300 flex flex-col p-0 m-0 overflow-hidden",
         rightCollapsed ? "w-16" : "w-96"
       )}>
         <div className="flex items-center justify-between h-16 px-4 border-b border-border/40 bg-background/80">
@@ -333,7 +333,9 @@ export const TriPanelLayout: React.FC<TriPanelLayoutProps> = ({
             <MessageSquare size={24} />
           </div>
         ) : (
-          rightPanel
+          <div className="flex-1 overflow-hidden w-full h-full p-0 m-0 flex right-panel-content">
+            {rightPanel}
+          </div>
         )}
       </div>
     </div>

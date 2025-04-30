@@ -59,7 +59,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
   }, []);
 
   return (
-    <div className="flex flex-col h-full overflow-hidden border border-border/40 shadow-sm bg-background">
+    <div className="flex flex-col h-full w-full overflow-hidden border border-border/40 shadow-sm bg-background p-0 m-0">
       <div className="flex items-center justify-between px-4 py-2 border-b border-border/40 bg-background/90">
         <div className="flex items-center">
           <h2 className="text-base font-medium text-foreground">Accord AI | {activeMode === "write" ? "Write mode" : "Chat mode"} (⌘.)</h2>
@@ -74,11 +74,11 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
         </div>
       </div>
       
-      <div className="flex-grow flex flex-col h-full relative">
-        <div className="flex-grow overflow-hidden">
-          <Tabs value={activeTab} className="h-full">
+      <div className="flex-grow flex flex-col h-full overflow-hidden p-0 m-0">
+        <div className="flex-grow overflow-hidden p-0 m-0 w-full">
+          <Tabs value={activeTab} className="h-full m-0 p-0">
             <TabsContent value="chat" className="h-full m-0 p-0 data-[state=active]:flex flex-col">
-              <div className="h-full m-0 p-0 flex flex-col">
+              <div className="h-full m-0 p-0 flex flex-col w-full">
                 {messages.length === 0 ? (
                   <div className="flex-grow">
                     <EmptyChatState activeMode={activeMode} currentAiMode={currentAiMode} />

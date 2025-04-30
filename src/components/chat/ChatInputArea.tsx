@@ -31,9 +31,9 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
   inputValue,
   setInputValue,
   handleSubmit,
-  isProcessing,
-  files,
-  setFiles, 
+  isProcessing = false,
+  files = [],
+  setFiles,
   isDragging,
   setIsDragging,
   selectedModel = "GPT-4o",
@@ -52,7 +52,7 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
   };
 
   return (
-    <div className="p-3">
+    <div className="w-full pb-3 px-3">
       <div
         className={cn(
           "relative rounded-xl border shadow-sm transition-all duration-200 focus-within:border-primary focus-within:shadow-md",

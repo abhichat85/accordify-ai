@@ -112,12 +112,11 @@ export const ChatMessageArea: React.FC<ChatMessageAreaProps> = ({
   };
 
   return (
-    <div className="flex-grow flex flex-col relative overflow-hidden">
+    <div className="flex-grow flex flex-col relative overflow-hidden p-0 m-0 w-full">
       {/* Main scrollable container */}
       <div 
         ref={scrollContainerRef}
-        className="flex-grow overflow-y-auto styled-scrollbar"
-        style={{ scrollbarWidth: 'thin' }}
+        className="flex flex-col overflow-y-auto h-full w-full p-0 m-0"
       >
         <div className="px-4 pt-2 pb-1">
           {messages.length === 0 ? (

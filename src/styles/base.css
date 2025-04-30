@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -165,6 +164,25 @@
 /* Font for editor */
 .font-jost {
   font-family: 'Jost', sans-serif;
+}
+
+/* Fix for chat panel padding issues */
+.right-panel-content {
+  width: 100% !important;
+  height: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+}
+
+.right-panel-content > div,
+.right-panel-content > div > div {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
 }
 
 /* Printed document styling */

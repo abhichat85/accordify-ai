@@ -1,4 +1,3 @@
-import React from "react";
 import { MainLayout } from "../components/layout/MainLayout";
 import { Helmet } from "react-helmet-async";
 

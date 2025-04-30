@@ -1,4 +1,3 @@
-
 import React from "react";
 import { AIModeOrb } from "../AIModeOrb";
 import { AiMode } from "../AiModes";
@@ -13,16 +12,18 @@ export const EmptyChatState: React.FC<EmptyChatStateProps> = ({
   currentAiMode
 }) => {
   return (
-    <div className="flex flex-col items-center justify-center py-8">
-      <div className="flex items-center justify-center mb-4">
-        <AIModeOrb active={true} activeMode={currentAiMode} size={2} />
+    <div className="flex flex-col items-center justify-center h-full w-full p-0">
+      <div className="w-full max-w-md p-4 space-y-4 flex flex-col items-center">
+        <div className="flex items-center justify-center mb-4">
+          <AIModeOrb active={true} activeMode={currentAiMode} size={2} />
+        </div>
+        <h2 className="text-xl font-semibold text-foreground mb-1 text-center">Write with Accord AI</h2>
+        <p className="text-sm text-muted-foreground text-center px-6">
+          {activeMode === "write" 
+            ? "Draft, review, or analyze contracts with AI assistance" 
+            : "Ask questions about contracts or get legal guidance"}
+        </p>
       </div>
-      <h2 className="text-xl font-semibold text-foreground mb-1 text-center">Write with Accord AI</h2>
-      <p className="text-sm text-muted-foreground text-center px-6">
-        {activeMode === "write" 
-          ? "Draft, review, or analyze contracts with AI assistance" 
-          : "Ask questions about contracts or get legal guidance"}
-      </p>
     </div>
   );
 };
