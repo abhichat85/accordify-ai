@@ -2,71 +2,53 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
+/* Import Google Fonts - Poppins and Jost */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Jost:wght@300;400;500;600;700&display=swap');
 
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
+/* Import base styles */
+@import './base.css';
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
+/* Import theme files */
+@import './themes/purple.css';
+@import './themes/orange.css';
+@import './themes/zinc.css';
+@import './themes/blue.css';
+@import './themes/red.css';
+@import './themes/rose.css';
+@import './themes/green.css';
+@import './themes/yellow.css';
 
-    --primary: 272 76% 53%;
-    --primary-foreground: 0 0% 98%;
+/* Import animations */
+@import './animations.css';
 
-    --secondary: 0 0% 96.1%;
-    --secondary-foreground: 0 0% 9%;
+/* CSS Variables for RGB values */
+:root {
+  --primary-rgb: 99, 102, 241;  /* Indigo-500 in RGB */
+  --muted-rgb: 229, 231, 235;   /* Gray-200 in RGB */
+  --foreground-rgb: 15, 23, 42; /* Slate-900 in RGB */
+  --background-rgb: 255, 255, 255; /* White in RGB */
+  --card-rgb: 249, 250, 251;    /* Gray-50 in RGB */
+  --border-rgb: 229, 231, 235;  /* Gray-200 in RGB */
+  
+  /* Set Poppins as the primary font family */
+  font-family: 'Poppins', sans-serif;
+}
 
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
-
-    --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 9%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-
-    --border: 0 0% 89.8%;
-    --input: 0 0% 89.8%;
-    --ring: 0 0% 3.9%;
-
-    --radius: 0.5rem;
-  }
-
-  .dark {
-    --background: 0 0% 15.7%;
-    --foreground: 0 0% 98%;
-
-    --card: 0 0% 12.2%;
-    --card-foreground: 0 0% 98%;
-
-    --popover: 0 0% 12.2%;
-    --popover-foreground: 0 0% 98%;
-
-    --primary: 272 76% 53%;
-    --primary-foreground: 0 0% 98%;
-
-    --secondary: 0 0% 17.5%;
-    --secondary-foreground: 0 0% 98%;
-
-    --muted: 0 0% 17.5%;
-    --muted-foreground: 0 0% 63.9%;
-
-    --accent: 0 0% 17.5%;
-    --accent-foreground: 0 0% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-
-    --border: 0 0% 18.4%;
-    --input: 0 0% 18.4%;
-    --ring: 0 0% 83.1%;
-  }
+.dark {
+  --primary-rgb: 165, 180, 252;  /* Indigo-300 in RGB */
+  --muted-rgb: 55, 65, 81;       /* Gray-700 in RGB */
+  --foreground-rgb: 241, 245, 249; /* Slate-100 in RGB */
+  --background-rgb: 15, 23, 42;    /* Slate-900 in RGB */
+  --card-rgb: 30, 41, 59;         /* Slate-800 in RGB */
+  --border-rgb: 51, 65, 85;       /* Slate-700 in RGB */
 }
 
 @layer base {
+  /* Ensure Poppins is applied to all elements */
+  html, body, button, input, textarea, select {
+    @apply font-poppins;
+  }
+  
   * {
     @apply border-border;
   }

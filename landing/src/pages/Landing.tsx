@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import { useTheme } from "@/contexts/ThemeContext";
 
@@ -15,7 +15,7 @@ import CTASection from "@/components/landing/CTASection";
 import Footer from "@/components/landing/Footer";
 
 const Landing = () => {
-  const { colorTheme } = useTheme();
+  useTheme(); // Keep the context active
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   
   useEffect(() => {
@@ -44,14 +44,32 @@ const Landing = () => {
       </Helmet>
 
       <Header isHeaderVisible={isHeaderVisible} openWaitlistForm={openWaitlistForm} />
-      <HeroSection openWaitlistForm={openWaitlistForm} />
-      <HowItWorksSection />
-      <FeaturesSection />
-      <TechSection />
-      <UseCasesSection />
-      <BlogSection />
-      <DocumentationSection />
-      <CTASection openWaitlistForm={openWaitlistForm} />
+      <main className="flex-1">
+        <div className="animate-fade-in">
+          <HeroSection openWaitlistForm={openWaitlistForm} />
+        </div>
+        <div className="animate-slide-in-up">
+          <HowItWorksSection />
+        </div>
+        <div className="animate-fade-in">
+          <FeaturesSection />
+        </div>
+        <div className="animate-slide-in-up">
+          <TechSection />
+        </div>
+        <div className="animate-fade-in">
+          <UseCasesSection />
+        </div>
+        <div className="animate-slide-in-up">
+          <BlogSection />
+        </div>
+        <div className="animate-fade-in">
+          <DocumentationSection />
+        </div>
+        <div className="animate-slide-in-up">
+          <CTASection openWaitlistForm={openWaitlistForm} />
+        </div>
+      </main>
       <Footer />
     </div>
   );

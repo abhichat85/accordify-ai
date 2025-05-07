@@ -1,0 +1,150 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  html, body {
+    @apply w-full h-full m-0 p-0 font-poppins;
+  }
+  
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  
+  #root {
+    @apply h-full w-full;
+  }
+  
+  /* Scrollable container */
+  .scrollable {
+    @apply overflow-auto scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent hover:scrollbar-thumb-primary/70;
+  }
+}
+
+@layer utilities {
+  .styled-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(var(--muted-rgb), 0.4) transparent;
+  }
+  
+  .styled-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  
+  .styled-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .styled-scrollbar::-webkit-scrollbar-thumb {
+    background-color: rgba(var(--muted-rgb), 0.4);
+    border-radius: 8px;
+  }
+}
+
+/* Variable highlighting with theme-specific purple colors */
+.variable-highlight {
+  @apply bg-purple-100/60 text-purple-800 px-1 rounded transition-colors cursor-pointer border-b border-purple-300;
+}
+
+.dark .variable-highlight {
+  @apply bg-purple-900/30 text-purple-300 border-purple-700;
+}
+
+.theme-purple .variable-highlight {
+  @apply bg-purple-100/60 text-purple-800 border-purple-300;
+}
+
+.theme-blue .variable-highlight {
+  @apply bg-blue-100/60 text-blue-800 border-blue-300;
+}
+
+.theme-red .variable-highlight {
+  @apply bg-red-100/60 text-red-800 border-red-300;
+}
+
+.theme-orange .variable-highlight {
+  @apply bg-orange-100/60 text-orange-800 border-orange-300;
+}
+
+.theme-green .variable-highlight {
+  @apply bg-green-100/60 text-green-800 border-green-300;
+}
+
+.theme-yellow .variable-highlight {
+  @apply bg-yellow-100/60 text-yellow-800 border-yellow-300;
+}
+
+.theme-zinc .variable-highlight {
+  @apply bg-zinc-100/60 text-zinc-800 border-zinc-300;
+}
+
+.theme-rose .variable-highlight {
+  @apply bg-rose-100/60 text-rose-800 border-rose-300;
+}
+
+/* Dark mode theme variations */
+.dark.theme-purple .variable-highlight {
+  @apply bg-purple-900/30 text-purple-300 border-purple-700;
+}
+
+.dark.theme-blue .variable-highlight {
+  @apply bg-blue-900/30 text-blue-300 border-blue-700;
+}
+
+.dark.theme-red .variable-highlight {
+  @apply bg-red-900/30 text-red-300 border-red-700;
+}
+
+.dark.theme-orange .variable-highlight {
+  @apply bg-orange-900/30 text-orange-300 border-orange-700;
+}
+
+.dark.theme-green .variable-highlight {
+  @apply bg-green-900/30 text-green-300 border-green-700;
+}
+
+.dark.theme-yellow .variable-highlight {
+  @apply bg-yellow-900/30 text-yellow-300 border-yellow-700;
+}
+
+.dark.theme-zinc .variable-highlight {
+  @apply bg-zinc-900/30 text-zinc-300 border-zinc-700;
+}
+
+.dark.theme-rose .variable-highlight {
+  @apply bg-rose-900/30 text-rose-300 border-rose-700;
+}
+
+.variable-highlight:hover {
+  @apply bg-opacity-100;
+}
+
+/* Font for editor */
+.font-jost {
+  font-family: 'Jost', sans-serif;
+}
+
+/* Printed document styling */
+@media print {
+  body {
+    font-family: 'Jost', 'Arial', sans-serif;
+    margin: 1.5cm;
+    font-size: 12pt;
+    line-height: 1.5;
+  }
+  
+  h1, h2, h3 {
+    page-break-after: avoid;
+  }
+  
+  p, h1, h2, h3 {
+    orphans: 3;
+    widows: 3;
+  }
+}
