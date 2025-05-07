@@ -1,53 +1,31 @@
-import * as React from "react";
-import { Slot } from "@radix-ui/react-slot";
-import type { VariantProps } from "class-variance-authority";
+import React from "react";
+import { Button, ButtonProps } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { buttonVariants } from "./button-variants";
 
-export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
-  asChild?: boolean;
+interface EnhancedButtonProps extends ButtonProps {
   glowOnHover?: boolean;
   scaleOnHover?: boolean;
-  liftOnHover?: boolean;
-  pulseOnHover?: boolean;
-  animateIn?: boolean;
-  delay?: number;
 }
 
-const EnhancedButton = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ 
-    className, 
-    variant, 
-    size, 
-    asChild = false, 
-    glowOnHover = false, 
-    scaleOnHover = false,
-    liftOnHover = false,
-    pulseOnHover = false,
-    animateIn = false,
-    delay = 0,
-    ...props 
-  }, ref) => {
-    const Comp = asChild ? Slot : "button";
+const EnhancedButton = React.forwardRef<HTMLButtonElement, EnhancedButtonProps>(
+  ({ className, glowOnHover = true, scaleOnHover = true, children, ...props }, ref) => {
     return (
-      <Comp
-        className={cn(
-          buttonVariants({ variant, size, className }),
-          glowOnHover && "hover:shadow-lg hover:shadow-primary/25 transition-shadow duration-300",
-          scaleOnHover && "hover:scale-105 transition-transform duration-300",
-          liftOnHover && "hover:-translate-y-1 transition-transform duration-300",
-          pulseOnHover && "hover:animate-pulse-subtle",
-          animateIn && "animate-fade-in",
-          delay > 0 && `delay-${delay}`
-        )}
+      <Button
         ref={ref}
+        className={cn(
+          "transition-all duration-300 relative",
+          glowOnHover && "hover:shadow-[0_0_15px_3px_rgba(124,58,237,0.4)]",
+          scaleOnHover && "hover:translate-y-[-2px] hover:scale-[1.02] active:translate-y-0 active:scale-[0.98]",
+          className
+        )}
         {...props}
-      />
+      >
+        {children}
+      </Button>
     );
   }
 );
+
 EnhancedButton.displayName = "EnhancedButton";
 
 export { EnhancedButton };

@@ -1,52 +1,79 @@
 import React from "react";
+import { cn } from "@/lib/utils";
 
 interface AbstractBgProps {
-  variant?: "purple" | "blue" | "green" | "mesh";
-  intensity?: "light" | "medium" | "strong" | "low";
   className?: string;
+  variant?: "purple" | "gradient" | "mesh";
+  intensity?: "low" | "medium" | "high";
 }
 
-export const AbstractBg: React.FC<AbstractBgProps> = ({
+const AbstractBg: React.FC<AbstractBgProps> = ({ 
+  className, 
   variant = "purple",
-  intensity = "medium",
-  className = "",
+  intensity = "medium"
 }) => {
-  // Define color values based on variant
-  const colorMap = {
-    purple: {
-      light: "from-purple-400/10 to-purple-600/5",
-      medium: "from-purple-400/20 to-purple-600/10",
-      strong: "from-purple-400/30 to-purple-600/20",
-      low: "from-purple-400/5 to-purple-600/2",
-    },
-    blue: {
-      light: "from-blue-400/10 to-blue-600/5",
-      medium: "from-blue-400/20 to-blue-600/10",
-      strong: "from-blue-400/30 to-blue-600/20",
-      low: "from-blue-400/5 to-blue-600/2",
-    },
-    green: {
-      light: "from-green-400/10 to-green-600/5",
-      medium: "from-green-400/20 to-green-600/10",
-      strong: "from-green-400/30 to-green-600/20",
-      low: "from-green-400/5 to-green-600/2",
-    },
-    mesh: {
-      light: "from-primary/10 to-primary/5 via-transparent",
-      medium: "from-primary/20 to-primary/10 via-transparent",
-      strong: "from-primary/30 to-primary/20 via-transparent",
-      low: "from-primary/5 to-primary/2 via-transparent",
-    }
+  const intensityMap = {
+    low: 0.1,
+    medium: 0.2,
+    high: 0.3
   };
-
-  // Safely access the gradient classes with fallbacks
-  const variantClasses = colorMap[variant] || colorMap.purple;
-  const gradientClasses = variantClasses[intensity] || variantClasses.medium;
-
+  
+  const opacity = intensityMap[intensity];
+  
   return (
-    <div
-      className={`absolute inset-0 bg-gradient-to-br ${gradientClasses} ${className}`}
-      aria-hidden="true"
-    />
+    <div className={cn("absolute inset-0 -z-10 overflow-hidden", className)}>
+      {variant === "purple" && (
+        <svg
+          className="absolute w-full h-full"
+          viewBox="0 0 1440 900"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <g opacity={opacity}>
+            <circle cx="1200" cy="150" r="250" fill="#7c3aed" fillOpacity="0.2" />
+            <circle cx="200" cy="750" r="200" fill="#7c3aed" fillOpacity="0.15" />
+            <circle cx="700" cy="300" r="300" fill="#7c3aed" fillOpacity="0.05" />
+            <path
+              d="M1400 350C1400 432.843 1332.84 500 1250 500C1167.16 500 1100 432.843 1100 350C1100 267.157 1167.16 200 1250 200C1332.84 200 1400 267.157 1400 350Z"
+              stroke="#7c3aed"
+              strokeWidth="2"
+              strokeDasharray="8 8"
+            />
+            <path
+              d="M400 650C400 732.843 332.843 800 250 800C167.157 800 100 732.843 100 650C100 567.157 167.157 500 250 500C332.843 500 400 567.157 400 650Z"
+              stroke="#7c3aed"
+              strokeWidth="2"
+              strokeDasharray="8 8"
+            />
+            <path
+              d="M800 200L900 350L700 350L800 200Z"
+              fill="#7c3aed"
+              fillOpacity="0.1"
+            />
+            <path
+              d="M400 450L500 600L300 600L400 450Z"
+              fill="#7c3aed"
+              fillOpacity="0.1"
+            />
+            <rect x="850" y="500" width="200" height="200" rx="20" fill="#7c3aed" fillOpacity="0.05" />
+            <rect x="300" y="200" width="150" height="150" rx="15" fill="#7c3aed" fillOpacity="0.05" />
+          </g>
+        </svg>
+      )}
+      
+      {variant === "gradient" && (
+        <div className="absolute inset-0 bg-gradient-radial from-primary/20 via-background/0 to-background/0" />
+      )}
+      
+      {variant === "mesh" && (
+        <div className="absolute inset-0">
+          <div className="absolute top-0 right-0 w-3/4 h-3/4 bg-gradient-radial from-primary/20 via-transparent to-transparent opacity-60" />
+          <div className="absolute bottom-0 left-0 w-3/4 h-3/4 bg-gradient-radial from-primary/10 via-transparent to-transparent opacity-40" />
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiM3YzNhZWQiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDM0djJoLTJ2LTJoMnptMC00aDJ2MmgtMnYtMnoiLz48L2c+PC9nPjwvc3ZnPg==')]" style={{ opacity }} />
+        </div>
+      )}
+    </div>
   );
 };
+
+export { AbstractBg };

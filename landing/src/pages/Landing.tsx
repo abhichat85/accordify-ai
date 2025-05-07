@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
-import { useTheme } from "@/contexts/ThemeContext";
+import { useTheme } from "@/hooks/use-theme";
 
 // Import refactored components
 import Header from "@/components/landing/Header";
@@ -15,7 +15,8 @@ import CTASection from "@/components/landing/CTASection";
 import Footer from "@/components/landing/Footer";
 
 const Landing = () => {
-  useTheme(); // Keep the context active
+  // Just import the theme hook without destructuring since it's used by child components
+  useTheme();
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   
   useEffect(() => {
