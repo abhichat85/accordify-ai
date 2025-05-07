@@ -3,23 +3,40 @@ import { cn } from "@/lib/utils";
 
 interface TimelineStepProps {
   title: string;
-  description: string;
+  description?: string;
+  step?: number;
   icon?: React.ReactNode;
   isActive?: boolean;
   isLast?: boolean;
   className?: string;
+  userMessage?: string;
+  aiResponse?: string;
+  align?: "left" | "right";
 }
 
 export const TimelineStep: React.FC<TimelineStepProps> = ({
   title,
   description,
+  step,
   icon,
   isActive = false,
   isLast = false,
   className,
+  userMessage,
+  aiResponse,
+  align = "left",
 }) => {
+  // If we have userMessage and aiResponse, use those for the description
+  const displayDescription = description || (userMessage && aiResponse ? 
+    `User: "${userMessage}"\n\nAI: "${aiResponse}"` : 
+    "");
+
   return (
-    <div className={cn("relative flex gap-4", className)}>
+    <div className={cn(
+      "relative flex gap-4",
+      align === "right" ? "flex-row-reverse" : "",
+      className
+    )}>
       {/* Timeline connector line */}
       {!isLast && (
         <div className="absolute left-6 top-10 bottom-0 w-px bg-border/50 -translate-x-1/2" />
@@ -35,7 +52,7 @@ export const TimelineStep: React.FC<TimelineStepProps> = ({
               : "bg-muted text-muted-foreground"
           )}
         >
-          {icon}
+          {step ? <span className="font-semibold">{step}</span> : icon}
         </div>
       </div>
       
@@ -47,7 +64,7 @@ export const TimelineStep: React.FC<TimelineStepProps> = ({
         )}>
           {title}
         </h3>
-        <p className="text-muted-foreground">{description}</p>
+        <p className="text-muted-foreground whitespace-pre-line">{displayDescription}</p>
       </div>
     </div>
   );

@@ -6,6 +6,7 @@ interface TechCardProps {
   description: string;
   icon?: ReactNode;
   className?: string;
+  index?: number;
 }
 
 export const TechCard: React.FC<TechCardProps> = ({
@@ -13,6 +14,8 @@ export const TechCard: React.FC<TechCardProps> = ({
   description,
   icon,
   className,
+  // We're accepting index but not using it directly - this is to match the API used in TechSection
+  index: _index,
 }) => {
   return (
     <div className={cn(
@@ -26,7 +29,7 @@ export const TechCard: React.FC<TechCardProps> = ({
       <div className="relative z-10">
         {icon && (
           <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 text-primary">
-            {icon}
+            {typeof icon === 'function' ? React.createElement(icon) : icon}
           </div>
         )}
         <h3 className="text-lg font-semibold mb-2">{title}</h3>
