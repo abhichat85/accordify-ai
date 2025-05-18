@@ -2,8 +2,7 @@ import * as React from "react";
 import { Link } from "react-router-dom";
 import { FileText } from "lucide-react";
 import { EnhancedButton } from "@/components/ui/enhanced-button";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
-import { ColorThemeToggle } from "@/components/ui/color-theme-toggle";
+import { ThemeSwitcher } from "@/components/ui/theme-switcher";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -141,8 +140,7 @@ const Header: React.FC<HeaderProps> = ({ openWaitlistForm, isHeaderVisible }) =>
         
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-2">
-            <ThemeToggle />
-            <ColorThemeToggle />
+            <ThemeSwitcher />
           </div>
           <EnhancedButton 
             size="sm" 

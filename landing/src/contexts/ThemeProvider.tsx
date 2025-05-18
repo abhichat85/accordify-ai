@@ -13,7 +13,7 @@ interface ThemeProviderProps {
 export function ThemeProvider({ 
   children, 
   defaultTheme = "system",
-  storageKey = "color-theme" 
+  storageKey = "accord-ai-theme" 
 }: ThemeProviderProps) {
   // Initialize from localStorage or defaults
   const [colorTheme, setColorTheme] = useState<ColorTheme>(() => {

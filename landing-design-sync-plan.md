@@ -2,6 +2,41 @@
 
 This document outlines the detailed plan to align the landing page design with the root application design system.
 
+## COMPREHENSIVE GAP ANALYSIS (May 2025 Update)
+
+Based on a systematic gap analysis between the landing page and root application, the following key areas need additional focus:
+
+### Build & Tooling Gaps
+- **Path Aliases**: Root uses `@/` alias in vite.config.ts; landing needs identical configuration
+- **tsconfig Paths**: Landing only maps `@/components`; needs to add `@/lib`, `@/styles`
+- **Missing Dependencies**: Need to add `@tailwindcss/line-clamp`, `@heroicons/*`, `clsx`
+- **Build Plugins**: Missing `@vitejs/plugin-legacy` for consistent CSS hash generation
+- **PostCSS Configuration**: Different directive handling affecting `@apply` usage
+
+### Design Token Gaps
+- **Shadow Definitions**: Missing "glass-lg", "glow-sm" shadows used in Hero section
+- **Animation Keyframes**: Missing `glowPulse`, `blobFloat` used by background blobs
+- **CSS Variables**: Missing ~40 color variables and radial-gradient helpers
+
+### Theme System Structure
+- **Context Organization**: Root expects both context and hook from the same file
+- **Storage Keys**: Inconsistent localStorage keys (`accord-ai-theme` vs `accordify-landing-theme`)
+- **Theme UI**: Root has 11 color themes via dropdown; landing has simplified buttons
+
+### Component Gaps
+- **Layout Structure**: Missing MainLayout wrapper with ScrollTop, CookieBanner, MetaTags
+- **Missing Sections**: HeroSection (blob BG), Pricing, FAQ components missing
+- **Interactive Elements**: WaitlistModal, EmailCapture functionality absent
+- **Background Assets**: SVG textures missing from public directory
+
+### Asset & Font Handling
+- **Font Hosting**: Root self-hosts fonts; landing uses Google CDN
+- **Icon Libraries**: Missing Heroicons package referenced by components
+
+### Configuration & Environment
+- **Environment Variables**: Missing .env with VITE_APP_VERSION, VITE_SUPABASE_URL
+- **Meta Headers**: Missing dynamic theme-color meta tag and proper CSP
+
 ## Phase 1: CSS Variables and Theme Structure
 
 1. **Create Theme Directory Structure**
@@ -173,3 +208,104 @@ This document outlines the detailed plan to align the landing page design with t
 40. **Final Documentation**
     - Document the synchronized design system
     - Note any intentional differences that remain
+
+## Phase 6: Advanced Configuration & Component Compatibility
+
+41. **Fix Build Tooling & Path Aliases**
+    - Update vite.config.ts with proper `@/` path alias
+    - Modify tsconfig.json to include all root path mappings (`@/lib`, `@/styles`)
+    - Add missing dependencies: `@tailwindcss/line-clamp`, `@heroicons/*`, `clsx`
+    - Install `@vitejs/plugin-legacy` for consistent CSS hash generation
+
+42. **Create Theme Compatibility Layer**
+    - Create ThemeContext.tsx facade to maintain backward compatibility:
+      ```tsx
+      // ThemeContext.tsx (compatibility facade)
+      export { ThemeContext, type ColorTheme, type ModeTheme } from './theme-constants';
+      export { ThemeProvider } from './ThemeProvider';
+      export { useTheme } from '../hooks/use-theme';
+      ```
+    - Update ThemeProvider to use consistent storage key: `accord-ai-theme`
+
+43. **Implement Full ThemeSwitcher**
+    - Replace simplified theme toggles with root's ThemeSwitcher component
+    - Ensure all 11 color themes are supported with correct dropdown UI
+
+44. **Port Layout Structure**
+    - Copy MainLayout from root to wrap all landing pages
+    - Implement ScrollTop, CookieBanner, and MetaTags components
+
+45. **Add Hero & Pricing Components**
+    - Port HeroSection with blob background and animated headline
+    - Add Pricing and FAQ components with proper routing
+    - Implement WaitlistModal and EmailCapture functionality
+
+46. **Migrate SVG Backgrounds**
+    - Transfer all `/public/textures/*.svg` to landing's public folder
+
+47. **Self-host Fonts**
+    - Copy font files from root into landing's assets
+    - Add @font-face declarations to remove Google CDN dependencies
+    - Update Heroicons package and component imports
+
+48. **Configure Environment Variables**
+    - Create .env file with VITE_APP_VERSION, VITE_SUPABASE_URL
+    - Add dynamic theme-color meta tag to index.html
+    - Implement proper CSP headers
+
+## Implementation Timeline
+
+### Week 1: Foundation & Theme System
+
+#### Days 1-2: Environment & Configuration
+- Fix build tooling & path aliases (Task 41)
+- Complete CSS variable copying (Tasks 2-8)
+- Add missing shadow definitions & keyframes (Tasks 13-16, + missing animations)
+
+#### Days 3-4: Theme System
+- Create theme compatibility layer (Task 42)
+- Implement full ThemeSwitcher (Task 43)
+- Test theme switching across components
+
+#### Day 5: Font & Typography System
+- Self-host fonts (Task 47)
+- Finalize Typography and Animation systems (Tasks 9-16)
+
+### Week 2: Component Migration
+
+#### Days 1-2: Layout & Primary Components
+- Port MainLayout component (Task 44)
+- Implement HeroSection with blob background (Task 45)
+
+#### Days 3-4: Secondary Components & Assets
+- Add Pricing, FAQ, and remaining components
+- Migrate SVG backgrounds (Task 46)
+- Set up environment variables (Task 48)
+
+#### Day 5: Polish & Component Refinement
+- Ensure consistent styling across all components
+- Fix any component-specific issues
+
+### Week 3: Finalization
+
+#### Days 1-2: Testing & Verification
+- Perform component & responsive testing (Tasks 33-36)
+- Conduct visual regression testing
+
+#### Days 3-4: Optimization & Fixes
+- Address any performance issues
+- Fix edge cases and inconsistencies (Task 39)
+
+#### Day 5: Documentation & Deployment
+- Complete final documentation (Task 40)
+- Prepare deployment configuration
+
+## Success Metrics
+
+1. **Visual Parity**: Landing page visually identical to root application landing page
+2. **Functional Parity**: All interactive elements work consistently
+3. **Theme Support**: Complete theme system working across all components
+4. **Responsive Behavior**: Consistent across all viewport sizes
+5. **Build Success**: Clean build without warnings or errors
+6. **Performance**: Equal or better loading and interaction times
+7. **Accessibility**: Maintain or improve accessibility scores

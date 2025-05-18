@@ -2,6 +2,7 @@ import type { Config } from "tailwindcss";
 import tailwindcssAnimate from "tailwindcss-animate";
 import typography from "@tailwindcss/typography";
 import scrollbar from "tailwind-scrollbar";
+import lineClamp from "@tailwindcss/line-clamp";
 
 export default {
   darkMode: "class",
@@ -87,6 +88,16 @@ export default {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: '0' },
         },
+        "glowPulse": {
+          "0%, 100%": { opacity: "0.6", transform: "scale(1)" },
+          "50%": { opacity: "1", transform: "scale(1.05)" },
+        },
+        "blobFloat": {
+          "0%": { transform: "translate(0px, 0px) scale(1)" },
+          "33%": { transform: "translate(30px, -50px) scale(1.05)" },
+          "66%": { transform: "translate(-20px, 20px) scale(0.95)" },
+          "100%": { transform: "translate(0px, 0px) scale(1)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -100,6 +111,8 @@ export default {
         "scale-in": "scale-in 0.3s ease-out",
         "scale-out": "scale-out 0.3s ease-out",
         "pulse-subtle": "pulse-subtle 2s ease-in-out infinite",
+        "glow-pulse": "glowPulse 4s ease-in-out infinite",
+        "blob-float": "blobFloat 15s ease-in-out infinite",
       },
       // Scrollbar styling
       scrollbar: {
@@ -139,6 +152,9 @@ export default {
         'subtle-lg': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.05)',
         'glow': '0 0 15px rgba(var(--primary-rgb), 0.35)',
         'glow-lg': '0 0 30px rgba(var(--primary-rgb), 0.35)',
+        'glow-sm': '0 0 10px rgba(var(--primary-rgb), 0.25)',
+        'glass': 'inset 0 1px 1px 0 rgba(255, 255, 255, 0.1), 0 50px 100px -20px rgba(50, 50, 93, 0.25), 0 30px 60px -30px rgba(0, 0, 0, 0.3)',
+        'glass-lg': 'inset 0 2px 2px 0 rgba(255, 255, 255, 0.15), 0 60px 120px -25px rgba(50, 50, 93, 0.3), 0 40px 70px -35px rgba(0, 0, 0, 0.35)',
       },
       fontFamily: {
         inter: ["Inter", "sans-serif"],
@@ -147,5 +163,5 @@ export default {
       },
     },
   },
-  plugins: [tailwindcssAnimate, typography, scrollbar({ nocompatible: true })],
+  plugins: [tailwindcssAnimate, typography, scrollbar({ nocompatible: true }), lineClamp],
 } satisfies Config;

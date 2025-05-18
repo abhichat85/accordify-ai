@@ -1,7 +1,3 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 /* Import Google Fonts - Poppins and Jost */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Jost:wght@300;400;500;600;700&display=swap');
 
@@ -20,6 +16,10 @@
 
 /* Import animations */
 @import './animations.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 /* CSS Variables for RGB values */
 :root {
@@ -46,14 +46,15 @@
 @layer base {
   /* Ensure Poppins is applied to all elements */
   html, body, button, input, textarea, select {
-    @apply font-poppins;
+    font-family: 'Poppins', sans-serif;
   }
   
   * {
-    @apply border-border;
+    border-color: hsl(var(--border));
   }
 
   body {
-    @apply bg-background text-foreground;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
   }
 }
