@@ -5,7 +5,7 @@ import { AbstractBg } from "@/components/ui/abstract-bg";
 
 const HowItWorksSection: React.FC = () => {
   return (
-    <section id="how-it-works" className="py-20 px-4 md:px-8 bg-grid relative min-h-[600px]">
+    <section id="how-it-works" className="py-20 px-4 md:px-8 bg-background/50 relative min-h-[600px]">
       <AbstractBg variant="mesh" intensity="low" />
       <div className="container mx-auto max-w-[90%] xl:max-w-[1400px]">
         <div className="text-center mb-16 space-y-3">
@@ -21,7 +21,7 @@ const HowItWorksSection: React.FC = () => {
           </p>
         </div>
         
-        <div className="max-w-4xl mx-auto mt-20">
+        <div className="max-w-6xl mx-auto mt-20">
           <TimelineStep 
             step={1}
             icon={PenLine}

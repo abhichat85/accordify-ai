@@ -1,8 +1,7 @@
-import * as React from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 import { FileText } from "lucide-react";
 import { EnhancedButton } from "@/components/ui/enhanced-button";
-import { ThemeSwitcher } from "@/components/ui/theme-switcher";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -11,7 +10,6 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
-import { navigationMenuTriggerStyle } from "@/components/ui/navigation-menu-styles";
 import { cn } from "@/lib/utils";
 
 interface HeaderProps {
@@ -45,17 +43,21 @@ const ListItem = React.forwardRef<
 });
 ListItem.displayName = "ListItem";
 
-const Header: React.FC<HeaderProps> = ({ openWaitlistForm, isHeaderVisible }) => {
+const Header: React.FC<HeaderProps> = ({ isHeaderVisible }) => {
+  // Enhanced navigation menu style with hover underline effect
+  const enhancedNavigationMenuTriggerStyle = () => {
+    return "group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground hover:underline decoration-primary decoration-2 underline-offset-4 focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50";
+  };
 
   return (
     <header className={`border-b border-border/20 backdrop-blur-md sticky top-0 z-50 bg-background/95 transition-all duration-300 shadow-md ${isHeaderVisible ? 'translate-y-0' : '-translate-y-full'}`}>
       <div className="container mx-auto px-4 py-3 md:py-4 flex justify-between items-center max-w-[90%] xl:max-w-[1400px]">
         <div className="flex items-center space-x-2">
           <a href="#hero" className="flex items-center space-x-2 group">
-            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center transition-transform group-hover:scale-105 animate-fade-in">
+            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center transition-transform group-hover:scale-105">
               <FileText size={18} className="text-primary-foreground" />
             </div>
-            <span className="text-xl font-semibold font-poppins bg-gradient-to-r from-primary/90 to-primary bg-clip-text text-transparent group-hover:opacity-80 transition-opacity animate-fade-in">
+            <span className="text-xl font-semibold bg-gradient-to-r from-primary/90 to-primary bg-clip-text text-transparent group-hover:opacity-80 transition-opacity">
               Accord AI
             </span>
           </a>
@@ -126,28 +128,18 @@ const Header: React.FC<HeaderProps> = ({ openWaitlistForm, isHeaderVisible }) =>
               </NavigationMenuContent>
             </NavigationMenuItem>
             <NavigationMenuItem>
-              <Link to="/blog" className={cn(navigationMenuTriggerStyle(), "hover:underline decoration-primary decoration-2 underline-offset-4")}>
+              <Link to="/blog" className={enhancedNavigationMenuTriggerStyle()}>
                 Blog
               </Link>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <a href="#documentation" className={cn(navigationMenuTriggerStyle(), "hover:underline decoration-primary decoration-2 underline-offset-4")}>
-                Documentation
-              </a>
             </NavigationMenuItem>
           </NavigationMenuList>
         </NavigationMenu>
         
         <div className="flex items-center space-x-4">
-          <div className="flex items-center space-x-2">
-            <ThemeSwitcher />
-          </div>
           <EnhancedButton 
             size="sm" 
-            className="rounded-full font-medium animate-fade-in"
-            onClick={openWaitlistForm}
-            glowOnHover
-            scaleOnHover
+            className="rounded-full font-medium"
+            onClick={() => window.open('https://form.typeform.com/to/qBwMkuJw', '_blank')}
           >
             REQUEST DEMO
           </EnhancedButton>

@@ -61,6 +61,7 @@
     "@tiptap/react": "^2.11.7",
     "@tiptap/starter-kit": "^2.11.7",
     "@types/react-helmet": "^6.1.11",
+    "caniuse-lite": "^1.0.30001718",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.0.0",
