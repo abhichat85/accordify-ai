@@ -377,6 +377,7 @@ export const MainLayout: React.FC<{children?: React.ReactNode}> = ({ children })
       leftPanel={null} // Left panel is built into TriPanelLayout
       centerPanel={renderCenterPanel()}
       rightPanel={renderChatPanel()}
+      className="main-app-layout"
     />
   );
 };

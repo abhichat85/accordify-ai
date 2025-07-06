@@ -58,7 +58,11 @@ export const TriPanelLayout: React.FC<TriPanelLayoutProps> = ({
   };
 
   return (
-    <div className={cn("flex h-screen w-screen overflow-hidden", className)}>
+    <div className={cn(
+      "flex h-screen w-screen overflow-hidden bg-background",
+      "fixed top-0 left-0 right-0 bottom-0",
+      className
+    )}>
       {/* Left Panel */}
       <div className={cn(
         "flex flex-col bg-background border-r border-border/40 h-full transition-all duration-300",
@@ -295,15 +299,15 @@ export const TriPanelLayout: React.FC<TriPanelLayoutProps> = ({
       </div>
       
       <div className={cn(
-        "flex-grow h-full transition-all duration-300 relative",
-        rightCollapsed ? "" : ""
+        "h-full transition-all duration-300 relative overflow-hidden",
+        leftCollapsed ? "w-[calc(100%-516px)]" : "w-[calc(100%-764px)]"
       )}>
         {centerPanel}
       </div>
       
       <div className={cn(
         "h-full border-l border-border/40 bg-background/50 backdrop-blur-sm transition-all duration-300 flex flex-col p-0 m-0 overflow-hidden",
-        rightCollapsed ? "w-16" : "w-96"
+        rightCollapsed ? "w-16" : "w-[450px]"
       )}>
         <div className="flex items-center justify-between h-16 px-4 border-b border-border/40 bg-background/80">
           {!rightCollapsed && (

@@ -1,4 +1,4 @@
-# Product Requirements Document: AccordifyAI
+# Product Requirements Document: Accord AI
 
 **Version:** 2.0
 **Date:** 2025-04-04

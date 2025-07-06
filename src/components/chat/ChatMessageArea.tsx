@@ -118,7 +118,7 @@ export const ChatMessageArea: React.FC<ChatMessageAreaProps> = ({
         ref={scrollContainerRef}
         className="flex flex-col overflow-y-auto h-full w-full p-0 m-0"
       >
-        <div className="px-4 pt-2 pb-1">
+        <div className="px-4 pt-2 pb-1 w-full max-w-full">
           {messages.length === 0 ? (
             <EmptyChat />
           ) : (

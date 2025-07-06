@@ -118,7 +118,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
       className
     )}>
       <div className="flex flex-col h-full w-full overflow-hidden m-0 p-0">
-        <div className="flex-grow overflow-hidden flex flex-col m-0 p-0">
+        <div className="flex-grow overflow-hidden flex flex-col m-0 p-0 relative">
           {/* Main chat area with thinking indicator integrated */}
           <ChatMessageArea 
             messages={messagesWithThinking}
@@ -129,7 +129,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
           />
         </div>
       
-        <div className="shrink-0 px-0 pt-0">
+        <div className="shrink-0 px-0 pt-0 pb-0 w-full">
           <AiModes activeMode={aiMode} onChange={setAiMode} />
         </div>
 

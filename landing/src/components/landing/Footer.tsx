@@ -83,7 +83,7 @@ const Footer: React.FC<FooterProps> = ({ openWaitlistForm }) => {
           <p className="text-sm text-muted-foreground font-inter">Ready to transform your contract workflow?</p>
           <EnhancedButton 
             size="sm" 
-            variant="subtle"
+            // variant="subtle"
             className="rounded-full font-medium"
             onClick={openWaitlistForm}
             glowOnHover
